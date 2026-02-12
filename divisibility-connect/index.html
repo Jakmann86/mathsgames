@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Divisibility Connect</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=JetBrains+Mono:wght@400;700&family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a12;
+    --panel: #12121e;
+    --border: #2a2a3a;
+    --gold: #f0c040;
+    --gold-bg: rgba(240,192,64,0.13);
+    --gold-border: rgba(240,192,64,0.55);
+    --gold-glow: rgba(240,192,64,0.3);
+    --purple: #a06cf0;
+    --purple-bg: rgba(160,108,240,0.13);
+    --purple-border: rgba(160,108,240,0.55);
+    --purple-glow: rgba(160,108,240,0.3);
+    --red: #e04040;
+    --green: #40c060;
+    --text: #e0e0e8;
+    --text-dim: #606078;
+    --cell-bg: #1a1a2e;
+    --cell-hover: #252540;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:var(--bg); color:var(--text); font-family:'Outfit',sans-serif; height:100vh; overflow:hidden; }
+
+  /* LAYOUT */
+  .app { display:flex; height:100vh; width:100vw; }
+
+  /* LEFT PANEL */
+  .side-panel {
+    width:280px; min-width:280px;
+    background:linear-gradient(180deg,#12121e 0%,#16132e 50%,#12121e 100%);
+    border-right:3px solid var(--gold);
+    box-shadow:4px 0 20px var(--gold-glow);
+    display:flex; flex-direction:column;
+    padding:14px; gap:10px;
+    overflow-y:auto;
+  }
+
+  /* RIGHT: GRID AREA */
+  .grid-area {
+    flex:1; display:flex; align-items:center; justify-content:center;
+    background:#0e0e1a; position:relative;
+  }
+  .grid-area::before { content:''; position:absolute; inset:0; background:radial-gradient(circle at 30% 40%,rgba(240,192,64,.02) 0%,transparent 50%),radial-gradient(circle at 70% 60%,rgba(160,108,240,.02) 0%,transparent 50%); pointer-events:none; }
+
+  /* PANEL */
+  .panel-title { text-align:center; padding-bottom:8px; border-bottom:1px solid var(--border); }
+  .panel-title h1 { font-family:'Cinzel',serif; font-size:1.2rem; font-weight:900; letter-spacing:2px; text-transform:uppercase; }
+  .panel-title h1 .g { color:var(--gold); }
+  .panel-title h1 .p { color:var(--purple); }
+  .panel-title .tagline { font-size:.6rem; color:var(--text-dim); letter-spacing:2px; text-transform:uppercase; margin-top:2px; }
+
+  .scoreboard { display:flex; gap:8px; }
+  .team-panel { flex:1; padding:10px 8px; border-radius:10px; border:2px solid var(--border); text-align:center; transition:all .3s; opacity:.5; }
+  .team-panel.is-turn { opacity:1; transform:scale(1.02); }
+  .team-panel.gold { border-color:var(--gold-border); background:var(--gold-bg); }
+  .team-panel.purple { border-color:var(--purple-border); background:var(--purple-bg); }
+  .team-panel.gold.is-turn { box-shadow:0 0 15px var(--gold-glow); }
+  .team-panel.purple.is-turn { box-shadow:0 0 15px var(--purple-glow); }
+  .team-panel .name { font-family:'Cinzel',serif; font-size:.85rem; font-weight:700; letter-spacing:1px; text-transform:uppercase; }
+  .team-panel.gold .name { color:var(--gold); }
+  .team-panel.purple .name { color:var(--purple); }
+  .team-panel .cells-count { font-family:'JetBrains Mono',monospace; font-size:1.5rem; font-weight:700; margin:2px 0; }
+  .team-panel.gold .cells-count { color:var(--gold); }
+  .team-panel.purple .cells-count { color:var(--purple); }
+  .team-panel .turn-label { font-size:.55rem; text-transform:uppercase; letter-spacing:1px; color:var(--text-dim); height:13px; }
+  .team-panel.is-turn .turn-label { color:var(--text); font-weight:600; }
+
+  .section-box { background:rgba(255,255,255,.03); border:1px solid var(--border); border-radius:10px; padding:12px; position:relative; overflow:hidden; }
+  .section-box::before { content:''; position:absolute; inset:0; background:linear-gradient(135deg,rgba(240,192,64,.03),transparent,rgba(160,108,240,.03)); pointer-events:none; }
+  .section-label { font-size:.6rem; text-transform:uppercase; letter-spacing:2px; color:var(--text-dim); margin-bottom:5px; text-align:center; }
+  .challenge-text { font-family:'Cinzel',serif; font-size:1.2rem; font-weight:700; text-align:center; line-height:1.3; }
+  .challenge-text.gold-turn { color:var(--gold); }
+  .challenge-text.purple-turn { color:var(--purple); }
+  .challenge-hint { font-size:.7rem; color:var(--text-dim); text-align:center; margin-top:4px; font-style:italic; }
+
+  .feedback { text-align:center; min-height:20px; font-size:.85rem; font-weight:600; }
+  .feedback.correct { color:var(--green); }
+  .feedback.wrong { color:var(--red); }
+
+  .rules-wrap { display:flex; flex-direction:column; gap:3px; }
+  .rtag { display:flex; align-items:center; padding:4px 8px; background:rgba(255,255,255,.02); border:1px solid rgba(255,255,255,.05); border-radius:6px; font-size:.65rem; color:var(--text-dim); font-family:'JetBrains Mono',monospace; transition:all .2s; }
+  .rtag .rdiv { font-weight:700; min-width:28px; }
+  .rtag.lit { border-color:var(--gold-border); background:var(--gold-bg); color:var(--gold); }
+  .rtag.lit .rdiv { color:var(--gold); }
+
+  .btn-row { display:flex; gap:6px; }
+  button { padding:10px 24px; border:1px solid var(--border); border-radius:8px; background:var(--panel); color:var(--text); font-family:'Outfit',sans-serif; font-size:.8rem; font-weight:600; cursor:pointer; transition:all .2s; letter-spacing:1px; text-transform:uppercase; }
+  button:hover { border-color:var(--gold); color:var(--gold); }
+  button.primary { background:linear-gradient(135deg,var(--gold),#e0b030); color:var(--bg); border:none; font-weight:700; }
+  button.primary:hover { transform:translateY(-1px); box-shadow:0 0 15px var(--gold-glow); }
+  button.danger { border-color:var(--red); color:var(--red); }
+  button.danger:hover { background:rgba(224,64,64,.1); }
+  .btn-row button { flex:1; padding:10px 8px; font-size:.75rem; }
+
+  /* GRID */
+  .grid {
+    display:grid; grid-template-columns:repeat(6,1fr); gap:10px;
+    width:min(88vh,92%); max-width:800px;
+    position:relative; z-index:1;
+  }
+  .cell {
+    aspect-ratio:1; background:var(--cell-bg); border:3px solid var(--border);
+    border-radius:14px; display:flex; align-items:center; justify-content:center;
+    cursor:pointer; transition:all .15s;
+  }
+  .cell:hover:not(.taken) { background:var(--cell-hover); transform:scale(1.05); border-color:#444; }
+  .cell .num { font-family:'JetBrains Mono',monospace; font-size:clamp(1.3rem,3.2vw,2.2rem); font-weight:700; }
+  .cell.taken { cursor:default; }
+  .cell.taken:hover { transform:none; }
+  .cell.taken-gold { background:var(--gold-bg); border-color:var(--gold-border); }
+  .cell.taken-gold .num { color:var(--gold); }
+  .cell.taken-purple { background:var(--purple-bg); border-color:var(--purple-border); }
+  .cell.taken-purple .num { color:var(--purple); }
+  .cell.win-cell { animation:winPulse .6s ease infinite alternate; z-index:2; }
+  .cell.win-cell.taken-gold { box-shadow:0 0 25px var(--gold-glow); }
+  .cell.win-cell.taken-purple { box-shadow:0 0 25px var(--purple-glow); }
+  .cell.wrong-flash { animation:shake .35s ease; border-color:var(--red)!important; background:rgba(224,64,64,.12); }
+  .cell.gift-flash { animation:popGift .4s ease; }
+  @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-5px)} 75%{transform:translateX(5px)} }
+  @keyframes winPulse { from{transform:scale(1)} to{transform:scale(1.07)} }
+  @keyframes popGift { 0%{transform:scale(1)} 40%{transform:scale(1.18)} 100%{transform:scale(1)} }
+
+  /* INSTRUCTIONS OVERLAY (shown before first move) */
+  .instructions-overlay {
+    position:absolute; inset:0; z-index:5;
+    display:flex; align-items:center; justify-content:center;
+    background:rgba(14,14,26,.85);
+    cursor:pointer;
+    transition:opacity .4s;
+  }
+  .instructions-overlay.hidden { opacity:0; pointer-events:none; }
+  .instructions-box {
+    max-width:480px; text-align:center; padding:40px;
+  }
+  .instructions-box h2 {
+    font-family:'Cinzel',serif; font-size:1.8rem; font-weight:900;
+    margin-bottom:16px; letter-spacing:2px;
+  }
+  .instructions-box h2 .g { color:var(--gold); }
+  .instructions-box h2 .p { color:var(--purple); }
+  .instructions-box p {
+    font-size:1rem; line-height:1.6; color:var(--text);
+    margin-bottom:12px;
+  }
+  .instructions-box .highlight-gold { color:var(--gold); font-weight:700; }
+  .instructions-box .highlight-red { color:var(--red); font-weight:700; }
+  .instructions-box .start-hint {
+    font-size:.8rem; color:var(--text-dim); margin-top:20px;
+    letter-spacing:1px; text-transform:uppercase;
+  }
+
+  /* OVERLAY */
+  .overlay { display:none; position:fixed; inset:0; background:rgba(10,10,18,.92); z-index:100; align-items:center; justify-content:center; }
+  .overlay.show { display:flex; }
+  .win-box { background:var(--panel); border-radius:16px; padding:36px 44px; text-align:center; max-width:400px; }
+  .win-box.gold-win { border:2px solid var(--gold); box-shadow:0 0 50px var(--gold-glow); }
+  .win-box.purple-win { border:2px solid var(--purple); box-shadow:0 0 50px var(--purple-glow); }
+  .win-box.draw-result { border:2px solid var(--text-dim); }
+  .win-box h2 { font-family:'Cinzel',serif; font-size:1.8rem; margin-bottom:8px; }
+  .win-box.gold-win h2 { color:var(--gold); }
+  .win-box.purple-win h2 { color:var(--purple); }
+  .win-box.draw-result h2 { color:var(--text); }
+  .win-box .win-detail { color:var(--text-dim); font-size:.9rem; margin-bottom:6px; }
+  .win-box .win-stats { font-family:'JetBrains Mono',monospace; font-size:.8rem; color:var(--text-dim); margin-bottom:20px; }
+  .win-box .btn-row { justify-content:center; }
+  .win-box button { min-width:110px; }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- LEFT PANEL -->
+  <div class="side-panel">
+    <div class="panel-title">
+      <h1><span class="g">Gold</span> <span style="color:var(--text-dim);font-size:.65rem">vs</span> <span class="p">Purple</span></h1>
+      <div class="tagline">Divisibility Connect</div>
+    </div>
+
+    <div class="scoreboard">
+      <div class="team-panel gold" id="panel-gold">
+        <div class="name" id="dn1">Gold</div>
+        <div class="cells-count" id="count-gold">0</div>
+        <div class="turn-label" id="turn-gold"></div>
+      </div>
+      <div class="team-panel purple" id="panel-purple">
+        <div class="name" id="dn2">Purple</div>
+        <div class="cells-count" id="count-purple">0</div>
+        <div class="turn-label" id="turn-purple"></div>
+      </div>
+    </div>
+
+    <div class="section-box">
+      <div class="section-label">Pick a number that is...</div>
+      <div class="challenge-text" id="ch-text">—</div>
+      <div class="challenge-hint" id="ch-hint"></div>
+    </div>
+
+    <div class="feedback" id="feedback">&nbsp;</div>
+
+    <div class="section-box" style="padding:10px">
+      <div class="section-label">Divisibility Rules</div>
+      <div class="rules-wrap" id="rules-ref"></div>
+    </div>
+
+    <div style="flex:1"></div>
+
+    <div class="btn-row">
+      <button onclick="skipTurn()">Skip</button>
+      <button onclick="newGame()">New Game</button>
+    </div>
+  </div>
+
+  <!-- RIGHT: GRID + INSTRUCTIONS -->
+  <div class="grid-area">
+    <div class="instructions-overlay" id="instructions" onclick="dismissInstructions()">
+      <div class="instructions-box">
+        <h2><span class="g">Gold</span> vs <span class="p">Purple</span></h2>
+        <p>Take turns picking a number that matches the divisibility rule.</p>
+        <p><span class="highlight-gold">Get it right?</span> You claim the cell.</p>
+        <p><span class="highlight-red">Get it wrong?</span> Your opponent claims it instead!</p>
+        <p>First to connect <strong>4 in a row</strong> wins — horizontal, vertical, or diagonal.</p>
+        <div class="start-hint">Click anywhere to start</div>
+      </div>
+    </div>
+    <div class="grid" id="grid"></div>
+  </div>
+
+</div>
+
+<!-- WIN OVERLAY -->
+<div class="overlay" id="overlay">
+  <div class="win-box" id="win-box">
+    <h2 id="win-title">Winner!</h2>
+    <div class="win-detail" id="win-detail"></div>
+    <div class="win-stats" id="win-stats"></div>
+    <div class="btn-row">
+      <button class="primary" onclick="rematch()">Rematch</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const DIVISORS=[2,3,4,5,6,9,10];
+const RH={2:'Last digit is even',3:'Digit sum ÷ 3',4:'Last two digits ÷ 4',5:'Ends in 0 or 5',6:'Divisible by 2 AND 3',9:'Digit sum ÷ 9',10:'Ends in 0'};
+let G={};
+const isDivBy=(n,d)=>n%d===0;
+const getDivs=n=>DIVISORS.filter(d=>isDivBy(n,d));
+const divCount=n=>getDivs(n).length;
+
+// Randomize difficulty
+function randomDifficulty(){
+  const opts=['easy','medium','hard'];
+  return opts[Math.floor(Math.random()*opts.length)];
+}
+
+function makeGrid(diff){
+  const ranges={easy:[12,99],medium:[12,300],hard:[100,999]};
+  const[lo,hi]=ranges[diff];const nums=new Set();let t=0;
+  while(nums.size<10&&t<800){const n=lo+Math.floor(Math.random()*(hi-lo+1));if(!nums.has(n)&&divCount(n)>=3)nums.add(n);t++;}
+  t=0;while(nums.size<26&&t<800){const n=lo+Math.floor(Math.random()*(hi-lo+1));if(!nums.has(n)&&divCount(n)>=1)nums.add(n);t++;}
+  t=0;while(nums.size<36&&t<800){const n=lo+Math.floor(Math.random()*(hi-lo+1));if(!nums.has(n))nums.add(n);t++;}
+  const a=[...nums];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}
+  return a.slice(0,36);
+}
+
+function makeChallenge(){
+  const avail=G.grid.filter((_,i)=>!G.owner[i]);
+  if(!avail.length)return null;
+  const pool=[];
+  for(const d of DIVISORS){if(avail.some(n=>isDivBy(n,d)))pool.push({type:'single',d});}
+  if(G.diff!=='easy'){
+    const combos=[[2,3],[2,5],[3,4]];
+    for(const[a,b]of combos){if(avail.some(n=>isDivBy(n,a)&&isDivBy(n,b)))pool.push({type:'combo',a,b});}
+  }
+  if(!pool.length)return null;
+  for(let i=pool.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[pool[i],pool[j]]=[pool[j],pool[i]];}
+  for(const ch of pool){
+    let text,hint,test,divHL=[];
+    if(ch.type==='single'){text=`Divisible by ${ch.d}`;hint=RH[ch.d];test=n=>isDivBy(n,ch.d);divHL=[ch.d];}
+    else{text=`Divisible by ${ch.a} AND ${ch.b}`;hint=`${RH[ch.a]}  +  ${RH[ch.b]}`;test=n=>isDivBy(n,ch.a)&&isDivBy(n,ch.b);divHL=[ch.a,ch.b];}
+    if(avail.some(n=>test(n)))return{text,hint,test,divHL};
+  }
+  for(const d of DIVISORS){if(avail.some(n=>isDivBy(n,d)))return{text:`Divisible by ${d}`,hint:RH[d],test:n=>isDivBy(n,d),divHL:[d]};}
+  return null;
+}
+
+function checkWin(player){
+  const target=4;
+  const dirs=[[0,1],[1,0],[1,1],[1,-1]];
+  for(let r=0;r<6;r++)for(let c=0;c<6;c++){
+    if(G.owner[r*6+c]!==player)continue;
+    for(const[dr,dc]of dirs){
+      const cells=[];let ok=true;
+      for(let k=0;k<target;k++){
+        const nr=r+dr*k,nc=c+dc*k;
+        if(nr<0||nr>=6||nc<0||nc>=6||G.owner[nr*6+nc]!==player){ok=false;break;}
+        cells.push(nr*6+nc);
+      }
+      if(ok)return cells;
+    }
+  }
+  return null;
+}
+
+function isBoardFull(){return G.grid.every((_,i)=>G.owner[i]);}
+
+// Rendering
+function renderGrid(){
+  const el=document.getElementById('grid');el.innerHTML='';
+  G.grid.forEach((num,i)=>{
+    const cell=document.createElement('div');cell.className='cell';
+    if(G.owner[i]==='gold')cell.classList.add('taken','taken-gold');
+    if(G.owner[i]==='purple')cell.classList.add('taken','taken-purple');
+    cell.innerHTML=`<span class="num">${num}</span>`;cell.dataset.idx=i;
+    cell.addEventListener('click',()=>onCellClick(i));el.appendChild(cell);
+  });
+}
+
+function renderScoreboard(){
+  document.getElementById('count-gold').textContent=G.grid.filter((_,i)=>G.owner[i]==='gold').length;
+  document.getElementById('count-purple').textContent=G.grid.filter((_,i)=>G.owner[i]==='purple').length;
+  document.getElementById('panel-gold').classList.toggle('is-turn',G.turn==='gold');
+  document.getElementById('panel-purple').classList.toggle('is-turn',G.turn==='purple');
+  document.getElementById('turn-gold').textContent=G.turn==='gold'?'▶ Your turn':'';
+  document.getElementById('turn-purple').textContent=G.turn==='purple'?'▶ Your turn':'';
+}
+
+function renderChallenge(){
+  const ct=document.getElementById('ch-text');
+  ct.className='challenge-text '+G.turn+'-turn';
+  ct.textContent=G.challenge?G.challenge.text:'—';
+  document.getElementById('ch-hint').textContent=G.challenge?G.challenge.hint:'';
+  const ref=document.getElementById('rules-ref');ref.innerHTML='';
+  for(const d of DIVISORS){
+    const tag=document.createElement('div');tag.className='rtag';
+    if(G.challenge&&G.challenge.divHL.includes(d))tag.classList.add('lit');
+    tag.innerHTML=`<span class="rdiv">÷${d}</span> ${RH[d]}`;ref.appendChild(tag);
+  }
+}
+
+function setFeedback(m,c){const f=document.getElementById('feedback');f.textContent=m;f.className='feedback '+(c||'');}
+function clearFeedback(){const f=document.getElementById('feedback');f.textContent='\u00A0';f.className='feedback';}
+
+function advanceTurn(){
+  const opp=G.turn==='gold'?'purple':'gold';
+  G.turn=opp;
+  G.challenge=makeChallenge();
+  if(!G.challenge){showDraw();return;}
+  renderScoreboard();
+  renderChallenge();
+  clearFeedback();
+  G.locked=false;
+}
+
+// Game logic
+function onCellClick(i){
+  if(G.locked||G.owner[i]||!G.challenge)return;
+
+  const num=G.grid[i];
+  const cell=document.querySelector(`.cell[data-idx="${i}"]`);
+  const cur=G.turn;
+  const opp=cur==='gold'?'purple':'gold';
+
+  if(G.challenge.test(num)){
+    // CORRECT — claim for current player
+    G.owner[i]=cur;
+    cell.classList.add('taken','taken-'+cur);
+    setFeedback(`✓ ${num} correct! (${getDivs(num).map(d=>'÷'+d).join(', ')})`,'correct');
+    renderScoreboard();
+
+    // Check win
+    const wc=checkWin(cur);
+    if(wc){G.locked=true;setTimeout(()=>showWin(cur,wc),600);return;}
+    // Check draw
+    if(isBoardFull()){G.locked=true;setTimeout(showDraw,600);return;}
+
+    // Advance to opponent's turn after delay
+    G.locked=true;
+    setTimeout(advanceTurn,1200);
+
+  }else{
+    // WRONG — cell goes to opponent
+    G.locked=true;
+    cell.classList.add('wrong-flash');
+
+    const dl=getDivs(num).map(d=>'÷'+d).join(', ');
+    setFeedback(`✗ Wrong! ${num} is ${dl||'not divisible by any rule'}. Goes to ${G.names[opp]}!`,'wrong');
+
+    setTimeout(()=>{
+      // Remove flash, apply opponent colour
+      cell.classList.remove('wrong-flash');
+      cell.classList.add('taken','taken-'+opp,'gift-flash');
+      G.owner[i]=opp;
+      renderScoreboard();
+
+      // Check if opponent wins from the gift
+      const wc=checkWin(opp);
+      if(wc){setTimeout(()=>showWin(opp,wc),500);return;}
+      // Check draw
+      if(isBoardFull()){setTimeout(showDraw,500);return;}
+
+      // Advance to opponent's turn
+      setTimeout(advanceTurn,800);
+    },500);
+  }
+}
+
+function skipTurn(){
+  if(G.locked)return;
+  advanceTurn();
+}
+
+function showWin(player,winCells){
+  G.locked=true;
+  winCells.forEach(i=>document.querySelector(`.cell[data-idx="${i}"]`).classList.add('win-cell'));
+  setTimeout(()=>{
+    const box=document.getElementById('win-box');
+    box.className='win-box '+player+'-win';
+    document.getElementById('win-title').textContent=G.names[player]+' Wins!';
+    document.getElementById('win-detail').textContent='Connected 4 in a row!';
+    const gc=G.grid.filter((_,i)=>G.owner[i]==='gold').length;
+    const pc=G.grid.filter((_,i)=>G.owner[i]==='purple').length;
+    document.getElementById('win-stats').textContent=`${G.names.gold}: ${gc} cells · ${G.names.purple}: ${pc} cells`;
+    document.getElementById('overlay').classList.add('show');
+  },700);
+}
+
+function showDraw(){
+  G.locked=true;
+  const box=document.getElementById('win-box');box.className='win-box draw-result';
+  document.getElementById('win-title').textContent='Draw!';
+  document.getElementById('win-detail').textContent='No one connected 4 in a row';
+  const gc=G.grid.filter((_,i)=>G.owner[i]==='gold').length;
+  const pc=G.grid.filter((_,i)=>G.owner[i]==='purple').length;
+  document.getElementById('win-stats').textContent=`${G.names.gold}: ${gc} · ${G.names.purple}: ${pc}`;
+  document.getElementById('overlay').classList.add('show');
+}
+
+function initGame(){
+  const diff=randomDifficulty();
+  G={
+    grid:makeGrid(diff),
+    owner:new Array(36).fill(null),
+    turn:'gold',
+    names:{gold:'Gold',purple:'Purple'},
+    diff:diff,
+    challenge:null,
+    locked:false,
+  };
+  G.challenge=makeChallenge();
+  renderGrid();renderScoreboard();renderChallenge();clearFeedback();
+}
+
+function rematch(){
+  document.getElementById('overlay').classList.remove('show');
+  const diff=randomDifficulty();
+  G.diff=diff;
+  G.grid=makeGrid(diff);
+  G.owner=new Array(36).fill(null);
+  G.turn='gold';
+  G.challenge=makeChallenge();
+  G.locked=false;
+  renderGrid();renderScoreboard();renderChallenge();clearFeedback();
+}
+
+function newGame(){
+  if(G.locked)return;
+  rematch();
+}
+
+function dismissInstructions(){
+  document.getElementById('instructions').classList.add('hidden');
+}
+
+// Start on load
+window.addEventListener('DOMContentLoaded',initGame);
+</script>
+</body>
+</html>

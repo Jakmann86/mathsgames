@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MATHS ARCADE — Mathematics Game Centre</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Orbitron:wght@400;700;900&family=Noto+Sans+JP:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --orange: #FF6B00;
+            --yellow: #FFD600;
+            --pink: #FF2D6B;
+            --cyan: #00F5FF;
+            --gold: #F0C040;
+            --purple: #A06CF0;
+            --dark: #0A0008;
+            --darker: #050005;
+            --grid-color: rgba(255, 45, 107, 0.15);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background: var(--darker);
+            color: white;
+            font-family: 'Orbitron', sans-serif;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        /* ─── SCANLINES ─── */
+        body::after {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: repeating-linear-gradient(
+                0deg, transparent, transparent 2px,
+                rgba(0,0,0,0.08) 2px, rgba(0,0,0,0.08) 4px
+            );
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        /* ─── HERO ─── */
+        .hero {
+            position: relative;
+            width: 100%;
+            height: 100vh;
+            min-height: 600px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-end;
+            overflow: hidden;
+        }
+
+        /* Outrun sky */
+        .sky {
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 60%;
+            background: linear-gradient(
+                180deg,
+                #0D0020 0%,
+                #1a0040 25%,
+                #3D0060 45%,
+                #8B0050 60%,
+                #CC2200 75%,
+                #FF6B00 85%,
+                #FFD600 100%
+            );
+        }
+
+        /* Stars */
+        .stars {
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 50%;
+        }
+        .star {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle 2s infinite alternate;
+        }
+        @keyframes twinkle {
+            from { opacity: 0.3; transform: scale(1); }
+            to   { opacity: 1;   transform: scale(1.3); }
+        }
+
+        /* Sun */
+        .sun {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 300px;
+            height: 150px;
+            background: linear-gradient(180deg, #FFD600 0%, #FF6B00 100%);
+            border-radius: 300px 300px 0 0;
+            box-shadow:
+                0 0 60px rgba(255,214,0,0.8),
+                0 0 120px rgba(255,107,0,0.5),
+                0 0 200px rgba(255,45,107,0.3);
+            overflow: hidden;
+        }
+        /* sun stripes removed — scanlines handle the texture */
+
+        /* Road / perspective grid */
+        .road-container {
+            position: absolute;
+            bottom: 0; left: 0; right: 0;
+            height: 40%;
+            overflow: hidden;
+        }
+        .road-container svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Title */
+        .title-block {
+            position: relative;
+            z-index: 10;
+            text-align: center;
+            padding-bottom: 40px;
+            animation: titleDrop 1s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        }
+        @keyframes titleDrop {
+            from { opacity: 0; transform: translateY(-40px) scale(0.9); }
+            to   { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        .title-jp {
+            font-family: 'Noto Sans JP', sans-serif;
+            font-size: 13px;
+            font-weight: 300;
+            letter-spacing: 8px;
+            color: rgba(255,214,0,0.7);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+        }
+        .title-main {
+            font-family: 'Press Start 2P', monospace;
+            font-size: clamp(24px, 5vw, 52px);
+            color: var(--yellow);
+            text-shadow:
+                0 0 20px rgba(255,214,0,0.8),
+                0 0 40px rgba(255,107,0,0.6),
+                4px 4px 0px var(--orange),
+                8px 8px 0px rgba(255,45,107,0.5);
+            line-height: 1.2;
+            letter-spacing: 2px;
+            animation: flicker 8s infinite;
+        }
+        @keyframes flicker {
+            0%,95%,100% { opacity:1; }
+            96% { opacity:0.8; }
+            97% { opacity:1; }
+            98% { opacity:0.7; }
+            99% { opacity:1; }
+        }
+        .title-sub {
+            font-family: 'Orbitron', sans-serif;
+            font-size: clamp(10px, 2vw, 14px);
+            font-weight: 400;
+            letter-spacing: 6px;
+            color: var(--cyan);
+            margin-top: 12px;
+            text-shadow: 0 0 15px rgba(0,245,255,0.7);
+            text-transform: uppercase;
+        }
+        .insert-coin {
+            font-family: 'Press Start 2P', monospace;
+            font-size: 10px;
+            color: var(--pink);
+            margin-top: 20px;
+            letter-spacing: 2px;
+            animation: blink 1.2s step-end infinite;
+            text-shadow: 0 0 10px rgba(255,45,107,0.8);
+        }
+        @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+
+        /* Scroll hint */
+        .scroll-hint {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            animation: bounce 2s infinite;
+        }
+        .scroll-hint span {
+            font-family: 'Press Start 2P', monospace;
+            font-size: 7px;
+            color: rgba(255,255,255,0.5);
+            letter-spacing: 2px;
+        }
+        .scroll-arrow {
+            width: 20px; height: 20px;
+            border-right: 3px solid rgba(255,255,255,0.4);
+            border-bottom: 3px solid rgba(255,255,255,0.4);
+            transform: rotate(45deg);
+        }
+        @keyframes bounce {
+            0%,100% { transform: translateX(-50%) translateY(0); }
+            50%      { transform: translateX(-50%) translateY(8px); }
+        }
+
+        /* ─── NEON DIVIDER ─── */
+        .neon-divider {
+            height: 4px;
+            background: linear-gradient(90deg,
+                transparent 0%, var(--pink) 20%,
+                var(--cyan) 50%, var(--orange) 80%, transparent 100%
+            );
+            box-shadow: 0 0 15px var(--pink), 0 0 30px rgba(0,245,255,0.3);
+        }
+
+        /* ─── GAMES SECTION ─── */
+        .games-section {
+            background: var(--dark);
+            padding: 70px 40px 80px;
+            position: relative;
+        }
+        .games-section::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image:
+                linear-gradient(var(--grid-color) 1px, transparent 1px),
+                linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
+            background-size: 40px 40px;
+            pointer-events: none;
+        }
+        .section-header {
+            text-align: center;
+            margin-bottom: 55px;
+            position: relative;
+            z-index: 1;
+        }
+        .section-label {
+            font-family: 'Noto Sans JP', sans-serif;
+            font-size: 11px;
+            letter-spacing: 6px;
+            color: rgba(255,214,0,0.45);
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+        .section-title {
+            font-family: 'Press Start 2P', monospace;
+            font-size: clamp(13px, 2.5vw, 20px);
+            color: var(--cyan);
+            text-shadow: 0 0 18px rgba(0,245,255,0.5);
+            letter-spacing: 2px;
+        }
+        .section-line {
+            width: 180px; height: 2px;
+            background: linear-gradient(90deg, transparent, var(--pink), transparent);
+            margin: 18px auto 0;
+            box-shadow: 0 0 8px var(--pink);
+        }
+
+        /* ─── CABINETS ─── */
+        .cabinets-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 28px;
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+        .cabinet {
+            position: relative;
+            border-radius: 8px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            text-decoration: none;
+            display: block;
+        }
+        .cabinet:hover { transform: translateY(-8px) scale(1.02); }
+        .cabinet:hover .cabinet-glow { opacity: 1; }
+        .cabinet:hover .cabinet-screen { filter: brightness(1.15); }
+        .cabinet-glow {
+            position: absolute;
+            top: -2px; left: -2px; right: -2px; bottom: -2px;
+            border-radius: 10px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            z-index: -1;
+            filter: blur(8px);
+        }
+        .cabinet-body {
+            background: linear-gradient(180deg, #1a0a30 0%, #0D0020 100%);
+            border: 2px solid rgba(255,255,255,0.07);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .cabinet-marquee {
+            height: 34px;
+            display: flex; align-items: center; justify-content: center;
+            padding: 0 16px;
+            position: relative; overflow: hidden;
+        }
+        .cabinet-marquee-text {
+            font-family: 'Press Start 2P', monospace;
+            font-size: 8px; letter-spacing: 2px;
+            position: relative; z-index: 1; white-space: nowrap;
+        }
+        .cabinet-screen {
+            margin: 0 14px;
+            border-radius: 6px; overflow: hidden;
+            position: relative; aspect-ratio: 4/3;
+            background: #000;
+            border: 3px solid rgba(255,255,255,0.08);
+            box-shadow: inset 0 0 30px rgba(0,0,0,0.8);
+            transition: filter 0.3s;
+        }
+        .cabinet-screen::after {
+            content: '';
+            position: absolute; inset: 0;
+            background: radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,0.55) 100%);
+            pointer-events: none; z-index: 10;
+        }
+        .cabinet-info { padding: 13px 15px 14px; }
+        .cabinet-name {
+            font-family: 'Press Start 2P', monospace;
+            font-size: 9px; letter-spacing: 1px;
+            margin-bottom: 8px; line-height: 1.6;
+        }
+        .cabinet-desc {
+            font-family: 'Noto Sans JP', sans-serif;
+            font-size: 11px; font-weight: 300;
+            color: rgba(255,255,255,0.55);
+            line-height: 1.7; margin-bottom: 11px;
+        }
+        .cabinet-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+        .tag {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 8px; font-weight: 700;
+            letter-spacing: 1px; padding: 3px 8px;
+            border-radius: 3px; text-transform: uppercase;
+        }
+        .cabinet-footer {
+            padding: 9px 15px;
+            border-top: 1px solid rgba(255,255,255,0.05);
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .play-btn {
+            font-family: 'Press Start 2P', monospace;
+            font-size: 8px; letter-spacing: 1px;
+            padding: 8px 15px; border-radius: 4px;
+            border: none; cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none; display: inline-block;
+        }
+        .play-btn:hover { transform: scale(1.05); box-shadow: 0 0 18px currentColor; }
+        .cabinet-world {
+            font-family: 'Noto Sans JP', sans-serif;
+            font-size: 10px; color: rgba(255,255,255,0.25); letter-spacing: 2px;
+        }
+
+        /* TRANSFORM */
+        .cabinet-transform .cabinet-glow { background: linear-gradient(135deg, #00F5FF, #FF006E); }
+        .cabinet-transform .cabinet-marquee { background: linear-gradient(90deg, #001a2e, #003344, #001a2e); border-bottom: 2px solid #00F5FF; }
+        .cabinet-transform .cabinet-marquee::before {
+            content: ''; position: absolute; top: 0; left: -100%; width: 60%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0,245,255,0.3), transparent);
+            animation: marqueeShine 3s infinite;
+        }
+        @keyframes marqueeShine { to { left: 200%; } }
+        .cabinet-transform .cabinet-marquee-text { color: #00F5FF; }
+        .cabinet-transform .cabinet-name { color: #00F5FF; }
+        .cabinet-transform .play-btn { background: linear-gradient(135deg, #00F5FF, #00B8D4); color: #0A0020; }
+        .cabinet-transform .tag-a { background: rgba(0,245,255,0.15); color: #00F5FF; }
+        .cabinet-transform .tag-b { background: rgba(255,0,110,0.15); color: #FF006E; }
+        .transform-screen-svg { width: 100%; height: 100%; background: #1a1a2e; }
+
+        /* DIVISIBILITY */
+        .cabinet-divis .cabinet-glow { background: linear-gradient(135deg, #F0C040, #A06CF0); }
+        .cabinet-divis .cabinet-marquee { background: linear-gradient(90deg, #1a1000, #2a1a00, #1a1000); border-bottom: 2px solid var(--gold); }
+        .cabinet-divis .cabinet-marquee::before {
+            content: ''; position: absolute; top: 0; left: -100%; width: 60%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(240,192,64,0.3), transparent);
+            animation: marqueeShine 3.5s infinite 0.5s;
+        }
+        .cabinet-divis .cabinet-marquee-text { color: var(--gold); }
+        .cabinet-divis .cabinet-name { color: var(--gold); }
+        .cabinet-divis .play-btn { background: linear-gradient(135deg, #F0C040, #D4A020); color: #1a0a00; }
+        .cabinet-divis .tag-a { background: rgba(240,192,64,0.15); color: var(--gold); }
+        .cabinet-divis .tag-b { background: rgba(160,108,240,0.15); color: var(--purple); }
+        .divis-screen {
+            width: 100%; height: 100%; background: #0a0a12;
+            display: flex; align-items: center; justify-content: center;
+            padding: 12px; gap: 8px; flex-direction: column;
+        }
+        .divis-mini-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 4px; width: 100%; }
+        .divis-cell {
+            aspect-ratio: 1; border-radius: 5px;
+            display: flex; align-items: center; justify-content: center;
+            font-family: 'Press Start 2P', monospace;
+            font-size: clamp(5px, 1.1vw, 9px); font-weight: 700;
+            border: 1.5px solid rgba(255,255,255,0.08);
+            background: #1a1a2e; color: rgba(255,255,255,0.4); transition: all 0.3s;
+        }
+        .divis-cell.gold { background: rgba(240,192,64,0.2); border-color: rgba(240,192,64,0.6); color: #F0C040; }
+        .divis-cell.purple { background: rgba(160,108,240,0.2); border-color: rgba(160,108,240,0.6); color: #A06CF0; }
+        .divis-challenge {
+            font-family: 'Press Start 2P', monospace; font-size: 7px;
+            color: var(--gold); text-align: center;
+            text-shadow: 0 0 8px rgba(240,192,64,0.6); letter-spacing: 1px;
+        }
+
+        /* COMING SOON */
+        .cabinet-soon .cabinet-body { opacity: 0.45; }
+        .cabinet-soon .cabinet-marquee { background: linear-gradient(90deg, #1a0030, #2a0050, #1a0030); border-bottom: 2px solid rgba(123,47,190,0.5); }
+        .cabinet-soon .cabinet-marquee-text { color: rgba(255,255,255,0.25); }
+        .cabinet-soon .cabinet-name { color: rgba(255,255,255,0.18); }
+        .coming-soon-screen {
+            width: 100%; height: 100%; background: #050010;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center; gap: 12px;
+        }
+        .coming-soon-text {
+            font-family: 'Press Start 2P', monospace; font-size: 8px;
+            color: rgba(255,255,255,0.18); letter-spacing: 2px;
+            animation: blink 2s step-end infinite;
+        }
+        .coming-soon-dots { display: flex; gap: 8px; }
+        .dot { width: 6px; height: 6px; border-radius: 50%; background: rgba(123,47,190,0.45); animation: dotPulse 1.5s infinite; }
+        .dot:nth-child(2) { animation-delay: 0.3s; }
+        .dot:nth-child(3) { animation-delay: 0.6s; }
+        @keyframes dotPulse { 0%,100%{transform:scale(1);opacity:0.45} 50%{transform:scale(1.6);opacity:1} }
+
+        /* FOOTER */
+        .arcade-footer {
+            background: var(--darker);
+            border-top: 2px solid rgba(255,107,0,0.25);
+            padding: 36px 40px; text-align: center; position: relative;
+        }
+        .arcade-footer::before {
+            content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+            background: linear-gradient(90deg, transparent, var(--orange), var(--yellow), var(--orange), transparent);
+            box-shadow: 0 0 8px var(--orange);
+        }
+        .footer-title { font-family: 'Press Start 2P', monospace; font-size: 8px; color: rgba(255,214,0,0.35); letter-spacing: 3px; margin-bottom: 10px; }
+        .footer-sub { font-family: 'Noto Sans JP', sans-serif; font-size: 11px; color: rgba(255,255,255,0.18); letter-spacing: 3px; }
+
+        @media (max-width: 600px) {
+            .hero { min-height: 500px; }
+            .sun { width: 200px; height: 100px; }
+            .games-section { padding: 50px 16px 60px; }
+            .cabinets-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ═══════ HERO ═══════ -->
+<section class="hero">
+    <div class="sky"></div>
+    <div class="stars" id="stars"></div>
+
+    <!-- Sun -->
+    <div style="position:absolute;bottom:40%;left:50%;transform:translateX(-50%) translateY(50%);">
+        <div class="sun"></div>
+    </div>
+
+    <!-- Perspective road -->
+    <div class="road-container">
+        <svg viewBox="0 0 800 300" preserveAspectRatio="none">
+            <defs>
+                <linearGradient id="roadGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" style="stop-color:#1a0040;stop-opacity:1"/>
+                    <stop offset="100%" style="stop-color:#0A0008;stop-opacity:1"/>
+                </linearGradient>
+            </defs>
+            <polygon points="400,0 800,300 0,300" fill="url(#roadGrad)"/>
+            <line x1="400" y1="0" x2="0"   y2="300" stroke="#FF2D6B" stroke-width="1" opacity="0.4"/>
+            <line x1="400" y1="0" x2="800" y2="300" stroke="#FF2D6B" stroke-width="1" opacity="0.4"/>
+            <line x1="350" y1="30"  x2="450" y2="30"  stroke="#FF2D6B" stroke-width="0.5" opacity="0.3"/>
+            <line x1="300" y1="70"  x2="500" y2="70"  stroke="#FF2D6B" stroke-width="0.5" opacity="0.3"/>
+            <line x1="240" y1="120" x2="560" y2="120" stroke="#FF2D6B" stroke-width="0.5" opacity="0.35"/>
+            <line x1="170" y1="180" x2="630" y2="180" stroke="#FF2D6B" stroke-width="0.7" opacity="0.4"/>
+            <line x1="80"  y1="250" x2="720" y2="250" stroke="#FF2D6B" stroke-width="1"   opacity="0.4"/>
+            <line x1="400" y1="0"   x2="400" y2="300" stroke="rgba(255,214,0,0.3)" stroke-width="1" stroke-dasharray="8,12"/>
+        </svg>
+    </div>
+
+    <div class="title-block">
+        <div class="title-jp">数学ゲームセンター</div>
+        <div class="title-main">MATHS ARCADE</div>
+        <div class="title-sub">Mathematics Game Centre</div>
+        <div class="insert-coin">▶ SELECT YOUR GAME ◀</div>
+    </div>
+
+    <div class="scroll-hint">
+        <span>SCROLL</span>
+        <div class="scroll-arrow"></div>
+    </div>
+</section>
+
+<div class="neon-divider"></div>
+
+<!-- ═══════ GAMES ═══════ -->
+<section class="games-section">
+    <div class="section-header">
+        <div class="section-label">ゲーム選択 — Game Select</div>
+        <div class="section-title">CHOOSE YOUR STAGE</div>
+        <div class="section-line"></div>
+    </div>
+
+    <div class="cabinets-grid">
+
+        <!-- TRANSFORM -->
+        <a href="./transform-game/index.html" class="cabinet cabinet-transform">
+            <div class="cabinet-glow"></div>
+            <div class="cabinet-body">
+                <div class="cabinet-marquee"><div class="cabinet-marquee-text">⚡ TRANSFORM ⚡</div></div>
+                <div class="cabinet-screen">
+                    <svg class="transform-screen-svg" viewBox="-10 -10 20 20">
+                        <g stroke="rgba(0,245,255,0.1)" stroke-width="0.05">
+                            <line x1="-10" y1="-5" x2="10" y2="-5"/>
+                            <line x1="-10" y1="0"  x2="10" y2="0"/>
+                            <line x1="-10" y1="5"  x2="10" y2="5"/>
+                            <line x1="-5" y1="-10" x2="-5" y2="10"/>
+                            <line x1="0"  y1="-10" x2="0"  y2="10"/>
+                            <line x1="5"  y1="-10" x2="5"  y2="10"/>
+                        </g>
+                        <line x1="-10" y1="0" x2="10" y2="0" stroke="rgba(0,245,255,0.35)" stroke-width="0.1"/>
+                        <line x1="0" y1="-10" x2="0" y2="10" stroke="rgba(0,245,255,0.35)" stroke-width="0.1"/>
+                        <polygon points="4,2 6,2 5,4" fill="rgba(255,0,110,0.25)" stroke="#FF006E" stroke-width="0.18"/>
+                        <polygon points="1,1 3,1 2,3" fill="rgba(0,245,255,0.25)" stroke="#00F5FF" stroke-width="0.18">
+                            <animateTransform attributeName="transform" type="translate"
+                                values="0,0; 3,1; 3,1; 0,0" dur="3.5s" repeatCount="indefinite"
+                                keyTimes="0;0.45;0.7;1"/>
+                        </polygon>
+                    </svg>
+                </div>
+                <div class="cabinet-info">
+                    <div class="cabinet-name">TRANSFORM</div>
+                    <div class="cabinet-desc">Master translations, reflections and rotations. Move the cyan shape to match the pink target across 30 levels.</div>
+                    <div class="cabinet-tags">
+                        <span class="tag tag-a">30 LEVELS</span>
+                        <span class="tag tag-b">GEOMETRY</span>
+                    </div>
+                </div>
+                <div class="cabinet-footer">
+                    <span class="play-btn">PLAY NOW</span>
+                    <span class="cabinet-world">1 PLAYER</span>
+                </div>
+            </div>
+        </a>
+
+        <!-- DIVISIBILITY CONNECT -->
+        <a href="./divisibility-connect/index.html" class="cabinet cabinet-divis">
+            <div class="cabinet-glow"></div>
+            <div class="cabinet-body">
+                <div class="cabinet-marquee"><div class="cabinet-marquee-text">✦ DIVISIBILITY CONNECT ✦</div></div>
+                <div class="cabinet-screen">
+                    <div class="divis-screen">
+                        <div class="divis-mini-grid" id="divis-preview"></div>
+                        <div class="divis-challenge" id="divis-challenge">÷ by 3 or 5?</div>
+                    </div>
+                </div>
+                <div class="cabinet-info">
+                    <div class="cabinet-name">DIVISIBILITY CONNECT</div>
+                    <div class="cabinet-desc">Two-player Connect 4 with a twist — claim cells by correctly applying divisibility rules. Wrong answer? Your opponent gets the cell!</div>
+                    <div class="cabinet-tags">
+                        <span class="tag tag-a">2 PLAYERS</span>
+                        <span class="tag tag-b">NUMBER THEORY</span>
+                    </div>
+                </div>
+                <div class="cabinet-footer">
+                    <span class="play-btn">PLAY NOW</span>
+                    <span class="cabinet-world">VS MODE</span>
+                </div>
+            </div>
+        </a>
+
+        <!-- COMING SOON -->
+        <div class="cabinet cabinet-soon">
+            <div class="cabinet-body">
+                <div class="cabinet-marquee"><div class="cabinet-marquee-text">? ? ? ? ?</div></div>
+                <div class="cabinet-screen">
+                    <div class="coming-soon-screen">
+                        <div class="coming-soon-text">LOADING...</div>
+                        <div class="coming-soon-dots">
+                            <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="cabinet-info">
+                    <div class="cabinet-name">COMING SOON</div>
+                    <div class="cabinet-desc">New game under construction. Check back soon...</div>
+                    <div class="cabinet-tags">
+                        <span class="tag" style="background:rgba(255,255,255,0.04);color:rgba(255,255,255,0.18)">???</span>
+                    </div>
+                </div>
+                <div class="cabinet-footer">
+                    <span class="play-btn" style="background:rgba(255,255,255,0.04);color:rgba(255,255,255,0.18);cursor:not-allowed">LOCKED</span>
+                    <span class="cabinet-world">TBC</span>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+<div class="neon-divider"></div>
+
+<footer class="arcade-footer">
+    <div class="footer-title">MATHS ARCADE — EST. 2025</div>
+    <div class="footer-sub">MATHEMATICS GAME CENTRE · BUENOS AIRES · アルゼンチン</div>
+</footer>
+
+<script>
+    // Stars
+    const starsEl = document.getElementById('stars');
+    for (let i = 0; i < 80; i++) {
+        const s = document.createElement('div');
+        s.className = 'star';
+        const size = Math.random() * 2.5 + 0.5;
+        s.style.cssText = `width:${size}px;height:${size}px;top:${Math.random()*100}%;left:${Math.random()*100}%;animation-delay:${Math.random()*3}s;animation-duration:${1.5+Math.random()*2}s;`;
+        starsEl.appendChild(s);
+    }
+
+    // Divisibility preview
+    const NUMS = [12,7,15,8,21,4,9,35,6,14,25,3,18,11,30,27,5,16,45,2,10,33,20,24,28,36,13,40,42,17,50,22,60,8,15,6];
+    const STATES = [
+        ['gold','','','purple','gold',''],
+        ['','purple','gold','','','gold'],
+        ['purple','','','gold','','purple'],
+        ['','gold','','','purple',''],
+        ['','','purple','','gold',''],
+        ['gold','','','purple','','']
+    ];
+    const CHALLENGES = ['÷ by 3 or 5?','÷ by 2?','÷ by 7?','÷ by 4 or 9?','÷ by 2 or 3?','÷ by 5?'];
+    let frame = 0;
+    const grid = document.getElementById('divis-preview');
+    const challengeEl = document.getElementById('divis-challenge');
+    function renderDivisPreview() {
+        grid.innerHTML = '';
+        NUMS.forEach((num, i) => {
+            const cell = document.createElement('div');
+            cell.className = 'divis-cell';
+            const stateClass = STATES[Math.floor(i/6)] ? STATES[Math.floor(i/6)][i%6] : '';
+            if (stateClass) cell.classList.add(stateClass);
+            cell.textContent = num;
+            grid.appendChild(cell);
+        });
+        challengeEl.textContent = CHALLENGES[frame % CHALLENGES.length];
+    }
+    renderDivisPreview();
+    setInterval(() => { frame++; renderDivisPreview(); }, 2200);
+</script>
+</body>
+</html>
