@@ -247,8 +247,8 @@
 </div>
 
 <script>
-const DIVISORS=[2,3,4,5,6,9,10];
-const RH={2:'Last digit is even',3:'Digit sum ÷ 3',4:'Last two digits ÷ 4',5:'Ends in 0 or 5',6:'Divisible by 2 AND 3',9:'Digit sum ÷ 9',10:'Ends in 0'};
+const DIVISORS=[3,4,6,9,10];
+const RH={3:'Digit sum divisible by 3',4:'Last two digits divisible by 4',6:'Divisible by 2 AND 3',9:'Digit sum divisible by 9',10:'Ends in 0'};
 let G={};
 const isDivBy=(n,d)=>n%d===0;
 const getDivs=n=>DIVISORS.filter(d=>isDivBy(n,d));
@@ -276,7 +276,7 @@ function makeChallenge(){
   const pool=[];
   for(const d of DIVISORS){if(avail.some(n=>isDivBy(n,d)))pool.push({type:'single',d});}
   if(G.diff!=='easy'){
-    const combos=[[2,3],[2,5],[3,4]];
+    const combos=[[3,4]];
     for(const[a,b]of combos){if(avail.some(n=>isDivBy(n,a)&&isDivBy(n,b)))pool.push({type:'combo',a,b});}
   }
   if(!pool.length)return null;
