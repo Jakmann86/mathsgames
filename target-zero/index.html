@@ -1,0 +1,1077 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Target Zero</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Cinzel:wght@400;700;900&family=Lora:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --baize: #1a4a2e;
+  --baize-dark: #0f2e1c;
+  --baize-light: #235c38;
+  --gold: #c9922a;
+  --gold-light: #f0c040;
+  --cream: #faf6ed;
+  --card-red: #c0392b;
+  --card-black: #1a1a1a;
+  --card-border: #d4c5a0;
+  --card-bg: #fdfaf4;
+  --ui-dark: #0a1f12;
+  --text-light: #f0ead6;
+  --danger: #e74c3c;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  font-family: 'Lora', serif;
+  background: var(--baize-dark);
+  min-height: 100vh;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background-image:
+    radial-gradient(ellipse at 20% 20%, rgba(255,255,255,0.03) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 80%, rgba(0,0,0,0.2) 0%, transparent 50%),
+    repeating-linear-gradient(45deg, transparent, transparent 2px, rgba(0,0,0,0.03) 2px, rgba(0,0,0,0.03) 4px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ══════════════════════════════
+   SETUP SCREEN
+══════════════════════════════ */
+#setup-screen {
+  position: fixed; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  z-index: 100;
+  background: radial-gradient(ellipse at center, var(--baize) 0%, var(--baize-dark) 100%);
+}
+
+.setup-card {
+  background: var(--cream);
+  border-radius: 16px;
+  padding: 36px 44px;
+  max-width: 480px;
+  width: 92%;
+  border: 3px solid var(--gold);
+  box-shadow: 0 0 0 6px rgba(201,146,42,0.15), 0 30px 80px rgba(0,0,0,0.5);
+  text-align: center;
+}
+
+.setup-suits { font-size: 26px; letter-spacing: 8px; margin-bottom: 10px; }
+.setup-title {
+  font-family: 'Cinzel', serif;
+  font-size: clamp(26px,5vw,40px);
+  font-weight: 900;
+  color: var(--card-black);
+  letter-spacing: 3px;
+  margin-bottom: 4px;
+}
+.setup-subtitle {
+  font-family: 'Lora', serif;
+  font-style: italic;
+  font-size: 14px; color: #666;
+  margin-bottom: 24px;
+}
+
+.setup-divider {
+  display: flex; align-items: center; gap: 10px;
+  margin: 16px 0 12px;
+  color: #999; font-size: 11px; letter-spacing: 2px; text-transform: uppercase;
+}
+.setup-divider::before, .setup-divider::after { content: ''; flex: 1; height: 1px; background: #ddd; }
+
+.player-name-grid { display: flex; flex-direction: column; gap: 10px; margin-bottom: 18px; }
+.player-name-row { display: flex; align-items: center; gap: 10px; }
+.player-name-label {
+  font-family: 'Cinzel', serif; font-size: 12px; font-weight: 700;
+  width: 70px; text-align: right;
+}
+.player-name-input {
+  flex: 1; padding: 9px 12px;
+  border: 2px solid #ddd; border-radius: 8px;
+  font-family: 'Lora', serif; font-size: 14px;
+  outline: none; transition: border-color 0.2s;
+}
+.player-name-input:focus { border-color: var(--gold); }
+
+.setup-rules {
+  background: #f8f4eb; border: 1px solid #ddd; border-radius: 8px;
+  padding: 12px 16px; margin-bottom: 20px; text-align: left;
+}
+.setup-rules-title {
+  font-family: 'Cinzel', serif; font-size: 11px; font-weight: 700;
+  letter-spacing: 2px; color: var(--gold); margin-bottom: 6px;
+}
+.setup-rules li { font-size: 12px; color: #555; margin-left: 14px; line-height: 1.8; }
+
+.btn-deal {
+  width: 100%; padding: 16px;
+  background: linear-gradient(135deg, var(--gold), #a07020);
+  color: white; border: none; border-radius: 10px;
+  font-family: 'Cinzel', serif; font-size: 17px; font-weight: 700;
+  letter-spacing: 2px; cursor: pointer;
+  box-shadow: 0 4px 0 #7a5010, 0 8px 20px rgba(0,0,0,0.2);
+  transition: all 0.15s;
+}
+.btn-deal:hover { transform: translateY(-2px); box-shadow: 0 6px 0 #7a5010, 0 12px 24px rgba(0,0,0,0.25); }
+.btn-deal:active { transform: translateY(2px); box-shadow: 0 2px 0 #7a5010; }
+
+/* ══════════════════════════════
+   GAME TABLE
+══════════════════════════════ */
+#game-table {
+  display: none;
+  position: fixed; inset: 0;
+  z-index: 10;
+  flex-direction: column;
+}
+#game-table.active { display: flex; }
+
+/* TOP BAR */
+.table-topbar {
+  height: 52px;
+  background: var(--ui-dark);
+  display: flex; align-items: center;
+  padding: 0 16px; gap: 12px;
+  flex-shrink: 0;
+  border-bottom: 2px solid var(--gold);
+}
+.table-title {
+  font-family: 'Cinzel', serif; font-size: 15px; font-weight: 900;
+  color: var(--gold); letter-spacing: 3px;
+}
+
+/* SCOREBOARD in topbar */
+.topbar-scores {
+  display: flex; gap: 8px; align-items: center; margin-left: auto; margin-right: 8px;
+}
+.topbar-score-chip {
+  display: flex; align-items: center; gap: 6px;
+  padding: 4px 12px;
+  border-radius: 20px;
+  border: 1.5px solid rgba(255,255,255,0.12);
+  background: rgba(0,0,0,0.3);
+  font-family: 'Cinzel', serif; font-size: 11px; font-weight: 700;
+  letter-spacing: 1px;
+}
+.topbar-score-chip .chip-name { color: rgba(240,234,214,0.7); }
+.topbar-score-chip .chip-score {
+  font-size: 15px; font-weight: 900;
+  color: var(--gold-light);
+  min-width: 22px; text-align: right;
+}
+.topbar-score-chip.danger-score .chip-score { color: var(--danger); }
+.topbar-score-chip.active-chip {
+  border-color: rgba(201,146,42,0.5);
+  background: rgba(201,146,42,0.1);
+}
+
+.round-badge {
+  font-family: 'Cinzel', serif; font-size: 10px; font-weight: 700;
+  letter-spacing: 1px; color: rgba(240,234,214,0.4);
+}
+
+.btn-menu {
+  font-family: 'Cinzel', serif; font-size: 11px; font-weight: 700;
+  letter-spacing: 1px; padding: 5px 14px;
+  background: none; border: 1px solid rgba(255,255,255,0.2);
+  color: var(--text-light); border-radius: 6px; cursor: pointer; transition: all 0.2s;
+}
+.btn-menu:hover { background: rgba(255,255,255,0.1); }
+
+/* TABLE AREA */
+.table-area {
+  flex: 1; display: flex; flex-direction: column;
+  position: relative; overflow: hidden;
+}
+
+/* CENTER: DECK + DISCARD */
+.center-zone {
+  display: flex; align-items: center; justify-content: center;
+  gap: 40px; padding: 14px; flex-shrink: 0;
+}
+.pile-label {
+  font-family: 'Cinzel', serif; font-size: 10px; font-weight: 700;
+  letter-spacing: 2px; color: rgba(240,234,214,0.4); text-align: center; margin-top: 6px;
+}
+
+/* Playing card */
+.card {
+  width: 72px; height: 108px;
+  border-radius: 8px; border: 2px solid var(--card-border);
+  background: var(--card-bg);
+  display: flex; align-items: center; justify-content: center;
+  flex-direction: column;
+  font-family: 'Playfair Display', serif; font-size: 26px; font-weight: 900;
+  cursor: pointer; transition: all 0.2s; user-select: none;
+  position: relative;
+  box-shadow: 2px 3px 8px rgba(0,0,0,0.3), inset 0 0 0 1px rgba(255,255,255,0.8);
+  flex-shrink: 0;
+}
+.card::before {
+  content: attr(data-val); position: absolute; top: 5px; left: 7px;
+  font-size: 12px; font-weight: 700; line-height: 1;
+}
+.card::after {
+  content: attr(data-val); position: absolute; bottom: 5px; right: 7px;
+  font-size: 12px; font-weight: 700; line-height: 1; transform: rotate(180deg);
+}
+.card.positive { color: var(--card-black); }
+.card.negative { color: var(--card-red); }
+.card.zero-card { color: #666; }
+
+.card.face-down {
+  background: repeating-linear-gradient(135deg, #1a3d28, #1a3d28 4px, #1d4a2e 4px, #1d4a2e 8px);
+  border-color: #2a5c3e; color: transparent; cursor: pointer;
+}
+.card.face-down::before, .card.face-down::after { display: none; }
+
+.card:hover:not(.face-down):not(.unplayable) {
+  transform: translateY(-6px); box-shadow: 2px 8px 16px rgba(0,0,0,0.4);
+}
+.card.selected-to-discard {
+  transform: translateY(-14px);
+  box-shadow: 0 0 0 3px var(--gold-light), 2px 12px 20px rgba(0,0,0,0.5);
+}
+.card.deck-card:hover { transform: translateY(-4px) scale(1.03); }
+.card.discard-top:hover { transform: translateY(-4px) scale(1.03); }
+.card.highlight-pickup {
+  box-shadow: 0 0 0 3px var(--gold-light), 0 0 18px rgba(240,192,64,0.5);
+  animation: pulseGold 1.2s infinite;
+}
+@keyframes pulseGold {
+  0%,100% { box-shadow: 0 0 0 3px var(--gold-light), 0 0 12px rgba(240,192,64,0.4); }
+  50%      { box-shadow: 0 0 0 3px var(--gold-light), 0 0 24px rgba(240,192,64,0.7); }
+}
+.card.unplayable { opacity: 0.55; cursor: default; }
+
+.deck-pile { position: relative; cursor: pointer; }
+
+.discard-zone {
+  position: relative; min-width: 72px; min-height: 108px;
+  border-radius: 8px; border: 2px dashed rgba(240,234,214,0.2);
+  display: flex; align-items: center; justify-content: center;
+}
+.discard-zone.has-card { border: none; }
+.discard-empty {
+  font-family: 'Cinzel', serif; font-size: 10px;
+  color: rgba(240,234,214,0.25); letter-spacing: 1px; text-align: center;
+}
+
+/* PLAYERS AREA */
+.players-row {
+  flex: 1; display: flex; gap: 8px; padding: 8px 12px 10px; overflow: hidden;
+}
+.player-zone {
+  flex: 1; background: rgba(0,0,0,0.2);
+  border: 2px solid rgba(255,255,255,0.06);
+  border-radius: 12px; padding: 10px 12px;
+  display: flex; flex-direction: column; transition: all 0.3s; min-width: 0;
+}
+.player-zone.active-player {
+  background: rgba(201,146,42,0.08);
+  border-color: rgba(201,146,42,0.4);
+  box-shadow: 0 0 0 2px rgba(201,146,42,0.15), inset 0 0 30px rgba(201,146,42,0.04);
+}
+
+.player-header {
+  display: flex; align-items: center; gap: 8px; margin-bottom: 8px;
+}
+.player-avatar {
+  width: 28px; height: 28px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; border: 2px solid rgba(255,255,255,0.1); flex-shrink: 0;
+}
+.player-name-display {
+  font-family: 'Cinzel', serif; font-size: 12px; font-weight: 700;
+  color: var(--text-light); letter-spacing: 1px;
+  flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.player-sum {
+  font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 900;
+  min-width: 44px; text-align: right; transition: all 0.3s;
+}
+.player-sum.zero { color: var(--gold-light); text-shadow: 0 0 12px rgba(240,192,64,0.6); }
+.player-sum.positive { color: #74c49e; }
+.player-sum.negative { color: #e08080; }
+
+.player-hand {
+  flex: 1; display: flex; gap: 6px;
+  align-items: center; justify-content: center; flex-wrap: wrap;
+}
+.player-hand .card { width: 60px; height: 90px; font-size: 20px; }
+.player-hand .card::before { font-size: 11px; top: 4px; left: 5px; }
+.player-hand .card::after  { font-size: 11px; bottom: 4px; right: 5px; }
+
+/* ACTION BAR */
+.action-row {
+  display: flex; gap: 8px; align-items: center;
+  padding: 10px 12px;
+  background: var(--ui-dark);
+  border-top: 2px solid var(--gold); flex-shrink: 0;
+}
+.action-hint {
+  font-family: 'Lora', serif; font-style: italic;
+  font-size: 13px; color: rgba(240,234,214,0.6); flex: 1;
+}
+.btn-action {
+  padding: 10px 18px; border: none; border-radius: 8px;
+  font-family: 'Cinzel', serif; font-size: 12px; font-weight: 700;
+  letter-spacing: 1px; cursor: pointer; transition: all 0.15s;
+}
+.btn-call {
+  background: linear-gradient(135deg, var(--gold), #a07020);
+  color: white; box-shadow: 0 3px 0 #7a5010;
+}
+.btn-call:hover { transform: translateY(-1px); box-shadow: 0 4px 0 #7a5010; }
+.btn-call:disabled { opacity: 0.3; cursor: not-allowed; transform: none; box-shadow: 0 2px 0 #7a5010; }
+.btn-cancel {
+  background: rgba(255,255,255,0.08); color: rgba(240,234,214,0.6);
+  border: 1px solid rgba(255,255,255,0.1);
+}
+.btn-cancel:hover { background: rgba(255,255,255,0.12); }
+
+/* SUM DISPLAY */
+.my-sum-wrap { text-align: center; }
+.my-sum-label {
+  font-family: 'Cinzel', serif; font-size: 9px; letter-spacing: 1px;
+  color: rgba(240,234,214,0.4); display: block;
+}
+.my-sum-display {
+  font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 900;
+  min-width: 58px; text-align: center; padding: 4px 10px;
+  background: rgba(0,0,0,0.3); border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.08);
+}
+
+/* TURN indicator */
+.turn-indicator {
+  font-family: 'Lora', serif; font-style: italic;
+  font-size: 13px; color: var(--text-light);
+}
+.phase-indicator {
+  font-family: 'Cinzel', serif; font-size: 10px; font-weight: 700;
+  letter-spacing: 2px; padding: 3px 10px; border-radius: 20px;
+  background: rgba(201,146,42,0.2); color: var(--gold-light);
+  border: 1px solid rgba(201,146,42,0.4);
+}
+
+/* ══════════════════════════════
+   MODALS
+══════════════════════════════ */
+.modal-overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,0.78);
+  z-index: 500; align-items: center; justify-content: center;
+}
+.modal-overlay.open { display: flex; }
+
+.modal-box {
+  background: var(--cream); border: 4px solid var(--gold);
+  border-radius: 16px; padding: 32px 36px;
+  max-width: 440px; width: 90%; text-align: center;
+  box-shadow: 0 0 0 8px rgba(201,146,42,0.1), 0 30px 80px rgba(0,0,0,0.5);
+  animation: popIn 0.3s cubic-bezier(0.34,1.56,0.64,1);
+}
+@keyframes popIn { from{transform:scale(0.85);opacity:0} to{transform:scale(1);opacity:1} }
+
+.modal-emoji { font-size: 52px; margin-bottom: 8px; display: block; }
+.modal-title {
+  font-family: 'Cinzel', serif; font-size: 24px; font-weight: 900;
+  color: var(--card-black); margin-bottom: 6px; letter-spacing: 2px;
+}
+.modal-sub {
+  font-family: 'Lora', serif; font-style: italic;
+  font-size: 14px; color: #666; margin-bottom: 18px; line-height: 1.6;
+}
+
+/* Round result scores */
+.modal-scores {
+  background: #f5f0e5; border: 1px solid #ddd;
+  border-radius: 10px; padding: 14px; margin-bottom: 18px;
+}
+.modal-score-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 6px 0; border-bottom: 1px solid #eee;
+  font-family: 'Lora', serif; font-size: 14px;
+}
+.modal-score-row:last-child { border-bottom: none; }
+.modal-score-name { color: #333; font-weight: 700; }
+.modal-score-val { font-weight: 700; font-size: 17px; }
+.modal-score-val.won { color: #2ecc71; }
+.modal-score-val.lost { color: var(--danger); }
+.modal-score-val.zero { color: #2ecc71; }
+
+/* Progress bar for scores */
+.score-progress-wrap {
+  margin-top: 4px; margin-bottom: 2px;
+}
+.score-progress-row {
+  display: flex; align-items: center; gap: 8px; margin-bottom: 8px;
+}
+.score-progress-label {
+  font-family: 'Cinzel', serif; font-size: 11px; font-weight: 700;
+  width: 80px; text-align: right; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.score-bar-bg {
+  flex: 1; height: 10px; background: #ddd; border-radius: 5px; overflow: hidden;
+}
+.score-bar-fill {
+  height: 100%; border-radius: 5px; transition: width 0.6s ease;
+  background: linear-gradient(90deg, #74c49e, #2ecc71);
+}
+.score-bar-fill.danger { background: linear-gradient(90deg, #e08080, var(--danger)); }
+.score-bar-fill.warning { background: linear-gradient(90deg, #f0c040, #e67e22); }
+.score-progress-val {
+  font-family: 'Playfair Display', serif; font-size: 15px; font-weight: 900;
+  min-width: 32px; text-align: left;
+}
+
+.btn-modal {
+  padding: 12px 26px;
+  background: linear-gradient(135deg, var(--gold), #a07020);
+  color: white; border: none; border-radius: 10px;
+  font-family: 'Cinzel', serif; font-size: 13px; font-weight: 700;
+  letter-spacing: 1px; cursor: pointer;
+  box-shadow: 0 4px 0 #7a5010; transition: all 0.15s; margin: 4px;
+}
+.btn-modal:hover { transform: translateY(-2px); box-shadow: 0 6px 0 #7a5010; }
+.btn-modal.secondary {
+  background: white; color: #555; border: 2px solid #ddd; box-shadow: 0 4px 0 #ccc;
+}
+.btn-modal.secondary:hover { border-color: var(--gold); color: var(--gold); }
+
+/* TOAST */
+.toast {
+  position: fixed; top: 60px; left: 50%;
+  transform: translateX(-50%) translateY(-20px);
+  background: var(--ui-dark); color: var(--text-light);
+  font-family: 'Cinzel', serif; font-size: 12px; letter-spacing: 1px;
+  padding: 9px 22px; border-radius: 20px;
+  border: 1px solid var(--gold); box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+  opacity: 0; pointer-events: none; transition: all 0.3s;
+  z-index: 999; white-space: nowrap;
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+.hidden { display: none !important; }
+
+/* Limit banner */
+.limit-banner {
+  font-family: 'Cinzel', serif; font-size: 10px; letter-spacing: 1px;
+  color: rgba(231,76,60,0.8); text-align: center;
+  padding: 3px 0; background: rgba(231,76,60,0.08);
+  border-bottom: 1px solid rgba(231,76,60,0.2);
+}
+</style>
+</head>
+<body>
+
+<!-- ════════════════ SETUP SCREEN ════════════════ -->
+<div id="setup-screen">
+  <div class="setup-card">
+    <div class="setup-suits">♠ ♥ ♣ ♦</div>
+    <div class="setup-title">TARGET ZERO</div>
+    <div class="setup-subtitle">The integer card game — avoid 30 points to survive!</div>
+
+    <div class="setup-divider">Player Names</div>
+
+    <div class="player-name-grid" id="name-inputs">
+      <div class="player-name-row">
+        <span class="player-name-label" style="color:#c9922a">♠ P1</span>
+        <input class="player-name-input" id="name-0" placeholder="Player 1" maxlength="14">
+      </div>
+      <div class="player-name-row">
+        <span class="player-name-label" style="color:#c0392b">♥ P2</span>
+        <input class="player-name-input" id="name-1" placeholder="Player 2" maxlength="14">
+      </div>
+    </div>
+
+    <div class="setup-rules">
+      <div class="setup-rules-title">How to Play</div>
+      <ul>
+        <li>Each player holds <strong>5 cards</strong> (values -10 to +10)</li>
+        <li><strong>Black cards</strong> are positive, <strong>red cards</strong> are negative</li>
+        <li>On your turn: discard a card, then draw from the deck or discard pile</li>
+        <li>Hit <strong>zero</strong>? Call "Target Zero!" to win the round</li>
+        <li>The round loser adds the <strong>absolute value</strong> of their hand sum to their score</li>
+        <li>First player to reach <strong>30 points loses the game!</strong></li>
+        <li>The round loser always starts the next round</li>
+      </ul>
+    </div>
+
+    <button class="btn-deal" onclick="startGame()">DEAL THE CARDS ♠</button>
+  </div>
+</div>
+
+<!-- ════════════════ GAME TABLE ════════════════ -->
+<div id="game-table">
+  <div id="limit-banner" class="limit-banner hidden">⚠ A player is close to 30 — one wrong move ends it!</div>
+  <div class="table-topbar">
+    <div class="table-title">TARGET ZERO</div>
+    <div class="turn-indicator" id="turn-indicator">Player 1's turn</div>
+    <div class="phase-indicator" id="phase-indicator">DRAW A CARD</div>
+    <div class="topbar-scores" id="topbar-scores"></div>
+    <div class="round-badge" id="round-badge">RND 1</div>
+    <button class="btn-menu" onclick="openMenu()">Menu</button>
+  </div>
+
+  <div class="table-area">
+    <div class="center-zone">
+      <div>
+        <div class="deck-pile" onclick="drawFromDeck()" id="deck-pile">
+          <div class="card face-down deck-card" id="deck-visual"></div>
+        </div>
+        <div class="pile-label">DRAW PILE</div>
+      </div>
+      <div style="text-align:center">
+        <div class="discard-zone" id="discard-zone">
+          <div class="discard-empty">DISCARD<br>PILE</div>
+        </div>
+        <div class="pile-label">DISCARD PILE</div>
+      </div>
+    </div>
+    <div class="players-row" id="players-row"></div>
+  </div>
+
+  <!-- ACTION BAR -->
+  <div class="action-row">
+    <div class="my-sum-wrap">
+      <span class="my-sum-label" id="my-sum-label">YOUR SUM</span>
+      <div class="my-sum-display" id="my-sum-display">—</div>
+    </div>
+    <div class="action-hint" id="action-hint">Draw a card to begin your turn</div>
+    <button class="btn-action btn-cancel hidden" id="btn-cancel" onclick="cancelDiscard()">Cancel</button>
+    <button class="btn-action btn-call" id="btn-call" onclick="callTargetZero()" disabled>TARGET ZERO!</button>
+  </div>
+</div>
+
+<!-- Round Result Modal -->
+<div class="modal-overlay" id="round-modal">
+  <div class="modal-box">
+    <span class="modal-emoji" id="round-emoji">🎯</span>
+    <div class="modal-title" id="round-title">TARGET ZERO!</div>
+    <div class="modal-sub" id="round-sub">Player 1 wins the round!</div>
+    <div class="modal-scores" id="round-scores"></div>
+    <div id="score-progress" class="score-progress-wrap"></div>
+    <button class="btn-modal" id="btn-next-round" onclick="nextRound()">Next Round ♠</button>
+  </div>
+</div>
+
+<!-- Game Over Modal -->
+<div class="modal-overlay" id="gameover-modal">
+  <div class="modal-box">
+    <span class="modal-emoji" id="gameover-emoji">💀</span>
+    <div class="modal-title" id="gameover-title">BUSTED!</div>
+    <div class="modal-sub" id="gameover-sub">Player 1 has gone bust!</div>
+    <div class="modal-scores" id="gameover-scores"></div>
+    <button class="btn-modal" onclick="fullReset()">Play Again ♠</button>
+    <button class="btn-modal secondary" onclick="goToSetup()">Change Players</button>
+  </div>
+</div>
+
+
+
+<!-- Menu Modal -->
+<div class="modal-overlay" id="menu-modal">
+  <div class="modal-box">
+    <span class="modal-emoji">♠</span>
+    <div class="modal-title">MENU</div>
+    <div class="modal-sub">What would you like to do?</div>
+    <button class="btn-modal" onclick="newRound(true); closeModals()">New Game (same players)</button><br>
+    <button class="btn-modal secondary" onclick="goToSetup()" style="margin-top:6px">Change Players</button><br>
+    <button class="btn-modal secondary" onclick="closeModals()" style="margin-top:4px">Back to Game</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ══════════════════════════════
+//  CONSTANTS
+// ══════════════════════════════
+const HAND_SIZE = 5;
+const SCORE_LIMIT = 30;
+const AVATARS = ['♠','♥'];
+const AVATAR_COLORS = ['#c9922a','#c0392b'];
+
+// ══════════════════════════════
+//  GAME STATE
+// ══════════════════════════════
+let G = {
+  players: [],       // [{name, hand, score}]
+  deck: [],
+  discardPile: [],
+  currentPlayer: 0,
+  phase: 'draw',     // 'draw' | 'discard'
+  selectedCardIdx: null,
+  round: 1,
+  startingPlayer: 0  // who starts each round (loser of last)
+};
+
+// ══════════════════════════════
+//  DECK
+// ══════════════════════════════
+function buildDeck() {
+  const deck = [];
+  for (let v = -10; v <= 10; v++) {
+    if (v === 0) {
+      deck.push({ value: 0, suit: '♠', display: '0' });
+      deck.push({ value: 0, suit: '♥', display: '0' });
+    } else if (v > 0) {
+      deck.push({ value: v, suit: '♠', display: `+${v}` });
+      deck.push({ value: v, suit: '♣', display: `+${v}` });
+    } else {
+      deck.push({ value: v, suit: '♥', display: `${v}` });
+      deck.push({ value: v, suit: '♦', display: `${v}` });
+    }
+  }
+  return shuffle(deck);
+}
+
+function shuffle(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+function handSum(hand) {
+  return hand.reduce((a, c) => a + c.value, 0);
+}
+
+// ══════════════════════════════
+//  SETUP / START
+// ══════════════════════════════
+function startGame() {
+  const names = [0, 1].map(i => {
+    const v = document.getElementById(`name-${i}`).value.trim();
+    return v || `Player ${i + 1}`;
+  });
+
+  G.players = names.map(name => ({ name, hand: [], score: 0 }));
+  G.round = 1;
+  G.startingPlayer = 0;
+
+  document.getElementById('setup-screen').style.display = 'none';
+  document.getElementById('game-table').classList.add('active');
+
+  newRound(false);
+}
+
+function newRound(resetScores) {
+  if (resetScores) {
+    G.players.forEach(p => p.score = 0);
+    G.round = 1;
+    G.startingPlayer = 0;
+  }
+
+  G.deck = buildDeck();
+  G.discardPile = [];
+  G.currentPlayer = G.startingPlayer;
+  G.phase = 'draw';
+  G.selectedCardIdx = null;
+
+  G.players.forEach(p => {
+    p.hand = [];
+    for (let i = 0; i < HAND_SIZE; i++) p.hand.push(G.deck.pop());
+  });
+  G.discardPile.push(G.deck.pop());
+
+  renderAll();
+  updateLimitBanner();
+}
+
+// ══════════════════════════════
+//  RENDER
+// ══════════════════════════════
+function renderAll() {
+  renderCenter();
+  renderPlayers();
+  renderTopbar();
+  renderTurnIndicator();
+  updateActionBar();
+  checkCallButton();
+}
+
+function renderTopbar() {
+  const scoresEl = document.getElementById('topbar-scores');
+  scoresEl.innerHTML = '';
+  G.players.forEach((p, i) => {
+    const chip = document.createElement('div');
+    chip.className = 'topbar-score-chip' +
+      (i === G.currentPlayer ? ' active-chip' : '') +
+      (p.score >= 20 ? ' danger-score' : '');
+    chip.innerHTML = `<span class="chip-name">${p.name}</span><span class="chip-score">${p.score}</span>`;
+    scoresEl.appendChild(chip);
+  });
+  document.getElementById('round-badge').textContent = `RND ${G.round}`;
+}
+
+function renderTurnIndicator() {
+  const p = G.players[G.currentPlayer];
+  document.getElementById('turn-indicator').textContent = `${p.name}'s turn`;
+  document.getElementById('phase-indicator').textContent =
+    G.phase === 'draw' ? 'DRAW A CARD' : 'DISCARD A CARD';
+}
+
+function renderCenter() {
+  const deckVis = document.getElementById('deck-visual');
+  deckVis.style.opacity = G.deck.length === 0 ? '0.2' : '1';
+
+  const dz = document.getElementById('discard-zone');
+  dz.innerHTML = '';
+
+  if (G.discardPile.length > 0) {
+    dz.classList.add('has-card');
+    const top = G.discardPile[G.discardPile.length - 1];
+    const cardEl = makeCardEl(top);
+    cardEl.classList.add('discard-top');
+    if (G.phase === 'draw') {
+      cardEl.classList.add('highlight-pickup');
+      cardEl.onclick = () => drawFromDiscard();
+    }
+    dz.appendChild(cardEl);
+  } else {
+    dz.classList.remove('has-card');
+    dz.innerHTML = '<div class="discard-empty">DISCARD<br>PILE</div>';
+  }
+}
+
+function renderPlayers() {
+  const row = document.getElementById('players-row');
+  row.innerHTML = '';
+
+  G.players.forEach((player, pi) => {
+    const isActive = pi === G.currentPlayer;
+    const zone = document.createElement('div');
+    zone.className = 'player-zone' + (isActive ? ' active-player' : '');
+
+    const sum = handSum(player.hand);
+    const sumClass = sum === 0 ? 'zero' : sum > 0 ? 'positive' : 'negative';
+    const sumDisplay = sum > 0 ? `+${sum}` : `${sum}`;
+
+    zone.innerHTML = `
+      <div class="player-header">
+        <div class="player-avatar" style="background:${AVATAR_COLORS[pi]}22;border-color:${AVATAR_COLORS[pi]}55;color:${AVATAR_COLORS[pi]}">${AVATARS[pi]}</div>
+        <div class="player-name-display">${player.name}</div>
+        <div class="player-sum ${sumClass}">${sumDisplay}</div>
+      </div>
+    `;
+
+    const handEl = document.createElement('div');
+    handEl.className = 'player-hand';
+
+    player.hand.forEach((card, ci) => {
+      const cardEl = makeCardEl(card);
+      if (isActive && G.phase === 'discard') {
+        cardEl.onclick = () => selectCard(ci);
+        if (G.selectedCardIdx === ci) {
+          cardEl.classList.add('selected-to-discard');
+        }
+      } else if (!isActive || G.phase === 'draw') {
+        cardEl.classList.add('unplayable');
+      }
+      handEl.appendChild(cardEl);
+    });
+
+    zone.appendChild(handEl);
+    row.appendChild(zone);
+  });
+}
+
+function makeCardEl(card) {
+  const el = document.createElement('div');
+  el.className = 'card';
+  if (card.value > 0) el.classList.add('positive');
+  else if (card.value < 0) el.classList.add('negative');
+  else el.classList.add('zero-card');
+  el.dataset.val = card.display;
+  el.textContent = card.display;
+  el.style.fontSize = '20px';
+  return el;
+}
+
+function updateActionBar() {
+  const p = G.players[G.currentPlayer];
+  const sum = handSum(p.hand);
+  const sumDisplay = sum > 0 ? `+${sum}` : `${sum}`;
+  const sumEl = document.getElementById('my-sum-display');
+  const sumLabel = document.getElementById('my-sum-label');
+  sumEl.textContent = sumDisplay;
+  sumLabel.textContent = `${p.name}'s sum`;
+  sumEl.style.color = sum === 0 ? '#f0c040' : sum > 0 ? '#74c49e' : '#e08080';
+
+  const hint = document.getElementById('action-hint');
+  const cancelBtn = document.getElementById('btn-cancel');
+
+  if (G.phase === 'draw') {
+    hint.textContent = `${p.name}: draw from the pile, or take the top discard card →`;
+    cancelBtn.classList.add('hidden');
+  } else {
+    if (G.selectedCardIdx !== null) {
+      const card = p.hand[G.selectedCardIdx];
+      hint.textContent = `${p.name}: discard ${card.display} — confirm or pick another`;
+      cancelBtn.classList.remove('hidden');
+    } else {
+      hint.textContent = `${p.name}: click a card in your hand to discard it`;
+      cancelBtn.classList.add('hidden');
+    }
+  }
+}
+
+function checkCallButton() {
+  const p = G.players[G.currentPlayer];
+  const sum = handSum(p.hand);
+  const btn = document.getElementById('btn-call');
+  // Can only call Target Zero during draw phase (5 cards) — not while holding 6 cards
+  const canCall = (sum === 0 && G.phase === 'draw');
+  btn.disabled = !canCall;
+  if (canCall) {
+    btn.classList.add('highlight-pickup');
+  } else {
+    btn.classList.remove('highlight-pickup');
+  }
+}
+
+function updateLimitBanner() {
+  const banner = document.getElementById('limit-banner');
+  const anyClose = G.players.some(p => p.score >= 20);
+  if (anyClose) banner.classList.remove('hidden');
+  else banner.classList.add('hidden');
+}
+
+// ══════════════════════════════
+//  GAME ACTIONS
+// ══════════════════════════════
+function drawFromDeck() {
+  if (G.phase !== 'draw') return;
+  if (G.deck.length === 0) { showToast('Deck is empty!'); return; }
+  const p = G.players[G.currentPlayer];
+  const card = G.deck.pop();
+  p.hand.push(card);
+  G.phase = 'discard';
+  renderAll();
+  showToast(`${p.name} drew ${card.display} — now discard a card`);
+}
+
+function drawFromDiscard() {
+  if (G.phase !== 'draw') return;
+  if (G.discardPile.length === 0) { showToast('Discard pile is empty!'); return; }
+  const p = G.players[G.currentPlayer];
+  const card = G.discardPile.pop();
+  p.hand.push(card);
+  G.phase = 'discard';
+  renderAll();
+  showToast(`${p.name} picked up ${card.display} — now discard a card`);
+}
+
+function selectCard(idx) {
+  if (G.phase !== 'discard') return;
+  if (G.selectedCardIdx === idx) {
+    doDiscard(idx);
+    return;
+  }
+  G.selectedCardIdx = idx;
+  const p = G.players[G.currentPlayer];
+  renderAll();
+  showToast(`Click again to discard ${p.hand[idx].display}, or choose another card`);
+}
+
+function cancelDiscard() {
+  G.selectedCardIdx = null;
+  renderAll();
+}
+
+function doDiscard(idx) {
+  const p = G.players[G.currentPlayer];
+  const card = p.hand.splice(idx, 1)[0];
+  G.discardPile.push(card);
+  G.selectedCardIdx = null;
+
+  // Check auto-win after discard
+  if (handSum(p.hand) === 0) {
+    renderAll();
+    setTimeout(() => endRound(G.currentPlayer), 400);
+    return;
+  }
+
+  endTurn();
+}
+
+function callTargetZero() {
+  const p = G.players[G.currentPlayer];
+  if (G.phase !== 'draw') { showToast('Discard a card first!'); return; }
+  if (handSum(p.hand) !== 0) { showToast('Your hand does not sum to zero!'); return; }
+  endRound(G.currentPlayer);
+}
+
+function endTurn() {
+  G.phase = 'draw';
+  G.selectedCardIdx = null;
+  G.currentPlayer = (G.currentPlayer + 1) % 2;
+
+  renderAll();
+  updateLimitBanner();
+
+  // Remind if hand already sums to zero
+  const sum = handSum(G.players[G.currentPlayer].hand);
+  if (sum === 0) {
+    showToast(`🎯 ${G.players[G.currentPlayer].name}'s hand sums to zero — hit TARGET ZERO!`);
+  }
+}
+
+// ══════════════════════════════
+//  ROUND END
+// ══════════════════════════════
+function endRound(winnerIdx) {
+  const loserIdx = winnerIdx === 0 ? 1 : 0;
+  const loser = G.players[loserIdx];
+  const winner = G.players[winnerIdx];
+
+  const loserSum = handSum(loser.hand);
+  const penalty = Math.abs(loserSum);
+  loser.score += penalty;
+
+  // Next round: loser starts
+  G.startingPlayer = loserIdx;
+
+  // Check game over
+  if (loser.score >= SCORE_LIMIT) {
+    showGameOver(loserIdx, winnerIdx);
+    return;
+  }
+
+  showRoundResult(winnerIdx, loserIdx, penalty);
+}
+
+function showRoundResult(winnerIdx, loserIdx, penalty) {
+  const winner = G.players[winnerIdx];
+  const loser = G.players[loserIdx];
+
+  document.getElementById('round-emoji').textContent = '🎯';
+  document.getElementById('round-title').textContent = 'TARGET ZERO!';
+  document.getElementById('round-sub').textContent =
+    `${winner.name} wins round ${G.round}! ${loser.name} takes +${penalty} points.`;
+
+  const scoresEl = document.getElementById('round-scores');
+  scoresEl.innerHTML = '';
+
+  G.players.forEach((p, i) => {
+    const isWinner = i === winnerIdx;
+    const isLoser = i === loserIdx;
+    const handSumVal = handSum(p.hand);
+    const row = document.createElement('div');
+    row.className = 'modal-score-row';
+    row.innerHTML = `
+      <span class="modal-score-name" style="color:${AVATAR_COLORS[i]}">${AVATARS[i]} ${p.name}</span>
+      <span class="modal-score-val ${isWinner ? 'won' : 'lost'}">
+        ${isWinner ? `✓ Sum: ${handSumVal === 0 ? '0' : handSumVal}` : `+${penalty} pts (hand: ${handSumVal > 0 ? '+' : ''}${handSumVal})`}
+      </span>
+    `;
+    scoresEl.appendChild(row);
+  });
+
+  // Score progress bars
+  const progressEl = document.getElementById('score-progress');
+  progressEl.innerHTML = '<div style="font-family:Cinzel,serif;font-size:10px;letter-spacing:1px;color:#999;margin-bottom:8px;margin-top:4px;">RUNNING SCORES (30 loses)</div>';
+  G.players.forEach((p, i) => {
+    const pct = Math.min(100, (p.score / SCORE_LIMIT) * 100);
+    const barClass = p.score >= 20 ? 'danger' : p.score >= 14 ? 'warning' : '';
+    const div = document.createElement('div');
+    div.className = 'score-progress-row';
+    div.innerHTML = `
+      <span class="score-progress-label" style="color:${AVATAR_COLORS[i]}">${p.name}</span>
+      <div class="score-bar-bg">
+        <div class="score-bar-fill ${barClass}" style="width:${pct}%"></div>
+      </div>
+      <span class="score-progress-val" style="color:${p.score>=20?'#e74c3c':p.score>=14?'#e67e22':'#555'}">${p.score}</span>
+    `;
+    progressEl.appendChild(div);
+  });
+
+  document.getElementById('btn-next-round').textContent = `Next Round — ${loser.name} starts ♠`;
+  document.getElementById('round-modal').classList.add('open');
+}
+
+function nextRound() {
+  closeModals();
+  G.round++;
+  newRound(false);
+}
+
+function showGameOver(loserIdx, winnerIdx) {
+  const loser = G.players[loserIdx];
+  const winner = G.players[winnerIdx];
+
+  document.getElementById('gameover-emoji').textContent = '💀';
+  document.getElementById('gameover-title').textContent = 'BUSTED!';
+  document.getElementById('gameover-sub').textContent =
+    `${loser.name} hit ${loser.score} points — GAME OVER! ${winner.name} wins the game!`;
+
+  const scoresEl = document.getElementById('gameover-scores');
+  scoresEl.innerHTML = '';
+  G.players.forEach((p, i) => {
+    const row = document.createElement('div');
+    row.className = 'modal-score-row';
+    row.innerHTML = `
+      <span class="modal-score-name" style="color:${AVATAR_COLORS[i]}">${AVATARS[i]} ${p.name}</span>
+      <span class="modal-score-val ${i === loserIdx ? 'lost' : 'won'}">${p.score} pts ${i === loserIdx ? '💀' : '🏆'}</span>
+    `;
+    scoresEl.appendChild(row);
+  });
+
+  document.getElementById('gameover-modal').classList.add('open');
+}
+
+// ══════════════════════════════
+//  MENU / RESET
+// ══════════════════════════════
+function openMenu() { document.getElementById('menu-modal').classList.add('open'); }
+function closeModals() { document.querySelectorAll('.modal-overlay').forEach(m => m.classList.remove('open')); }
+
+function fullReset() {
+  closeModals();
+  newRound(true);
+}
+
+function goToSetup() {
+  closeModals();
+  document.getElementById('game-table').classList.remove('active');
+  document.getElementById('setup-screen').style.display = 'flex';
+}
+
+// ══════════════════════════════
+//  TOAST
+// ══════════════════════════════
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+// ══════════════════════════════
+//  KEYBOARD
+// ══════════════════════════════
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && G.phase === 'discard' && G.selectedCardIdx !== null) {
+    doDiscard(G.selectedCardIdx);
+  }
+  if (e.key === 'Escape') cancelDiscard();
+});
+</script>
+</body>
+</html>

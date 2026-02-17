@@ -105,7 +105,6 @@
                 0 0 200px rgba(255,45,107,0.3);
             overflow: hidden;
         }
-        /* sun stripes removed — scanlines handle the texture */
 
         /* Road / perspective grid */
         .road-container {
@@ -417,6 +416,41 @@
             text-shadow: 0 0 8px rgba(240,192,64,0.6); letter-spacing: 1px;
         }
 
+        /* TARGET ZERO */
+        .cabinet-tzero .cabinet-glow { background: linear-gradient(135deg, #c9922a, #2ecc71); }
+        .cabinet-tzero .cabinet-marquee { background: linear-gradient(90deg, #0a1f12, #1a4a2e, #0a1f12); border-bottom: 2px solid #c9922a; }
+        .cabinet-tzero .cabinet-marquee::before {
+            content: ''; position: absolute; top: 0; left: -100%; width: 60%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(201,146,42,0.3), transparent);
+            animation: marqueeShine 4s infinite 1s;
+        }
+        .cabinet-tzero .cabinet-marquee-text { color: #c9922a; }
+        .cabinet-tzero .cabinet-name { color: #c9922a; }
+        .cabinet-tzero .play-btn { background: linear-gradient(135deg, #c9922a, #a07020); color: #0a1f12; }
+        .cabinet-tzero .tag-a { background: rgba(201,146,42,0.15); color: #c9922a; }
+        .cabinet-tzero .tag-b { background: rgba(46,204,113,0.15); color: #2ecc71; }
+        .tzero-screen {
+            width: 100%; height: 100%;
+            background: radial-gradient(ellipse at center, #1a4a2e 0%, #0a1f12 100%);
+            display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px;
+        }
+        .tzero-hand { display: flex; gap: 5px; align-items: flex-end; }
+        .tzero-card {
+            width: 26px; height: 38px; border-radius: 4px;
+            background: #fdfaf4; border: 1.5px solid #d4c5a0;
+            display: flex; align-items: center; justify-content: center;
+            font-family: 'Press Start 2P', monospace; font-size: 5px; font-weight: 700;
+            box-shadow: 1px 2px 4px rgba(0,0,0,0.5);
+            transition: transform 0.5s ease;
+        }
+        .tzero-card.pos { color: #1a1a1a; }
+        .tzero-card.neg { color: #c0392b; }
+        .tzero-card.lifted { transform: translateY(-10px); box-shadow: 0 0 8px rgba(240,192,64,0.8); border-color: #f0c040; }
+        .tzero-sum {
+            font-family: 'Press Start 2P', monospace; font-size: 9px;
+            color: #f0c040; text-shadow: 0 0 10px rgba(240,192,64,0.7); letter-spacing: 1px;
+        }
+
         /* COMING SOON */
         .cabinet-soon .cabinet-body { opacity: 0.45; }
         .cabinet-soon .cabinet-marquee { background: linear-gradient(90deg, #1a0030, #2a0050, #1a0030); border-bottom: 2px solid rgba(123,47,190,0.5); }
@@ -584,6 +618,38 @@
             </div>
         </a>
 
+        <!-- TARGET ZERO -->
+        <a href="./target-zero/index.html" class="cabinet cabinet-tzero">
+            <div class="cabinet-glow"></div>
+            <div class="cabinet-body">
+                <div class="cabinet-marquee"><div class="cabinet-marquee-text">♠ TARGET ZERO ♠</div></div>
+                <div class="cabinet-screen">
+                    <div class="tzero-screen">
+                        <div class="tzero-hand" id="tzero-hand">
+                            <div class="tzero-card pos">+3</div>
+                            <div class="tzero-card neg">-7</div>
+                            <div class="tzero-card pos">+2</div>
+                            <div class="tzero-card neg">-4</div>
+                            <div class="tzero-card pos">+6</div>
+                        </div>
+                        <div class="tzero-sum" id="tzero-sum">SUM: 0</div>
+                    </div>
+                </div>
+                <div class="cabinet-info">
+                    <div class="cabinet-name">TARGET ZERO</div>
+                    <div class="cabinet-desc">The integer card game. Swap cards to make your hand sum to zero — but watch out! First player to hit 30 points loses the game.</div>
+                    <div class="cabinet-tags">
+                        <span class="tag tag-a">2 PLAYERS</span>
+                        <span class="tag tag-b">INTEGERS</span>
+                    </div>
+                </div>
+                <div class="cabinet-footer">
+                    <span class="play-btn">PLAY NOW</span>
+                    <span class="cabinet-world">VS MODE</span>
+                </div>
+            </div>
+        </a>
+
         <!-- COMING SOON -->
         <div class="cabinet cabinet-soon">
             <div class="cabinet-body">
@@ -659,6 +725,36 @@
     }
     renderDivisPreview();
     setInterval(() => { frame++; renderDivisPreview(); }, 2200);
+
+    // Target Zero preview animation
+    const TZERO_HANDS = [
+        [{v:'+3',cls:'pos'},{v:'-7',cls:'neg'},{v:'+2',cls:'pos'},{v:'-4',cls:'neg'},{v:'+6',cls:'pos'}],
+        [{v:'+5',cls:'pos'},{v:'-3',cls:'neg'},{v:'+1',cls:'pos'},{v:'-8',cls:'neg'},{v:'+5',cls:'pos'}],
+        [{v:'-2',cls:'neg'},{v:'+4',cls:'pos'},{v:'-6',cls:'neg'},{v:'+3',cls:'pos'},{v:'+1',cls:'pos'}],
+    ];
+    let tzFrame = 0;
+    let liftedIdx = 2;
+    function renderTZeroPreview() {
+        const hand = document.getElementById('tzero-hand');
+        const sumEl = document.getElementById('tzero-sum');
+        const cards = TZERO_HANDS[tzFrame % TZERO_HANDS.length];
+        hand.innerHTML = '';
+        let total = 0;
+        cards.forEach((c, i) => {
+            const el = document.createElement('div');
+            el.className = `tzero-card ${c.cls}${i === liftedIdx ? ' lifted' : ''}`;
+            el.textContent = c.v;
+            hand.appendChild(el);
+            total += parseInt(c.v);
+        });
+        const isZero = total === 0;
+        sumEl.textContent = isZero ? '= ZERO! ♠' : `SUM: ${total > 0 ? '+' : ''}${total}`;
+        sumEl.style.color = isZero ? '#2ecc71' : '#f0c040';
+        liftedIdx = (liftedIdx + 1) % 5;
+        if (liftedIdx === 0) tzFrame++;
+    }
+    renderTZeroPreview();
+    setInterval(renderTZeroPreview, 900);
 </script>
 </body>
 </html>
