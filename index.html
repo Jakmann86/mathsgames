@@ -55,33 +55,20 @@
             overflow: hidden;
         }
 
-        /* Outrun sky */
         .sky {
             position: absolute;
             top: 0; left: 0; right: 0;
             height: 60%;
             background: linear-gradient(
                 180deg,
-                #0D0020 0%,
-                #1a0040 25%,
-                #3D0060 45%,
-                #8B0050 60%,
-                #CC2200 75%,
-                #FF6B00 85%,
-                #FFD600 100%
+                #0D0020 0%, #1a0040 25%, #3D0060 45%,
+                #8B0050 60%, #CC2200 75%, #FF6B00 85%, #FFD600 100%
             );
         }
 
-        /* Stars */
-        .stars {
-            position: absolute;
-            top: 0; left: 0; right: 0;
-            height: 50%;
-        }
+        .stars { position: absolute; top: 0; left: 0; right: 0; height: 50%; }
         .star {
-            position: absolute;
-            background: white;
-            border-radius: 50%;
+            position: absolute; background: white; border-radius: 50%;
             animation: twinkle 2s infinite alternate;
         }
         @keyframes twinkle {
@@ -89,41 +76,20 @@
             to   { opacity: 1;   transform: scale(1.3); }
         }
 
-        /* Sun */
         .sun {
-            position: absolute;
-            bottom: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 300px;
-            height: 150px;
+            position: absolute; bottom: 0; left: 50%; transform: translateX(-50%);
+            width: 300px; height: 150px;
             background: linear-gradient(180deg, #FFD600 0%, #FF6B00 100%);
             border-radius: 300px 300px 0 0;
-            box-shadow:
-                0 0 60px rgba(255,214,0,0.8),
-                0 0 120px rgba(255,107,0,0.5),
-                0 0 200px rgba(255,45,107,0.3);
+            box-shadow: 0 0 60px rgba(255,214,0,0.8), 0 0 120px rgba(255,107,0,0.5), 0 0 200px rgba(255,45,107,0.3);
             overflow: hidden;
         }
 
-        /* Road / perspective grid */
-        .road-container {
-            position: absolute;
-            bottom: 0; left: 0; right: 0;
-            height: 40%;
-            overflow: hidden;
-        }
-        .road-container svg {
-            width: 100%;
-            height: 100%;
-        }
+        .road-container { position: absolute; bottom: 0; left: 0; right: 0; height: 40%; overflow: hidden; }
+        .road-container svg { width: 100%; height: 100%; }
 
-        /* Title */
         .title-block {
-            position: relative;
-            z-index: 10;
-            text-align: center;
-            padding-bottom: 40px;
+            position: relative; z-index: 10; text-align: center; padding-bottom: 40px;
             animation: titleDrop 1s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
         }
         @keyframes titleDrop {
@@ -131,239 +97,124 @@
             to   { opacity: 1; transform: translateY(0) scale(1); }
         }
         .title-jp {
-            font-family: 'Noto Sans JP', sans-serif;
-            font-size: 13px;
-            font-weight: 300;
-            letter-spacing: 8px;
-            color: rgba(255,214,0,0.7);
-            margin-bottom: 8px;
-            text-transform: uppercase;
+            font-family: 'Noto Sans JP', sans-serif; font-size: 13px; font-weight: 300;
+            letter-spacing: 8px; color: rgba(255,214,0,0.7); margin-bottom: 8px; text-transform: uppercase;
         }
         .title-main {
             font-family: 'Press Start 2P', monospace;
-            font-size: clamp(24px, 5vw, 52px);
-            color: var(--yellow);
-            text-shadow:
-                0 0 20px rgba(255,214,0,0.8),
-                0 0 40px rgba(255,107,0,0.6),
-                4px 4px 0px var(--orange),
-                8px 8px 0px rgba(255,45,107,0.5);
-            line-height: 1.2;
-            letter-spacing: 2px;
-            animation: flicker 8s infinite;
+            font-size: clamp(24px, 5vw, 52px); color: var(--yellow);
+            text-shadow: 0 0 20px rgba(255,214,0,0.8), 0 0 40px rgba(255,107,0,0.6),
+                4px 4px 0px var(--orange), 8px 8px 0px rgba(255,45,107,0.5);
+            line-height: 1.2; letter-spacing: 2px; animation: flicker 8s infinite;
         }
-        @keyframes flicker {
-            0%,95%,100% { opacity:1; }
-            96% { opacity:0.8; }
-            97% { opacity:1; }
-            98% { opacity:0.7; }
-            99% { opacity:1; }
-        }
+        @keyframes flicker { 0%,95%,100%{opacity:1} 96%{opacity:0.8} 97%{opacity:1} 98%{opacity:0.7} 99%{opacity:1} }
         .title-sub {
-            font-family: 'Orbitron', sans-serif;
-            font-size: clamp(10px, 2vw, 14px);
-            font-weight: 400;
-            letter-spacing: 6px;
-            color: var(--cyan);
-            margin-top: 12px;
-            text-shadow: 0 0 15px rgba(0,245,255,0.7);
-            text-transform: uppercase;
+            font-family: 'Orbitron', sans-serif; font-size: clamp(10px, 2vw, 14px); font-weight: 400;
+            letter-spacing: 6px; color: var(--cyan); margin-top: 12px;
+            text-shadow: 0 0 15px rgba(0,245,255,0.7); text-transform: uppercase;
         }
         .insert-coin {
-            font-family: 'Press Start 2P', monospace;
-            font-size: 10px;
-            color: var(--pink);
-            margin-top: 20px;
-            letter-spacing: 2px;
-            animation: blink 1.2s step-end infinite;
+            font-family: 'Press Start 2P', monospace; font-size: 10px; color: var(--pink);
+            margin-top: 20px; letter-spacing: 2px; animation: blink 1.2s step-end infinite;
             text-shadow: 0 0 10px rgba(255,45,107,0.8);
         }
         @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
 
-        /* Scroll hint */
         .scroll-hint {
-            position: absolute;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 10;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 4px;
-            animation: bounce 2s infinite;
+            position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 10;
+            display: flex; flex-direction: column; align-items: center; gap: 4px; animation: bounce 2s infinite;
         }
-        .scroll-hint span {
-            font-family: 'Press Start 2P', monospace;
-            font-size: 7px;
-            color: rgba(255,255,255,0.5);
-            letter-spacing: 2px;
-        }
+        .scroll-hint span { font-family: 'Press Start 2P', monospace; font-size: 7px; color: rgba(255,255,255,0.5); letter-spacing: 2px; }
         .scroll-arrow {
             width: 20px; height: 20px;
-            border-right: 3px solid rgba(255,255,255,0.4);
-            border-bottom: 3px solid rgba(255,255,255,0.4);
+            border-right: 3px solid rgba(255,255,255,0.4); border-bottom: 3px solid rgba(255,255,255,0.4);
             transform: rotate(45deg);
         }
-        @keyframes bounce {
-            0%,100% { transform: translateX(-50%) translateY(0); }
-            50%      { transform: translateX(-50%) translateY(8px); }
-        }
+        @keyframes bounce { 0%,100%{transform:translateX(-50%) translateY(0)} 50%{transform:translateX(-50%) translateY(8px)} }
 
         /* ─── NEON DIVIDER ─── */
         .neon-divider {
             height: 4px;
-            background: linear-gradient(90deg,
-                transparent 0%, var(--pink) 20%,
-                var(--cyan) 50%, var(--orange) 80%, transparent 100%
-            );
+            background: linear-gradient(90deg, transparent 0%, var(--pink) 20%, var(--cyan) 50%, var(--orange) 80%, transparent 100%);
             box-shadow: 0 0 15px var(--pink), 0 0 30px rgba(0,245,255,0.3);
         }
 
         /* ─── GAMES SECTION ─── */
-        .games-section {
-            background: var(--dark);
-            padding: 70px 40px 80px;
-            position: relative;
-        }
+        .games-section { background: var(--dark); padding: 70px 40px 80px; position: relative; }
         .games-section::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background-image:
-                linear-gradient(var(--grid-color) 1px, transparent 1px),
-                linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
-            background-size: 40px 40px;
-            pointer-events: none;
+            content: ''; position: absolute; inset: 0;
+            background-image: linear-gradient(var(--grid-color) 1px, transparent 1px), linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
+            background-size: 40px 40px; pointer-events: none;
         }
-        .section-header {
-            text-align: center;
-            margin-bottom: 55px;
-            position: relative;
-            z-index: 1;
-        }
+        .section-header { text-align: center; margin-bottom: 55px; position: relative; z-index: 1; }
         .section-label {
-            font-family: 'Noto Sans JP', sans-serif;
-            font-size: 11px;
-            letter-spacing: 6px;
-            color: rgba(255,214,0,0.45);
-            text-transform: uppercase;
-            margin-bottom: 10px;
+            font-family: 'Noto Sans JP', sans-serif; font-size: 11px; letter-spacing: 6px;
+            color: rgba(255,214,0,0.45); text-transform: uppercase; margin-bottom: 10px;
         }
         .section-title {
-            font-family: 'Press Start 2P', monospace;
-            font-size: clamp(13px, 2.5vw, 20px);
-            color: var(--cyan);
-            text-shadow: 0 0 18px rgba(0,245,255,0.5);
-            letter-spacing: 2px;
+            font-family: 'Press Start 2P', monospace; font-size: clamp(13px, 2.5vw, 20px);
+            color: var(--cyan); text-shadow: 0 0 18px rgba(0,245,255,0.5); letter-spacing: 2px;
         }
         .section-line {
             width: 180px; height: 2px;
             background: linear-gradient(90deg, transparent, var(--pink), transparent);
-            margin: 18px auto 0;
-            box-shadow: 0 0 8px var(--pink);
+            margin: 18px auto 0; box-shadow: 0 0 8px var(--pink);
         }
 
         /* ─── CABINETS ─── */
         .cabinets-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 28px;
-            max-width: 1200px;
-            margin: 0 auto;
-            position: relative;
-            z-index: 1;
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 28px; max-width: 1200px; margin: 0 auto; position: relative; z-index: 1;
         }
         .cabinet {
-            position: relative;
-            border-radius: 8px;
-            overflow: hidden;
-            cursor: pointer;
-            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-            text-decoration: none;
-            display: block;
+            position: relative; border-radius: 8px; overflow: hidden; cursor: pointer;
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); text-decoration: none; display: block;
         }
         .cabinet:hover { transform: translateY(-8px) scale(1.02); }
         .cabinet:hover .cabinet-glow { opacity: 1; }
         .cabinet:hover .cabinet-screen { filter: brightness(1.15); }
         .cabinet-glow {
-            position: absolute;
-            top: -2px; left: -2px; right: -2px; bottom: -2px;
-            border-radius: 10px;
-            opacity: 0;
-            transition: opacity 0.3s;
-            z-index: -1;
-            filter: blur(8px);
+            position: absolute; top: -2px; left: -2px; right: -2px; bottom: -2px;
+            border-radius: 10px; opacity: 0; transition: opacity 0.3s; z-index: -1; filter: blur(8px);
         }
         .cabinet-body {
             background: linear-gradient(180deg, #1a0a30 0%, #0D0020 100%);
-            border: 2px solid rgba(255,255,255,0.07);
-            border-radius: 8px;
-            overflow: hidden;
+            border: 2px solid rgba(255,255,255,0.07); border-radius: 8px; overflow: hidden;
         }
         .cabinet-marquee {
-            height: 34px;
-            display: flex; align-items: center; justify-content: center;
-            padding: 0 16px;
-            position: relative; overflow: hidden;
+            height: 34px; display: flex; align-items: center; justify-content: center;
+            padding: 0 16px; position: relative; overflow: hidden;
         }
         .cabinet-marquee-text {
-            font-family: 'Press Start 2P', monospace;
-            font-size: 8px; letter-spacing: 2px;
+            font-family: 'Press Start 2P', monospace; font-size: 8px; letter-spacing: 2px;
             position: relative; z-index: 1; white-space: nowrap;
         }
         .cabinet-screen {
-            margin: 0 14px;
-            border-radius: 6px; overflow: hidden;
-            position: relative; aspect-ratio: 4/3;
-            background: #000;
-            border: 3px solid rgba(255,255,255,0.08);
-            box-shadow: inset 0 0 30px rgba(0,0,0,0.8);
-            transition: filter 0.3s;
+            margin: 0 14px; border-radius: 6px; overflow: hidden; position: relative; aspect-ratio: 4/3;
+            background: #000; border: 3px solid rgba(255,255,255,0.08);
+            box-shadow: inset 0 0 30px rgba(0,0,0,0.8); transition: filter 0.3s;
         }
         .cabinet-screen::after {
-            content: '';
-            position: absolute; inset: 0;
+            content: ''; position: absolute; inset: 0;
             background: radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,0.55) 100%);
             pointer-events: none; z-index: 10;
         }
         .cabinet-info { padding: 13px 15px 14px; }
-        .cabinet-name {
-            font-family: 'Press Start 2P', monospace;
-            font-size: 9px; letter-spacing: 1px;
-            margin-bottom: 8px; line-height: 1.6;
-        }
-        .cabinet-desc {
-            font-family: 'Noto Sans JP', sans-serif;
-            font-size: 11px; font-weight: 300;
-            color: rgba(255,255,255,0.55);
-            line-height: 1.7; margin-bottom: 11px;
-        }
+        .cabinet-name { font-family: 'Press Start 2P', monospace; font-size: 9px; letter-spacing: 1px; margin-bottom: 8px; line-height: 1.6; }
+        .cabinet-desc { font-family: 'Noto Sans JP', sans-serif; font-size: 11px; font-weight: 300; color: rgba(255,255,255,0.55); line-height: 1.7; margin-bottom: 11px; }
         .cabinet-tags { display: flex; gap: 6px; flex-wrap: wrap; }
-        .tag {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 8px; font-weight: 700;
-            letter-spacing: 1px; padding: 3px 8px;
-            border-radius: 3px; text-transform: uppercase;
-        }
+        .tag { font-family: 'Orbitron', sans-serif; font-size: 8px; font-weight: 700; letter-spacing: 1px; padding: 3px 8px; border-radius: 3px; text-transform: uppercase; }
         .cabinet-footer {
-            padding: 9px 15px;
-            border-top: 1px solid rgba(255,255,255,0.05);
+            padding: 9px 15px; border-top: 1px solid rgba(255,255,255,0.05);
             display: flex; align-items: center; justify-content: space-between;
         }
         .play-btn {
-            font-family: 'Press Start 2P', monospace;
-            font-size: 8px; letter-spacing: 1px;
-            padding: 8px 15px; border-radius: 4px;
-            border: none; cursor: pointer;
-            transition: all 0.2s;
-            text-decoration: none; display: inline-block;
+            font-family: 'Press Start 2P', monospace; font-size: 8px; letter-spacing: 1px;
+            padding: 8px 15px; border-radius: 4px; border: none; cursor: pointer;
+            transition: all 0.2s; text-decoration: none; display: inline-block;
         }
         .play-btn:hover { transform: scale(1.05); box-shadow: 0 0 18px currentColor; }
-        .cabinet-world {
-            font-family: 'Noto Sans JP', sans-serif;
-            font-size: 10px; color: rgba(255,255,255,0.25); letter-spacing: 2px;
-        }
+        .cabinet-world { font-family: 'Noto Sans JP', sans-serif; font-size: 10px; color: rgba(255,255,255,0.25); letter-spacing: 2px; }
 
         /* TRANSFORM */
         .cabinet-transform .cabinet-glow { background: linear-gradient(135deg, #00F5FF, #FF006E); }
@@ -403,8 +254,7 @@
         .divis-cell {
             aspect-ratio: 1; border-radius: 5px;
             display: flex; align-items: center; justify-content: center;
-            font-family: 'Press Start 2P', monospace;
-            font-size: clamp(5px, 1.1vw, 9px); font-weight: 700;
+            font-family: 'Press Start 2P', monospace; font-size: clamp(5px, 1.1vw, 9px); font-weight: 700;
             border: 1.5px solid rgba(255,255,255,0.08);
             background: #1a1a2e; color: rgba(255,255,255,0.4); transition: all 0.3s;
         }
@@ -440,8 +290,7 @@
             background: #fdfaf4; border: 1.5px solid #d4c5a0;
             display: flex; align-items: center; justify-content: center;
             font-family: 'Press Start 2P', monospace; font-size: 5px; font-weight: 700;
-            box-shadow: 1px 2px 4px rgba(0,0,0,0.5);
-            transition: transform 0.5s ease;
+            box-shadow: 1px 2px 4px rgba(0,0,0,0.5); transition: transform 0.5s ease;
         }
         .tzero-card.pos { color: #1a1a1a; }
         .tzero-card.neg { color: #c0392b; }
@@ -451,6 +300,55 @@
             color: #f0c040; text-shadow: 0 0 10px rgba(240,192,64,0.7); letter-spacing: 1px;
         }
 
+        /* MELTDOWN */
+        .cabinet-meltdown .cabinet-glow { background: linear-gradient(135deg, #e0a020, #30e050); }
+        .cabinet-meltdown .cabinet-marquee { background: linear-gradient(90deg, #12140e, #1e2118, #12140e); border-bottom: 2px solid #e0a020; }
+        .cabinet-meltdown .cabinet-marquee::before {
+            content: ''; position: absolute; top: 0; left: -100%; width: 60%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(224,160,32,0.3), transparent);
+            animation: marqueeShine 3.8s infinite 0.8s;
+        }
+        .cabinet-meltdown .cabinet-marquee-text { color: #e0a020; }
+        .cabinet-meltdown .cabinet-name { color: #e0a020; }
+        .cabinet-meltdown .play-btn { background: linear-gradient(135deg, #e0a020, #c08010); color: #0a0c08; }
+        .cabinet-meltdown .tag-a { background: rgba(224,160,32,0.15); color: #e0a020; }
+        .cabinet-meltdown .tag-b { background: rgba(48,224,80,0.15); color: #30e050; }
+        .meltdown-screen {
+            width: 100%; height: 100%;
+            background: radial-gradient(ellipse at center, #12140e 0%, #0a0c08 100%);
+            display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px;
+        }
+        .meltdown-reactor {
+            width: 70px; height: 70px; border-radius: 50%;
+            border: 3px solid #2a2e22;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 0 20px rgba(48,224,80,0.2), inset 0 0 15px rgba(0,0,0,0.6);
+            animation: reactorPulse 2s ease-in-out infinite;
+        }
+        .meltdown-core {
+            width: 40px; height: 40px; border-radius: 50%;
+            background: radial-gradient(circle, #1a3a1a 0%, #0a1a0a 100%);
+            box-shadow: 0 0 20px rgba(48,224,80,0.3);
+            animation: corePulse 1.5s ease-in-out infinite alternate;
+        }
+        @keyframes reactorPulse {
+            0%, 100% { border-color: #2a4e22; }
+            50% { border-color: #30e050; box-shadow: 0 0 30px rgba(48,224,80,0.4), inset 0 0 15px rgba(0,0,0,0.6); }
+        }
+        @keyframes corePulse {
+            from { box-shadow: 0 0 15px rgba(48,224,80,0.2); }
+            to { box-shadow: 0 0 30px rgba(48,224,80,0.5); background: radial-gradient(circle, #2a5a2a 0%, #0a1a0a 100%); }
+        }
+        .meltdown-readout { text-align: center; display: flex; flex-direction: column; gap: 4px; }
+        .meltdown-expr {
+            font-family: 'Press Start 2P', monospace; font-size: 8px;
+            color: #e0a020; text-shadow: 0 0 8px rgba(224,160,32,0.6); letter-spacing: 1px;
+        }
+        .meltdown-target {
+            font-family: 'Press Start 2P', monospace; font-size: 6px;
+            color: #30e050; text-shadow: 0 0 6px rgba(48,224,80,0.5); letter-spacing: 1px;
+        }
+
         /* COMING SOON */
         .cabinet-soon .cabinet-body { opacity: 0.45; }
         .cabinet-soon .cabinet-marquee { background: linear-gradient(90deg, #1a0030, #2a0050, #1a0030); border-bottom: 2px solid rgba(123,47,190,0.5); }
@@ -458,13 +356,11 @@
         .cabinet-soon .cabinet-name { color: rgba(255,255,255,0.18); }
         .coming-soon-screen {
             width: 100%; height: 100%; background: #050010;
-            display: flex; flex-direction: column;
-            align-items: center; justify-content: center; gap: 12px;
+            display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px;
         }
         .coming-soon-text {
             font-family: 'Press Start 2P', monospace; font-size: 8px;
-            color: rgba(255,255,255,0.18); letter-spacing: 2px;
-            animation: blink 2s step-end infinite;
+            color: rgba(255,255,255,0.18); letter-spacing: 2px; animation: blink 2s step-end infinite;
         }
         .coming-soon-dots { display: flex; gap: 8px; }
         .dot { width: 6px; height: 6px; border-radius: 50%; background: rgba(123,47,190,0.45); animation: dotPulse 1.5s infinite; }
@@ -474,8 +370,7 @@
 
         /* FOOTER */
         .arcade-footer {
-            background: var(--darker);
-            border-top: 2px solid rgba(255,107,0,0.25);
+            background: var(--darker); border-top: 2px solid rgba(255,107,0,0.25);
             padding: 36px 40px; text-align: center; position: relative;
         }
         .arcade-footer::before {
@@ -500,13 +395,9 @@
 <section class="hero">
     <div class="sky"></div>
     <div class="stars" id="stars"></div>
-
-    <!-- Sun -->
     <div style="position:absolute;bottom:40%;left:50%;transform:translateX(-50%) translateY(50%);">
         <div class="sun"></div>
     </div>
-
-    <!-- Perspective road -->
     <div class="road-container">
         <svg viewBox="0 0 800 300" preserveAspectRatio="none">
             <defs>
@@ -526,14 +417,12 @@
             <line x1="400" y1="0"   x2="400" y2="300" stroke="rgba(255,214,0,0.3)" stroke-width="1" stroke-dasharray="8,12"/>
         </svg>
     </div>
-
     <div class="title-block">
         <div class="title-jp">数学ゲームセンター</div>
         <div class="title-main">MATHS ARCADE</div>
         <div class="title-sub">Mathematics Game Centre</div>
         <div class="insert-coin">▶ SELECT YOUR GAME ◀</div>
     </div>
-
     <div class="scroll-hint">
         <span>SCROLL</span>
         <div class="scroll-arrow"></div>
@@ -560,20 +449,15 @@
                 <div class="cabinet-screen">
                     <svg class="transform-screen-svg" viewBox="-10 -10 20 20">
                         <g stroke="rgba(0,245,255,0.1)" stroke-width="0.05">
-                            <line x1="-10" y1="-5" x2="10" y2="-5"/>
-                            <line x1="-10" y1="0"  x2="10" y2="0"/>
-                            <line x1="-10" y1="5"  x2="10" y2="5"/>
-                            <line x1="-5" y1="-10" x2="-5" y2="10"/>
-                            <line x1="0"  y1="-10" x2="0"  y2="10"/>
-                            <line x1="5"  y1="-10" x2="5"  y2="10"/>
+                            <line x1="-10" y1="-5" x2="10" y2="-5"/><line x1="-10" y1="0" x2="10" y2="0"/>
+                            <line x1="-10" y1="5" x2="10" y2="5"/><line x1="-5" y1="-10" x2="-5" y2="10"/>
+                            <line x1="0" y1="-10" x2="0" y2="10"/><line x1="5" y1="-10" x2="5" y2="10"/>
                         </g>
                         <line x1="-10" y1="0" x2="10" y2="0" stroke="rgba(0,245,255,0.35)" stroke-width="0.1"/>
                         <line x1="0" y1="-10" x2="0" y2="10" stroke="rgba(0,245,255,0.35)" stroke-width="0.1"/>
                         <polygon points="4,2 6,2 5,4" fill="rgba(255,0,110,0.25)" stroke="#FF006E" stroke-width="0.18"/>
                         <polygon points="1,1 3,1 2,3" fill="rgba(0,245,255,0.25)" stroke="#00F5FF" stroke-width="0.18">
-                            <animateTransform attributeName="transform" type="translate"
-                                values="0,0; 3,1; 3,1; 0,0" dur="3.5s" repeatCount="indefinite"
-                                keyTimes="0;0.45;0.7;1"/>
+                            <animateTransform attributeName="transform" type="translate" values="0,0; 3,1; 3,1; 0,0" dur="3.5s" repeatCount="indefinite" keyTimes="0;0.45;0.7;1"/>
                         </polygon>
                     </svg>
                 </div>
@@ -646,6 +530,37 @@
                 <div class="cabinet-footer">
                     <span class="play-btn">PLAY NOW</span>
                     <span class="cabinet-world">VS MODE</span>
+                </div>
+            </div>
+        </a>
+
+        <!-- MELTDOWN -->
+        <a href="./meltdown/index.html" class="cabinet cabinet-meltdown">
+            <div class="cabinet-glow"></div>
+            <div class="cabinet-body">
+                <div class="cabinet-marquee"><div class="cabinet-marquee-text">☢ MELTDOWN ☢</div></div>
+                <div class="cabinet-screen">
+                    <div class="meltdown-screen">
+                        <div class="meltdown-reactor" id="meltdown-reactor">
+                            <div class="meltdown-core"></div>
+                        </div>
+                        <div class="meltdown-readout">
+                            <div class="meltdown-expr" id="meltdown-expr">2⁵ = ?</div>
+                            <div class="meltdown-target" id="meltdown-target">TARGET: 32</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="cabinet-info">
+                    <div class="cabinet-name">MELTDOWN</div>
+                    <div class="cabinet-desc">Control the reactor by setting power dials to match the target output. Wrong answers spike the temperature — survive as long as you can!</div>
+                    <div class="cabinet-tags">
+                        <span class="tag tag-a">1 PLAYER</span>
+                        <span class="tag tag-b">POWERS</span>
+                    </div>
+                </div>
+                <div class="cabinet-footer">
+                    <span class="play-btn">PLAY NOW</span>
+                    <span class="cabinet-world">ENDLESS</span>
                 </div>
             </div>
         </a>
@@ -755,6 +670,26 @@
     }
     renderTZeroPreview();
     setInterval(renderTZeroPreview, 900);
+
+    // Meltdown preview animation
+    const MELTDOWN_ROUNDS = [
+        { expr: '2⁵ = ?', target: 'TARGET: 32' },
+        { expr: '3⁴ = ?', target: 'TARGET: 81' },
+        { expr: '5³ = ?', target: 'TARGET: 125' },
+        { expr: '7² = ?', target: 'TARGET: 49' },
+        { expr: '2³ × 3² = ?', target: 'TARGET: 72' },
+        { expr: '4⁰ = ?', target: 'TARGET: 1' },
+        { expr: '10³ = ?', target: 'TARGET: 1000' },
+    ];
+    let meltFrame = 0;
+    function renderMeltdownPreview() {
+        const round = MELTDOWN_ROUNDS[meltFrame % MELTDOWN_ROUNDS.length];
+        document.getElementById('meltdown-expr').textContent = round.expr;
+        document.getElementById('meltdown-target').textContent = round.target;
+        meltFrame++;
+    }
+    renderMeltdownPreview();
+    setInterval(renderMeltdownPreview, 2500);
 </script>
 </body>
 </html>

@@ -1,0 +1,2051 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MELTDOWN — Powers Reactor</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0c08;
+  --panel: #14160f;
+  --panel-border: #2a2e20;
+  --steel: #1e2118;
+  --steel-light: #2a2e22;
+  --rivet: #3a3e30;
+  --amber: #e0a020;
+  --amber-dim: #806010;
+  --amber-glow: rgba(224,160,32,0.3);
+  --green: #30e050;
+  --green-dim: #1a7828;
+  --green-glow: rgba(48,224,80,0.25);
+  --red: #e03030;
+  --red-glow: rgba(224,48,48,0.4);
+  --orange: #e07020;
+  --text: #c8c8b0;
+  --text-dim: #606850;
+  --nixie: #ff6820;
+  --nixie-glow: rgba(255,104,32,0.6);
+  --bakelite: #2c1e10;
+  --bakelite-light: #3e2c18;
+  --dial-bg: #1a1408;
+  --dial-ring: #4a3e28;
+  --dial-notch: #a09060;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; user-select:none; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Outfit', sans-serif;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* === LAYOUT === */
+.app { display:flex; height:100vh; width:100vw; }
+
+/* LEFT: Reactor */
+.reactor-panel {
+  width: 340px;
+  min-width: 340px;
+  background: linear-gradient(180deg, #12140e 0%, #0e100a 50%, #12140e 100%);
+  border-right: 4px solid var(--panel-border);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 16px;
+  gap: 12px;
+  position: relative;
+  overflow: hidden;
+}
+
+.reactor-panel::before {
+  content:'';
+  position:absolute;
+  inset:0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent 0px, transparent 3px,
+    rgba(255,255,255,0.008) 3px, rgba(255,255,255,0.008) 4px
+  );
+  pointer-events:none;
+}
+
+/* RIGHT: Controls */
+.control-panel {
+  flex:1;
+  background: linear-gradient(180deg, #111310 0%, #0d0f0a 100%);
+  display: flex;
+  flex-direction: column;
+  padding: 16px 24px;
+  gap: 14px;
+  position: relative;
+  overflow: hidden;
+}
+
+.control-panel::before {
+  content:'';
+  position:absolute;
+  inset:0;
+  background: 
+    radial-gradient(circle at 50% 30%, rgba(224,160,32,0.02) 0%, transparent 60%),
+    repeating-linear-gradient(90deg, transparent 0px, transparent 5px, rgba(255,255,255,0.005) 5px, rgba(255,255,255,0.005) 6px);
+  pointer-events:none;
+}
+
+/* === TITLE === */
+.title-plate {
+  background: linear-gradient(135deg, var(--steel) 0%, var(--steel-light) 100%);
+  border: 2px solid var(--panel-border);
+  border-radius: 4px;
+  padding: 8px 20px;
+  text-align: center;
+  position: relative;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.05), 0 4px 12px rgba(0,0,0,0.5);
+}
+
+.title-plate h1 {
+  font-family: 'Orbitron', monospace;
+  font-weight: 900;
+  font-size: 1.6rem;
+  letter-spacing: 6px;
+  color: var(--amber);
+  text-shadow: 0 0 20px var(--amber-glow), 0 0 40px var(--amber-glow);
+}
+
+.title-plate .subtitle {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.65rem;
+  color: var(--text-dim);
+  letter-spacing: 3px;
+  margin-top: 2px;
+}
+
+/* === REACTOR CORE === */
+.reactor-container {
+  position: relative;
+  width: 220px;
+  height: 220px;
+  flex-shrink: 0;
+}
+
+.reactor-ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 6px solid var(--steel-light);
+  box-shadow: inset 0 0 30px rgba(0,0,0,0.8), 0 0 20px rgba(0,0,0,0.5);
+}
+
+.reactor-core {
+  position: absolute;
+  inset: 20px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #1a3a1a 0%, #0a1a0a 70%, #050a05 100%);
+  box-shadow: 0 0 40px var(--green-glow), inset 0 0 30px rgba(48,224,80,0.1);
+  transition: background 0.5s, box-shadow 0.5s;
+}
+
+.reactor-core.warning {
+  background: radial-gradient(circle, #3a3a0a 0%, #1a1a05 70%, #0a0a02 100%);
+  box-shadow: 0 0 40px rgba(224,160,32,0.3), inset 0 0 30px rgba(224,160,32,0.1);
+}
+
+.reactor-core.danger {
+  background: radial-gradient(circle, #3a1a0a 0%, #1a0a05 70%, #0a0502 100%);
+  box-shadow: 0 0 60px var(--red-glow), inset 0 0 30px rgba(224,48,48,0.15);
+}
+
+.reactor-core.meltdown-anim {
+  animation: meltdownPulse 0.3s ease-in-out infinite;
+}
+
+@keyframes meltdownPulse {
+  0%,100% { box-shadow: 0 0 60px var(--red-glow), inset 0 0 40px rgba(224,48,48,0.3); }
+  50% { box-shadow: 0 0 100px rgba(255,60,20,0.7), inset 0 0 60px rgba(255,60,20,0.4); }
+}
+
+.core-label {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+
+.core-label .status-text {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.7rem;
+  color: var(--green);
+  letter-spacing: 2px;
+  transition: color 0.5s;
+}
+
+.core-label .temp-value {
+  font-family: 'Orbitron', monospace;
+  font-size: 2rem;
+  font-weight: 900;
+  color: var(--green);
+  text-shadow: 0 0 15px var(--green-glow);
+  transition: color 0.5s, text-shadow 0.5s;
+}
+
+/* === TEMPERATURE BAR === */
+.temp-bar-container {
+  width: 100%;
+  max-width: 260px;
+  background: var(--steel);
+  border: 2px solid var(--panel-border);
+  border-radius: 4px;
+  padding: 6px;
+  box-shadow: inset 0 2px 6px rgba(0,0,0,0.5);
+}
+
+.temp-bar-label {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.6rem;
+  color: var(--text-dim);
+  letter-spacing: 2px;
+  margin-bottom: 4px;
+}
+
+.temp-bar-track {
+  height: 16px;
+  background: #0a0c06;
+  border-radius: 2px;
+  overflow: hidden;
+  position: relative;
+}
+
+.temp-bar-fill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, var(--green) 0%, var(--green) 40%, var(--amber) 65%, var(--red) 90%);
+  border-radius: 2px;
+  transition: width 0.5s ease;
+  position: relative;
+}
+
+.temp-bar-zones {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  pointer-events: none;
+}
+
+.temp-bar-zones span {
+  flex: 1;
+  border-right: 1px solid rgba(255,255,255,0.08);
+}
+
+/* === STATS === */
+.stats-row {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+  max-width: 260px;
+}
+
+.stat-box {
+  flex: 1;
+  background: var(--steel);
+  border: 1px solid var(--panel-border);
+  border-radius: 3px;
+  padding: 6px 8px;
+  text-align: center;
+  box-shadow: inset 0 1px 4px rgba(0,0,0,0.4);
+}
+
+.stat-box .stat-label {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.55rem;
+  color: var(--text-dim);
+  letter-spacing: 1px;
+}
+
+.stat-box .stat-value {
+  font-family: 'Orbitron', monospace;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--amber);
+  text-shadow: 0 0 8px var(--amber-glow);
+}
+
+.stat-box .stat-value.streak {
+  color: var(--green);
+  text-shadow: 0 0 8px var(--green-glow);
+}
+
+/* === HIGH SCORES === */
+.highscore-display {
+  width: 100%;
+  max-width: 260px;
+  background: var(--steel);
+  border: 1px solid var(--panel-border);
+  border-radius: 3px;
+  padding: 6px 10px;
+  box-shadow: inset 0 1px 4px rgba(0,0,0,0.4);
+}
+
+.highscore-display .hs-label {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.55rem;
+  color: var(--text-dim);
+  letter-spacing: 1px;
+}
+
+.highscore-display .hs-value {
+  font-family: 'Orbitron', monospace;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--nixie);
+  text-shadow: 0 0 8px var(--nixie-glow);
+}
+
+/* === RIVETS === */
+.rivet {
+  width: 8px; height: 8px;
+  background: radial-gradient(circle at 35% 35%, var(--rivet), #1a1e14);
+  border-radius: 50%;
+  border: 1px solid #4a4e3a;
+  position: absolute;
+}
+
+/* === CONTROL PANEL SECTIONS === */
+
+/* Target display */
+.target-section {
+  background: var(--steel);
+  border: 2px solid var(--panel-border);
+  border-radius: 4px;
+  padding: 12px 16px;
+  text-align: center;
+  box-shadow: inset 0 2px 8px rgba(0,0,0,0.5), 0 2px 8px rgba(0,0,0,0.3);
+  position: relative;
+}
+
+.target-label {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.7rem;
+  color: var(--text-dim);
+  letter-spacing: 3px;
+}
+
+.target-value {
+  font-family: 'Orbitron', monospace;
+  font-size: 2.8rem;
+  font-weight: 900;
+  color: var(--nixie);
+  text-shadow: 0 0 20px var(--nixie-glow), 0 0 40px rgba(255,104,32,0.3);
+  line-height: 1.1;
+}
+
+/* Expression readout */
+.expression-section {
+  background: #0a0c06;
+  border: 2px solid var(--panel-border);
+  border-radius: 3px;
+  padding: 12px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  box-shadow: inset 0 2px 8px rgba(0,0,0,0.6);
+}
+
+.expr-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.expr-text {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 1.4rem;
+  color: var(--amber);
+  text-shadow: 0 0 6px var(--amber-glow);
+  min-height: 1.4em;
+}
+
+.expr-equals {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 1.1rem;
+  color: var(--text-dim);
+  margin: 0 10px;
+}
+
+.expr-output {
+  font-family: 'Orbitron', monospace;
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--green);
+  text-shadow: 0 0 10px var(--green-glow);
+}
+
+.expr-expanded {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 1.1rem;
+  color: var(--text-dim);
+  min-height: 1.3em;
+  letter-spacing: 1px;
+}
+
+/* Dial area */
+.dials-section {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 30px;
+  flex-wrap: wrap;
+  min-height: 0;
+}
+
+.dial-station {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.dial-base-label {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.65rem;
+  color: var(--text-dim);
+  letter-spacing: 2px;
+}
+
+.dial-base-value {
+  font-family: 'Orbitron', monospace;
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--amber);
+  text-shadow: 0 0 10px var(--amber-glow);
+}
+
+/* The actual dial */
+.dial-wrapper {
+  width: 120px;
+  height: 120px;
+  position: relative;
+  cursor: grab;
+}
+
+.dial-wrapper:active { cursor: grabbing; }
+
+.dial-outer {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: radial-gradient(circle at 40% 35%, var(--bakelite-light), var(--bakelite));
+  border: 4px solid var(--dial-ring);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.6), inset 0 2px 4px rgba(255,255,255,0.05);
+}
+
+.dial-notches {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+}
+
+.dial-notch {
+  position: absolute;
+  width: 2px;
+  height: 8px;
+  background: var(--dial-notch);
+  top: 6px;
+  left: 50%;
+  transform-origin: 50% 54px;
+}
+
+.dial-notch.active {
+  background: var(--amber);
+  box-shadow: 0 0 4px var(--amber-glow);
+}
+
+.dial-pointer {
+  position: absolute;
+  width: 4px;
+  height: 30px;
+  background: var(--amber);
+  top: 14px;
+  left: calc(50% - 2px);
+  border-radius: 2px;
+  transform-origin: 50% 46px;
+  box-shadow: 0 0 8px var(--amber-glow);
+  transition: transform 0.15s ease-out;
+}
+
+.dial-center {
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  top: calc(50% - 8px);
+  left: calc(50% - 8px);
+  border-radius: 50%;
+  background: radial-gradient(circle at 40% 35%, #5a4e30, #2a2010);
+  border: 2px solid var(--dial-ring);
+  z-index: 2;
+}
+
+.dial-value-display {
+  font-family: 'Orbitron', monospace;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--amber);
+  text-shadow: 0 0 6px var(--amber-glow);
+  text-align: center;
+}
+
+/* Operator between dials */
+.dial-operator {
+  font-family: 'Orbitron', monospace;
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--text-dim);
+  align-self: center;
+  margin-top: 20px;
+}
+
+/* Submit lever */
+.lever-section {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  padding: 4px 0;
+}
+
+.lever-btn {
+  font-family: 'Orbitron', monospace;
+  font-weight: 700;
+  font-size: 1rem;
+  letter-spacing: 3px;
+  color: var(--bg);
+  background: linear-gradient(180deg, #c09020 0%, #906810 50%, #705008 100%);
+  border: 3px solid var(--dial-ring);
+  border-radius: 6px;
+  padding: 12px 36px;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.2);
+  transition: transform 0.1s, box-shadow 0.1s;
+  text-transform: uppercase;
+}
+
+.lever-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.2), 0 0 20px var(--amber-glow);
+}
+
+.lever-btn:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.5), inset 0 2px 4px rgba(0,0,0,0.3);
+}
+
+.lever-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* === SCREENS === */
+.screen { display: none; }
+.screen.active { display: flex; }
+
+/* Setup screen */
+.setup-screen {
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  width: 100vw;
+  background: var(--bg);
+  position: relative;
+}
+
+.setup-screen::before {
+  content:'';
+  position:absolute;
+  inset:0;
+  background:
+    radial-gradient(circle at 30% 40%, rgba(48,224,80,0.03) 0%, transparent 50%),
+    radial-gradient(circle at 70% 60%, rgba(224,160,32,0.03) 0%, transparent 50%);
+  pointer-events:none;
+}
+
+.setup-content {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+}
+
+.setup-content h1 {
+  font-family: 'Orbitron', monospace;
+  font-weight: 900;
+  font-size: 3.5rem;
+  letter-spacing: 8px;
+  color: var(--amber);
+  text-shadow: 0 0 30px var(--amber-glow), 0 0 60px rgba(224,160,32,0.2);
+  margin-bottom: 4px;
+}
+
+.setup-content .setup-sub {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.8rem;
+  color: var(--text-dim);
+  letter-spacing: 4px;
+  margin-bottom: 40px;
+}
+
+.difficulty-options {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  margin-bottom: 30px;
+}
+
+.diff-btn {
+  font-family: 'Orbitron', monospace;
+  font-weight: 700;
+  font-size: 0.85rem;
+  letter-spacing: 2px;
+  padding: 14px 28px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-transform: uppercase;
+  position: relative;
+}
+
+.diff-btn.easy {
+  background: linear-gradient(180deg, #1a2e1a 0%, #0e1a0e 100%);
+  border: 2px solid var(--green-dim);
+  color: var(--green);
+}
+.diff-btn.easy:hover, .diff-btn.easy.selected {
+  border-color: var(--green);
+  box-shadow: 0 0 20px var(--green-glow), inset 0 0 20px rgba(48,224,80,0.05);
+}
+
+.diff-btn.medium {
+  background: linear-gradient(180deg, #2e2a1a 0%, #1a160e 100%);
+  border: 2px solid var(--amber-dim);
+  color: var(--amber);
+}
+.diff-btn.medium:hover, .diff-btn.medium.selected {
+  border-color: var(--amber);
+  box-shadow: 0 0 20px var(--amber-glow), inset 0 0 20px rgba(224,160,32,0.05);
+}
+
+.diff-btn.hard {
+  background: linear-gradient(180deg, #2e1a1a 0%, #1a0e0e 100%);
+  border: 2px solid #802020;
+  color: var(--red);
+}
+.diff-btn.hard:hover, .diff-btn.hard.selected {
+  border-color: var(--red);
+  box-shadow: 0 0 20px var(--red-glow), inset 0 0 20px rgba(224,48,48,0.05);
+}
+
+.diff-btn .diff-desc {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.55rem;
+  color: var(--text-dim);
+  margin-top: 4px;
+  letter-spacing: 1px;
+}
+
+.start-btn {
+  font-family: 'Orbitron', monospace;
+  font-weight: 900;
+  font-size: 1.2rem;
+  letter-spacing: 4px;
+  color: var(--bg);
+  background: linear-gradient(180deg, #c09020 0%, #806010 100%);
+  border: 3px solid var(--dial-ring);
+  border-radius: 6px;
+  padding: 16px 48px;
+  cursor: pointer;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.5), 0 0 30px var(--amber-glow);
+  transition: all 0.2s;
+  text-transform: uppercase;
+  opacity: 0.3;
+  pointer-events: none;
+}
+
+.start-btn.ready {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.start-btn.ready:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 24px rgba(0,0,0,0.5), 0 0 40px var(--amber-glow);
+}
+
+/* Game screen */
+.game-screen {
+  width: 100vw;
+  height: 100vh;
+}
+
+/* Game over screen */
+.gameover-screen {
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  width: 100vw;
+  background: var(--bg);
+  position: relative;
+}
+
+.gameover-screen::before {
+  content:'';
+  position:absolute;
+  inset:0;
+  background: radial-gradient(circle at 50% 50%, rgba(224,48,48,0.05) 0%, transparent 60%);
+  pointer-events:none;
+}
+
+.gameover-content {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+}
+
+.gameover-content h1 {
+  font-family: 'Orbitron', monospace;
+  font-weight: 900;
+  font-size: 3rem;
+  color: var(--red);
+  text-shadow: 0 0 30px var(--red-glow);
+  letter-spacing: 6px;
+  margin-bottom: 8px;
+}
+
+.gameover-content .go-sub {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.8rem;
+  color: var(--text-dim);
+  letter-spacing: 2px;
+  margin-bottom: 30px;
+}
+
+.go-stats {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+
+.go-stat {
+  background: var(--steel);
+  border: 2px solid var(--panel-border);
+  border-radius: 4px;
+  padding: 12px 20px;
+  min-width: 120px;
+}
+
+.go-stat .go-stat-label {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.6rem;
+  color: var(--text-dim);
+  letter-spacing: 1px;
+}
+
+.go-stat .go-stat-value {
+  font-family: 'Orbitron', monospace;
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--amber);
+  text-shadow: 0 0 8px var(--amber-glow);
+}
+
+.new-highscore {
+  font-family: 'Orbitron', monospace;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--nixie);
+  text-shadow: 0 0 15px var(--nixie-glow);
+  letter-spacing: 3px;
+  margin-bottom: 10px;
+  animation: hsPulse 1s ease-in-out infinite;
+}
+
+@keyframes hsPulse {
+  0%,100% { opacity:1; }
+  50% { opacity:0.5; }
+}
+
+.hs-input-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.hs-input-row label {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.7rem;
+  color: var(--text-dim);
+  letter-spacing: 1px;
+}
+
+.hs-input {
+  font-family: 'Orbitron', monospace;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--amber);
+  background: #0a0c06;
+  border: 2px solid var(--panel-border);
+  border-radius: 3px;
+  padding: 6px 10px;
+  width: 100px;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+.hs-input:focus {
+  outline: none;
+  border-color: var(--amber);
+  box-shadow: 0 0 10px var(--amber-glow);
+}
+
+.hs-save-btn {
+  font-family: 'Orbitron', monospace;
+  font-weight: 700;
+  font-size: 0.7rem;
+  letter-spacing: 2px;
+  color: var(--bg);
+  background: linear-gradient(180deg, var(--green) 0%, var(--green-dim) 100%);
+  border: 2px solid var(--green-dim);
+  border-radius: 3px;
+  padding: 6px 14px;
+  cursor: pointer;
+}
+
+.go-buttons {
+  display: flex;
+  gap: 14px;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.go-btn {
+  font-family: 'Orbitron', monospace;
+  font-weight: 700;
+  font-size: 0.8rem;
+  letter-spacing: 2px;
+  padding: 10px 24px;
+  border-radius: 4px;
+  cursor: pointer;
+  text-transform: uppercase;
+  background: var(--steel);
+  border: 2px solid var(--panel-border);
+  color: var(--amber);
+  transition: all 0.2s;
+}
+
+.go-btn:hover {
+  border-color: var(--amber);
+  box-shadow: 0 0 15px var(--amber-glow);
+}
+
+/* High score table */
+.hs-table {
+  margin-top: 16px;
+  width: 100%;
+  max-width: 360px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.hs-table-title {
+  font-family: 'Orbitron', monospace;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--text-dim);
+  letter-spacing: 2px;
+  margin-bottom: 6px;
+}
+
+.hs-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 3px 8px;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  border-bottom: 1px solid rgba(255,255,255,0.03);
+}
+
+.hs-row.current {
+  color: var(--nixie);
+  text-shadow: 0 0 6px var(--nixie-glow);
+}
+
+.hs-row .hs-rank { width: 30px; }
+.hs-row .hs-name { flex:1; text-align:left; margin-left:8px; }
+.hs-row .hs-score { width: 80px; text-align: right; }
+.hs-row .hs-rounds { width: 60px; text-align: right; }
+
+/* Feedback flash */
+.feedback-overlay {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 100;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.feedback-overlay.correct {
+  background: radial-gradient(circle at 50% 50%, rgba(48,224,80,0.15) 0%, transparent 70%);
+  opacity: 1;
+}
+
+.feedback-overlay.wrong {
+  background: radial-gradient(circle at 50% 50%, rgba(224,48,48,0.2) 0%, transparent 70%);
+  opacity: 1;
+}
+
+/* Bonus round */
+.bonus-badge {
+  position: absolute;
+  top: 8px;
+  right: 12px;
+  font-family: 'Orbitron', monospace;
+  font-weight: 700;
+  font-size: 0.65rem;
+  color: var(--nixie);
+  text-shadow: 0 0 10px var(--nixie-glow);
+  letter-spacing: 2px;
+  animation: bonusPulse 0.8s ease-in-out infinite;
+}
+
+@keyframes bonusPulse {
+  0%,100% { opacity:1; transform:scale(1); }
+  50% { opacity:0.7; transform:scale(1.05); }
+}
+
+/* Round info */
+.round-info {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.6rem;
+  color: var(--text-dim);
+  letter-spacing: 1px;
+  text-align: center;
+}
+
+/* Warning lights */
+.warning-lights {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  margin-top: auto;
+  padding-top: 8px;
+}
+
+.warning-light {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #1a0a0a;
+  border: 2px solid #3a1a1a;
+  transition: all 0.3s;
+}
+
+.warning-light.lit {
+  background: var(--red);
+  border-color: #ff4040;
+  box-shadow: 0 0 12px var(--red-glow);
+}
+
+/* Stacked fractions */
+.stacked-frac {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  vertical-align: middle;
+  line-height: 1;
+  margin: 0 3px;
+  position: relative;
+}
+
+.stacked-frac .frac-num {
+  font-size: 0.7em;
+  border-bottom: 1.5px solid currentColor;
+  padding: 0 3px 1px;
+}
+
+.stacked-frac .frac-den {
+  font-size: 0.7em;
+  padding: 1px 3px 0;
+}
+
+.menu-btn {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 2px;
+  color: var(--text-dim);
+  background: transparent;
+  border: 1px solid var(--panel-border);
+  border-radius: 3px;
+  padding: 6px 14px;
+  cursor: pointer;
+  margin-top: 8px;
+  transition: all 0.2s;
+}
+
+.menu-btn:hover {
+  color: var(--amber);
+  border-color: var(--amber-dim);
+}
+
+@media (max-width: 900px) {
+  .reactor-panel { width: 260px; min-width: 260px; }
+  .reactor-container { width: 180px; height: 180px; }
+  .dial-wrapper { width: 100px; height: 100px; }
+  .target-value { font-size: 2.2rem; }
+}
+
+@media (max-width: 700px) {
+  .app { flex-direction: column; }
+  .reactor-panel {
+    width: 100%; min-width: 100%;
+    flex-direction: row;
+    height: auto;
+    padding: 8px;
+    border-right: none;
+    border-bottom: 4px solid var(--panel-border);
+  }
+  .reactor-container { width: 120px; height: 120px; }
+}
+</style>
+</head>
+<body>
+
+<!-- FEEDBACK FLASH -->
+<div class="feedback-overlay" id="feedback-overlay"></div>
+
+<!-- SETUP SCREEN -->
+<div class="screen setup-screen active" id="setup-screen">
+  <div class="setup-content">
+    <h1>☢ MELTDOWN ☢</h1>
+    <div class="setup-sub">POWERS REACTOR CONTROL</div>
+    <div class="difficulty-options">
+      <button class="diff-btn easy" onclick="selectDiff('easy')">
+        EASY
+        <div class="diff-desc">Positive powers</div>
+      </button>
+      <button class="diff-btn medium" onclick="selectDiff('medium')">
+        MEDIUM
+        <div class="diff-desc">+ Negative powers</div>
+      </button>
+      <button class="diff-btn hard" onclick="selectDiff('hard')">
+        HARD
+        <div class="diff-desc">+ Negative bases</div>
+      </button>
+    </div>
+    <button class="start-btn" id="start-btn" onclick="startGame()">INITIATE REACTOR</button>
+  </div>
+</div>
+
+<!-- GAME SCREEN -->
+<div class="screen game-screen" id="game-screen">
+  <div class="app">
+    <!-- LEFT: REACTOR -->
+    <div class="reactor-panel">
+      <div class="title-plate">
+        <h1>☢ MELTDOWN</h1>
+        <div class="subtitle">REACTOR STATUS</div>
+      </div>
+
+      <div class="reactor-container">
+        <div class="reactor-ring"></div>
+        <div class="reactor-core" id="reactor-core">
+          <div class="core-label">
+            <div class="status-text" id="status-text">STABLE</div>
+            <div class="temp-value" id="temp-display">0°</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="temp-bar-container">
+        <div class="temp-bar-label">CORE TEMPERATURE</div>
+        <div class="temp-bar-track">
+          <div class="temp-bar-fill" id="temp-bar"></div>
+          <div class="temp-bar-zones"><span></span><span></span><span></span><span></span></div>
+        </div>
+      </div>
+
+      <div class="stats-row">
+        <div class="stat-box">
+          <div class="stat-label">SCORE</div>
+          <div class="stat-value" id="score-display">0</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">STREAK</div>
+          <div class="stat-value streak" id="streak-display">×1</div>
+        </div>
+      </div>
+
+      <div class="stats-row">
+        <div class="stat-box">
+          <div class="stat-label">ROUND</div>
+          <div class="stat-value" id="round-display">1</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">BEST</div>
+          <div class="stat-value" id="best-display">0</div>
+        </div>
+      </div>
+
+      <div class="warning-lights">
+        <div class="warning-light" id="wl0"></div>
+        <div class="warning-light" id="wl1"></div>
+        <div class="warning-light" id="wl2"></div>
+        <div class="warning-light" id="wl3"></div>
+      </div>
+
+      <div class="highscore-display" style="margin-top:auto">
+        <div class="hs-label">HIGH SCORE</div>
+        <div class="hs-value" id="hs-display">---</div>
+      </div>
+
+      <button class="menu-btn" onclick="confirmMenu()">✕ EXIT</button>
+    </div>
+
+    <!-- RIGHT: CONTROLS -->
+    <div class="control-panel">
+      <div class="target-section" id="target-section">
+        <div class="target-label">TARGET OUTPUT</div>
+        <div class="target-value" id="target-value">---</div>
+        <div class="round-info" id="round-type-info"></div>
+        <div class="bonus-badge" id="bonus-badge" style="display:none">★ BONUS ROUND ★</div>
+      </div>
+
+      <div class="expression-section">
+        <div class="expr-row">
+          <span class="expr-text" id="expr-text">—</span>
+          <span class="expr-equals">=</span>
+          <span class="expr-output" id="expr-output">—</span>
+        </div>
+        <div class="expr-expanded" id="expr-expanded"></div>
+      </div>
+
+      <div class="dials-section" id="dials-section">
+        <!-- Dials injected dynamically -->
+      </div>
+
+      <div class="lever-section">
+        <button class="lever-btn" id="lever-btn" onclick="submitAnswer()">ENGAGE</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- GAME OVER SCREEN -->
+<div class="screen gameover-screen" id="gameover-screen">
+  <div class="gameover-content">
+    <h1>☢ MELTDOWN ☢</h1>
+    <div class="go-sub">REACTOR CRITICAL — CONTAINMENT BREACH</div>
+
+    <div class="go-stats">
+      <div class="go-stat">
+        <div class="go-stat-label">FINAL SCORE</div>
+        <div class="go-stat-value" id="go-score">0</div>
+      </div>
+      <div class="go-stat">
+        <div class="go-stat-label">ROUNDS</div>
+        <div class="go-stat-value" id="go-rounds">0</div>
+      </div>
+      <div class="go-stat">
+        <div class="go-stat-label">BEST STREAK</div>
+        <div class="go-stat-value" id="go-streak">0</div>
+      </div>
+    </div>
+
+    <div class="new-highscore" id="new-hs-msg" style="display:none">★ NEW HIGH SCORE ★</div>
+    <div class="hs-input-row" id="hs-input-row" style="display:none">
+      <label>INITIALS:</label>
+      <input class="hs-input" id="hs-input" maxlength="3" placeholder="AAA">
+      <button class="hs-save-btn" onclick="saveHighScore()">SAVE</button>
+    </div>
+
+    <div class="hs-table" id="hs-table"></div>
+
+    <div class="go-buttons">
+      <button class="go-btn" onclick="restartGame()">RESTART</button>
+      <button class="go-btn" onclick="backToMenu()">MENU</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// === GAME STATE ===
+let G = {};
+let selectedDiff = null;
+
+// === HIGH SCORES (in-memory, persists via page session) ===
+// Stored per difficulty
+let HIGH_SCORES = { easy: [], medium: [], hard: [] };
+
+// Try load from localStorage
+try {
+  const saved = localStorage.getItem('meltdown_scores');
+  if (saved) HIGH_SCORES = JSON.parse(saved);
+} catch(e) {}
+
+function persistScores() {
+  try { localStorage.setItem('meltdown_scores', JSON.stringify(HIGH_SCORES)); } catch(e) {}
+}
+
+// === DIFFICULTY CONFIGS ===
+const CONFIGS = {
+  easy: {
+    exponents: [0,1,2,3,4,5,6,7,8,9,10],
+    bases: [2,3,4,5,6,7,8,9,10],
+    label: 'EASY'
+  },
+  medium: {
+    exponents: [-5,-4,-3,-2,-1,0,1,2,3,4,5,6,7,8,9,10],
+    bases: [2,3,4,5,6,7,8,9,10],
+    label: 'MEDIUM'
+  },
+  hard: {
+    exponents: [-5,-4,-3,-2,-1,0,1,2,3,4,5,6,7,8,9,10],
+    bases: [-10,-9,-8,-7,-6,-5,-4,-3,-2,2,3,4,5,6,7,8,9,10],
+    label: 'HARD'
+  }
+};
+
+// Display helpers for dial labels
+function expLabel(e) {
+  return String(e);
+}
+
+function isFractionalExp(e) {
+  return false; // No fractional exponents in this version
+}
+
+function superscript(e) {
+  const map = {'0':'⁰','1':'¹','2':'²','3':'³','4':'⁴','5':'⁵','6':'⁶','7':'⁷','8':'⁸','9':'⁹','-':'⁻'};
+  return String(e).split('').map(c => map[c] || c).join('');
+}
+
+// Build expression text for a single base^exp term
+function buildTermExpr(base, exp) {
+  if (base < 0) return `(${base})${superscript(exp)}`;
+  return `${base}${superscript(exp)}`;
+}
+
+// Format a number for display — integers stay as-is, fractions become stacked
+function formatNum(n) {
+  if (Number.isInteger(n) && Math.abs(n) < 1e12) return String(n);
+  if (Math.abs(n - Math.round(n)) < 0.0001 && Math.abs(n) < 1e12) return String(Math.round(n));
+  const frac = toFraction(n);
+  if (frac) return frac;
+  return String(Math.round(n * 10000) / 10000);
+}
+
+// Format specifically for HTML (stacked fractions)
+function formatNumHTML(n) {
+  if (Number.isInteger(n) && Math.abs(n) < 1e12) return String(n);
+  if (Math.abs(n - Math.round(n)) < 0.0001 && Math.abs(n) < 1e12) return String(Math.round(n));
+  const frac = toFractionParts(n);
+  if (frac) return `<span class="stacked-frac"><span class="frac-num">${frac.num}</span><span class="frac-den">${frac.den}</span></span>`;
+  return String(Math.round(n * 10000) / 10000);
+}
+
+function toFraction(n) {
+  if (Number.isInteger(n)) return null;
+  const parts = toFractionParts(n);
+  if (parts) return `${parts.num}⁄${parts.den}`;
+  return null;
+}
+
+function toFractionParts(n) {
+  if (Number.isInteger(n)) return null;
+  const sign = n < 0 ? -1 : 1;
+  const abs = Math.abs(n);
+  const denoms = [2,3,4,5,6,8,9,10,16,25,27,32,64,81,100,125,128,243,256,512,625,1000,1024];
+  for (const d of denoms) {
+    const num = abs * d;
+    if (Math.abs(num - Math.round(num)) < 0.0001) {
+      const rn = Math.round(num) * sign;
+      // Simplify
+      const g = gcd(Math.abs(rn), d);
+      return { num: rn / g, den: d / g };
+    }
+  }
+  return null;
+}
+
+function gcd(a, b) { return b === 0 ? a : gcd(b, a % b); }
+
+// === SETUP ===
+function selectDiff(d) {
+  selectedDiff = d;
+  document.querySelectorAll('.diff-btn').forEach(b => b.classList.remove('selected'));
+  document.querySelector(`.diff-btn.${d}`).classList.add('selected');
+  document.getElementById('start-btn').classList.add('ready');
+}
+
+// === ROUND GENERATION ===
+function genRound() {
+  const cfg = CONFIGS[G.diff];
+  const roundNum = G.round;
+  const isBonus = roundNum > 1 && roundNum % 5 === 0;
+
+  // Progression:
+  // Rounds 1-3: single dial
+  // Rounds 4-6: fixed value × base^dial (one dial, one plain number)
+  // Rounds 7-10: two dials, multiplication, positive powers only
+  // Rounds 11-19: two dials, any operator, full power range
+  // Rounds 20+: bigger bases come into play, larger targets allowed
+  // Rounds 25+: occasionally 3 dials
+  let numDials, operator, fixedVal;
+
+  if (roundNum <= 3) {
+    numDials = 1; operator = null; fixedVal = undefined;
+  } else if (roundNum <= 6) {
+    // Two dials but one is a plain number (no power) — gets them used to two dials
+    numDials = 2; operator = '×'; fixedVal = 'plainDial';
+  } else if (roundNum <= 10) {
+    if (Math.random() < 0.25) {
+      numDials = 2; operator = '×'; fixedVal = 'plainDial';
+    } else {
+      numDials = 2; operator = '×'; fixedVal = undefined;
+    }
+  } else if (roundNum <= 19) {
+    numDials = 2;
+    operator = Math.random() < 0.6 ? '×' : '+';
+    fixedVal = undefined;
+  } else if (roundNum <= 24) {
+    // Big numbers era
+    numDials = 2;
+    operator = Math.random() < 0.6 ? '×' : '+';
+    fixedVal = undefined;
+  } else {
+    // 3 dials sometimes
+    if (Math.random() < 0.4) {
+      numDials = 3;
+      operator = Math.random() < 0.7 ? '×' : '+';
+    } else {
+      numDials = 2;
+      operator = Math.random() < 0.5 ? '×' : '+';
+    }
+    fixedVal = undefined;
+  }
+
+  // For medium/hard, only introduce negative powers after round 6
+  let availExps = [...cfg.exponents];
+  if (roundNum <= 6) {
+    availExps = availExps.filter(e => e >= 0);
+  }
+
+  // For hard, only introduce negative bases after round 10
+  let availBases = [...cfg.bases];
+  if (G.diff === 'hard' && roundNum <= 10) {
+    availBases = availBases.filter(b => b > 0);
+  }
+  if (roundNum >= 20) {
+    const bigBases = [2,3,4,5,6,7,8,9,10,11,12,15,16,20,25,32,50,64,100];
+    availBases = G.diff === 'easy' ? bigBases : [...new Set([...cfg.bases, ...bigBases])];
+  }
+
+  // Pick bases and target powers that give clean answers
+  let bases = [], targetExps = [], target, attempts = 0;
+  let plainDialValue = null;
+
+  // Allow bigger targets after round 20
+  const maxTarget = roundNum >= 20 ? 1000000 : 100000;
+
+  while (attempts < 300) {
+    attempts++;
+    bases = [];
+    targetExps = [];
+
+    if (fixedVal === 'plainDial') {
+      // First dial: plain number (1-12), power forced to 1
+      const plainNum = [2,3,4,5,6,7,8,9,10,12][Math.floor(Math.random() * 10)];
+      bases.push(plainNum);
+      targetExps.push(1); // will be hidden — just a number
+      // Second dial: normal power dial
+      const base = availBases[Math.floor(Math.random() * availBases.length)];
+      const exp = availExps[Math.floor(Math.random() * availExps.length)];
+      bases.push(base);
+      targetExps.push(exp);
+      plainDialValue = plainNum;
+    } else {
+      for (let i = 0; i < numDials; i++) {
+        const base = availBases[Math.floor(Math.random() * availBases.length)];
+        const exp = availExps[Math.floor(Math.random() * availExps.length)];
+        bases.push(base);
+        targetExps.push(exp);
+      }
+    }
+
+    // Calculate target
+    let vals = bases.map((b, i) => Math.pow(b, targetExps[i]));
+    let t;
+
+    if (numDials === 1) {
+      t = vals[0];
+    } else if (operator === '×') {
+      t = vals.reduce((a, b) => a * b, 1);
+    } else {
+      t = vals.reduce((a, b) => a + b, 0);
+    }
+
+    // Validate
+    if (!isFinite(t) || Math.abs(t) > maxTarget) continue;
+    if (t === 0 && numDials === 1) continue;
+
+    if (G.diff === 'easy') {
+      if (t !== Math.floor(t) || t <= 0) continue;
+    } else if (G.diff === 'medium') {
+      const rounded = Math.round(t * 10000) / 10000;
+      if (rounded !== t) continue;
+      if (t === 0 && numDials > 1) continue;
+    } else {
+      const rounded = Math.round(t * 10000) / 10000;
+      if (rounded !== t) continue;
+    }
+
+    // Avoid trivial answers
+    if (numDials >= 2 && fixedVal !== 'plainDial') {
+      const allOnes = targetExps.every(e => e === 1);
+      if (allOnes) continue;
+    }
+    // For plainDial, avoid exp=1 on the power dial (too easy)
+    if (fixedVal === 'plainDial' && targetExps[1] === 1) continue;
+
+    target = t;
+    break;
+  }
+
+  // Fallback
+  if (attempts >= 300) {
+    bases = [2];
+    targetExps = [Math.floor(Math.random() * 8) + 1];
+    target = Math.pow(2, targetExps[0]);
+    numDials = 1;
+    operator = null;
+    fixedVal = undefined;
+    plainDialValue = null;
+  }
+
+  return {
+    bases, targetExps, target, numDials, operator, isBonus, fixedVal, plainDialValue,
+    formatTarget: formatNum(target),
+    formatTargetHTML: formatNumHTML(target)
+  };
+}
+
+function formatNum(n) {
+  if (Number.isInteger(n)) return String(n);
+  // Check clean fraction
+  const frac = toFraction(n);
+  if (frac) return frac;
+  return String(Math.round(n * 10000) / 10000);
+}
+
+function toFraction(n) {
+  if (Number.isInteger(n)) return null;
+  const denoms = [2,3,4,5,6,8,10,16,25,32,64,100,125,256,1000];
+  for (const d of denoms) {
+    const num = n * d;
+    if (Math.abs(num - Math.round(num)) < 0.0001) {
+      return `${Math.round(num)}/${d}`;
+    }
+  }
+  return null;
+}
+
+// === DIALS ===
+let dialStates = [];
+let dialElements = [];
+
+function buildDials(round) {
+  const section = document.getElementById('dials-section');
+  section.innerHTML = '';
+  dialStates = [];
+  dialElements = [];
+
+  const cfg = CONFIGS[G.diff];
+  // Use restricted exponents for early rounds
+  let exps = [...cfg.exponents];
+  if (G.round <= 6) {
+    exps = exps.filter(e => e >= 0);
+  }
+
+  // If there's a fixed value (old style — now unused but keep for safety)
+  if (round.fixedVal !== undefined && round.fixedVal !== 'plainDial') {
+    // Legacy — shouldn't trigger anymore
+  }
+
+  for (let i = 0; i < round.numDials; i++) {
+    if (i > 0 && round.operator) {
+      const opEl = document.createElement('div');
+      opEl.className = 'dial-operator';
+      opEl.textContent = round.operator;
+      section.appendChild(opEl);
+    }
+
+    // Determine if this dial is a plain number dial (no power)
+    const isPlainDial = (round.fixedVal === 'plainDial' && i === 0);
+    const dialExps = isPlainDial ? [1,2,3,4,5,6,7,8,9,10,11,12] : exps;
+
+    const station = document.createElement('div');
+    station.className = 'dial-station';
+
+    const baseLabel = document.createElement('div');
+    baseLabel.className = 'dial-base-label';
+    baseLabel.textContent = isPlainDial ? 'NUMBER' : 'BASE';
+    station.appendChild(baseLabel);
+
+    if (!isPlainDial) {
+      const baseVal = document.createElement('div');
+      baseVal.className = 'dial-base-value';
+      baseVal.textContent = round.bases[i];
+      station.appendChild(baseVal);
+    } else {
+      // For plain dial, show the current number selection as the "base" display
+      const baseVal = document.createElement('div');
+      baseVal.className = 'dial-base-value';
+      baseVal.id = 'plain-dial-display';
+      baseVal.textContent = dialExps[0];
+      station.appendChild(baseVal);
+    }
+
+    const wrapper = document.createElement('div');
+    wrapper.className = 'dial-wrapper';
+    wrapper.dataset.dialIndex = i;
+
+    const outer = document.createElement('div');
+    outer.className = 'dial-outer';
+    wrapper.appendChild(outer);
+
+    // Notches
+    const notchContainer = document.createElement('div');
+    notchContainer.className = 'dial-notches';
+    const angleStep = dialExps.length > 1 ? 270 / (dialExps.length - 1) : 0;
+    for (let n = 0; n < dialExps.length; n++) {
+      const notch = document.createElement('div');
+      notch.className = 'dial-notch';
+      notch.style.transform = `rotate(${-135 + n * angleStep}deg)`;
+      notch.dataset.notchIndex = n;
+      notchContainer.appendChild(notch);
+    }
+    wrapper.appendChild(notchContainer);
+
+    const pointer = document.createElement('div');
+    pointer.className = 'dial-pointer';
+    wrapper.appendChild(pointer);
+
+    const center = document.createElement('div');
+    center.className = 'dial-center';
+    wrapper.appendChild(center);
+
+    station.appendChild(wrapper);
+
+    const valDisplay = document.createElement('div');
+    valDisplay.className = 'dial-value-display';
+    valDisplay.textContent = isPlainDial ? '' : `power: ${expLabel(dialExps[0])}`;
+    station.appendChild(valDisplay);
+
+    section.appendChild(station);
+
+    // State
+    // Start dial at 0 (or first value for plain dials)
+    let startIdx = 0;
+    if (!isPlainDial) {
+      const zeroIdx = dialExps.indexOf(0);
+      if (zeroIdx !== -1) startIdx = zeroIdx;
+    }
+    dialStates.push({
+      index: i,
+      notchIdx: startIdx,
+      base: isPlainDial ? dialExps[0] : round.bases[i],
+      exponents: dialExps,
+      pointer,
+      valDisplay,
+      notchContainer,
+      wrapper,
+      isPlainDial: isPlainDial,
+      plainDisplayEl: isPlainDial ? station.querySelector('#plain-dial-display') : null
+    });
+    dialElements.push(wrapper);
+
+    // Set initial position
+    updateDialVisual(dialStates[dialStates.length - 1]);
+
+    // Events
+    setupDialInteraction(dialStates[dialStates.length - 1]);
+  }
+
+  updateExpression();
+}
+
+function updateDialVisual(state) {
+  const exps = state.exponents;
+  const angleStep = exps.length > 1 ? 270 / (exps.length - 1) : 0;
+  const angle = -135 + state.notchIdx * angleStep;
+  state.pointer.style.transform = `rotate(${angle}deg)`;
+
+  if (state.isPlainDial) {
+    // Plain number dial — update the number display, no "power:" label
+    state.valDisplay.textContent = '';
+    if (state.plainDisplayEl) {
+      state.plainDisplayEl.textContent = exps[state.notchIdx];
+    }
+    state.base = exps[state.notchIdx]; // update the base for calculation
+  } else {
+    state.valDisplay.textContent = `power: ${expLabel(exps[state.notchIdx])}`;
+  }
+
+  // Highlight active notch
+  state.notchContainer.querySelectorAll('.dial-notch').forEach((n, i) => {
+    n.classList.toggle('active', i === state.notchIdx);
+  });
+}
+
+function setupDialInteraction(state) {
+  const wrapper = state.wrapper;
+  let dragging = false;
+  let startAngle = 0;
+  let startNotch = 0;
+
+  function getAngle(e, rect) {
+    const cx = rect.left + rect.width / 2;
+    const cy = rect.top + rect.height / 2;
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+    return Math.atan2(clientY - cy, clientX - cx) * (180 / Math.PI);
+  }
+
+  function onStart(e) {
+    if (G.locked) return;
+    e.preventDefault();
+    dragging = true;
+    const rect = wrapper.getBoundingClientRect();
+    startAngle = getAngle(e, rect);
+    startNotch = state.notchIdx;
+  }
+
+  function onMove(e) {
+    if (!dragging || G.locked) return;
+    e.preventDefault();
+    const rect = wrapper.getBoundingClientRect();
+    const currentAngle = getAngle(e, rect);
+    let delta = currentAngle - startAngle;
+    if (delta > 180) delta -= 360;
+    if (delta < -180) delta += 360;
+
+    const angleStep = 270 / (state.exponents.length - 1);
+    const notchDelta = Math.round(delta / angleStep);
+    let newIdx = startNotch + notchDelta;
+    newIdx = Math.max(0, Math.min(state.exponents.length - 1, newIdx));
+
+    if (newIdx !== state.notchIdx) {
+      state.notchIdx = newIdx;
+      updateDialVisual(state);
+      updateExpression();
+    }
+  }
+
+  function onEnd() {
+    dragging = false;
+  }
+
+  wrapper.addEventListener('mousedown', onStart);
+  wrapper.addEventListener('touchstart', onStart, { passive: false });
+  document.addEventListener('mousemove', onMove);
+  document.addEventListener('touchmove', onMove, { passive: false });
+  document.addEventListener('mouseup', onEnd);
+  document.addEventListener('touchend', onEnd);
+
+  // Scroll wheel
+  wrapper.addEventListener('wheel', (e) => {
+    if (G.locked) return;
+    e.preventDefault();
+    const dir = e.deltaY > 0 ? 1 : -1;
+    let newIdx = state.notchIdx + dir;
+    newIdx = Math.max(0, Math.min(state.exponents.length - 1, newIdx));
+    if (newIdx !== state.notchIdx) {
+      state.notchIdx = newIdx;
+      updateDialVisual(state);
+      updateExpression();
+    }
+  }, { passive: false });
+}
+
+function updateExpression() {
+  if (!G.currentRound) return;
+
+  let exprParts = [];
+  let exprHTMLParts = [];
+  let expandedHTMLParts = [];
+  let values = [];
+
+  // Don't add fixedVal prefix for plainDial mode (it's handled as a dial now)
+  if (G.currentRound.fixedVal !== undefined && G.currentRound.fixedVal !== 'plainDial') {
+    exprParts.push(String(G.currentRound.fixedVal));
+    exprHTMLParts.push(String(G.currentRound.fixedVal));
+    expandedHTMLParts.push(String(G.currentRound.fixedVal));
+  }
+
+  for (const ds of dialStates) {
+    const base = ds.base;
+    const exp = ds.exponents[ds.notchIdx];
+
+    if (ds.isPlainDial) {
+      // Plain number dial — just the number, no power
+      const val = exp; // for plain dial, exponents array IS the numbers
+      values.push(val);
+      exprParts.push(String(val));
+      exprHTMLParts.push(String(val));
+      expandedHTMLParts.push(String(val));
+    } else {
+      const val = Math.pow(base, exp);
+      values.push(val);
+
+      // Expression: use root notation for fractional, superscript for integer powers
+      const termExpr = buildTermExpr(base, exp);
+      exprParts.push(termExpr);
+      exprHTMLParts.push(termExpr);
+
+      // Expanded: show the actual value
+      expandedHTMLParts.push(formatNumHTML(val));
+    }
+  }
+
+  const op = G.currentRound.operator || '';
+  let exprStr = exprHTMLParts.join(` ${op} `);
+  let expandedStr = expandedHTMLParts.join(` ${op} `);
+
+  let result;
+  if (values.length === 1) {
+    result = values[0];
+  } else if (G.currentRound.operator === '×') {
+    result = values.reduce((a, b) => a * b, 1);
+  } else {
+    result = values.reduce((a, b) => a + b, 0);
+  }
+
+  document.getElementById('expr-text').innerHTML = exprStr;
+  document.getElementById('expr-output').innerHTML = formatNumHTML(result);
+
+  // Show expanded values when there's something to expand
+  const expandedEl = document.getElementById('expr-expanded');
+  const hasMultipleParts = (G.currentRound.fixedVal !== undefined || values.length > 1);
+  const hasPower = dialStates.some(ds => ds.exponents[ds.notchIdx] !== 1);
+  if (hasPower || hasMultipleParts) {
+    expandedEl.innerHTML = expandedStr + ' = ' + formatNumHTML(result);
+  } else {
+    expandedEl.innerHTML = '';
+  }
+
+  G.currentOutput = result;
+}
+
+// === TEMPERATURE / TIMER ===
+let heatInterval = null;
+
+function startHeatTimer() {
+  if (heatInterval) clearInterval(heatInterval);
+  heatInterval = setInterval(() => {
+    if (G.locked || G.gameOver) return;
+    G.temperature = Math.min(100, G.temperature + 0.15);
+    updateReactorVisuals();
+    if (G.temperature >= 100) {
+      triggerMeltdown();
+    }
+  }, 200);
+}
+
+function stopHeatTimer() {
+  if (heatInterval) { clearInterval(heatInterval); heatInterval = null; }
+}
+
+function updateReactorVisuals() {
+  const t = G.temperature;
+  const bar = document.getElementById('temp-bar');
+  bar.style.width = t + '%';
+
+  const core = document.getElementById('reactor-core');
+  const statusText = document.getElementById('status-text');
+  const tempDisplay = document.getElementById('temp-display');
+
+  tempDisplay.textContent = Math.round(t) + '°';
+
+  core.classList.remove('warning', 'danger', 'meltdown-anim');
+
+  if (t < 40) {
+    statusText.textContent = 'STABLE';
+    statusText.style.color = 'var(--green)';
+    tempDisplay.style.color = 'var(--green)';
+    tempDisplay.style.textShadow = '0 0 15px var(--green-glow)';
+  } else if (t < 70) {
+    core.classList.add('warning');
+    statusText.textContent = 'WARNING';
+    statusText.style.color = 'var(--amber)';
+    tempDisplay.style.color = 'var(--amber)';
+    tempDisplay.style.textShadow = '0 0 15px var(--amber-glow)';
+  } else {
+    core.classList.add('danger');
+    statusText.textContent = 'CRITICAL';
+    statusText.style.color = 'var(--red)';
+    tempDisplay.style.color = 'var(--red)';
+    tempDisplay.style.textShadow = '0 0 15px var(--red-glow)';
+  }
+
+  // Warning lights
+  const lights = [
+    document.getElementById('wl0'),
+    document.getElementById('wl1'),
+    document.getElementById('wl2'),
+    document.getElementById('wl3')
+  ];
+  lights.forEach((l, i) => {
+    l.classList.toggle('lit', t >= (i + 1) * 25);
+  });
+}
+
+// === GAME FLOW ===
+function startGame() {
+  if (!selectedDiff) return;
+
+  G = {
+    diff: selectedDiff,
+    round: 1,
+    score: 0,
+    streak: 0,
+    bestStreak: 0,
+    temperature: 0,
+    wrongCount: 0,
+    locked: false,
+    gameOver: false,
+    currentRound: null,
+    currentOutput: 0
+  };
+
+  showScreen('game-screen');
+  updateScoreboard();
+  updateReactorVisuals();
+  updateHighScoreDisplay();
+  startHeatTimer();
+  nextRound();
+}
+
+function nextRound() {
+  G.locked = false;
+  G.currentRound = genRound();
+  document.getElementById('target-value').innerHTML = G.currentRound.formatTargetHTML;
+  document.getElementById('round-display').textContent = G.round;
+
+  const bonusBadge = document.getElementById('bonus-badge');
+  bonusBadge.style.display = G.currentRound.isBonus ? 'block' : 'none';
+
+  const info = document.getElementById('round-type-info');
+  if (G.currentRound.numDials === 1 && !G.currentRound.fixedVal) {
+    info.textContent = 'SET THE POWER';
+  } else if (G.currentRound.fixedVal !== undefined) {
+    info.textContent = 'SET THE POWER';
+  } else if (G.currentRound.numDials === 3) {
+    info.textContent = `SET ALL THREE POWERS (${G.currentRound.operator === '×' ? 'MULTIPLY' : 'ADD'})`;
+  } else {
+    info.textContent = `SET BOTH POWERS (${G.currentRound.operator === '×' ? 'MULTIPLY' : 'ADD'})`;
+  }
+
+  document.getElementById('lever-btn').disabled = false;
+  buildDials(G.currentRound);
+}
+
+function submitAnswer() {
+  if (G.locked || G.gameOver) return;
+  G.locked = true;
+  document.getElementById('lever-btn').disabled = true;
+
+  const target = G.currentRound.target;
+  const output = G.currentOutput;
+  const isCorrect = Math.abs(output - target) < 0.001;
+
+  const overlay = document.getElementById('feedback-overlay');
+
+  if (isCorrect) {
+    // Correct
+    G.streak++;
+    if (G.streak > G.bestStreak) G.bestStreak = G.streak;
+    const multiplier = Math.min(G.streak, 4);
+    const points = G.currentRound.isBonus ? 200 * multiplier : 100 * multiplier;
+    G.score += points;
+
+    // Cool reactor slightly on correct
+    G.temperature = Math.max(0, G.temperature - 7);
+    updateReactorVisuals();
+
+    overlay.className = 'feedback-overlay correct';
+    setTimeout(() => { overlay.className = 'feedback-overlay'; }, 400);
+
+    updateScoreboard();
+    G.round++;
+
+    setTimeout(() => {
+      nextRound();
+    }, 600);
+  } else {
+    // Wrong
+    G.streak = 0;
+    G.wrongCount++;
+    G.temperature = Math.min(100, G.temperature + 25);
+    updateReactorVisuals();
+
+    overlay.className = 'feedback-overlay wrong';
+    setTimeout(() => { overlay.className = 'feedback-overlay'; }, 400);
+
+    updateScoreboard();
+
+    if (G.temperature >= 100) {
+      setTimeout(() => triggerMeltdown(), 500);
+    } else {
+      // Let them try again on the same round
+      setTimeout(() => {
+        G.locked = false;
+        document.getElementById('lever-btn').disabled = false;
+      }, 800);
+    }
+  }
+}
+
+function triggerMeltdown() {
+  G.gameOver = true;
+  G.locked = true;
+  stopHeatTimer();
+
+  const core = document.getElementById('reactor-core');
+  core.classList.add('meltdown-anim');
+
+  const overlay = document.getElementById('feedback-overlay');
+  overlay.className = 'feedback-overlay wrong';
+
+  setTimeout(() => {
+    overlay.className = 'feedback-overlay';
+    showGameOver();
+  }, 1500);
+}
+
+function showGameOver() {
+  document.getElementById('go-score').textContent = G.score;
+  document.getElementById('go-rounds').textContent = G.round - 1;
+  document.getElementById('go-streak').textContent = '×' + G.bestStreak;
+
+  const scores = HIGH_SCORES[G.diff];
+  const isHighScore = scores.length < 10 || G.score > (scores[scores.length - 1]?.score || 0);
+
+  if (isHighScore && G.score > 0) {
+    document.getElementById('new-hs-msg').style.display = 'block';
+    document.getElementById('hs-input-row').style.display = 'flex';
+    document.getElementById('hs-input').value = '';
+    document.getElementById('hs-input').focus();
+  } else {
+    document.getElementById('new-hs-msg').style.display = 'none';
+    document.getElementById('hs-input-row').style.display = 'none';
+  }
+
+  renderHighScoreTable(G.diff, G.score);
+  showScreen('gameover-screen');
+}
+
+function saveHighScore() {
+  const name = document.getElementById('hs-input').value.trim().toUpperCase() || 'AAA';
+  const entry = { name: name.substring(0, 3), score: G.score, rounds: G.round - 1 };
+
+  HIGH_SCORES[G.diff].push(entry);
+  HIGH_SCORES[G.diff].sort((a, b) => b.score - a.score);
+  HIGH_SCORES[G.diff] = HIGH_SCORES[G.diff].slice(0, 10);
+  persistScores();
+
+  document.getElementById('hs-input-row').style.display = 'none';
+  renderHighScoreTable(G.diff, G.score, name.substring(0, 3));
+}
+
+function renderHighScoreTable(diff, currentScore, currentName) {
+  const container = document.getElementById('hs-table');
+  const scores = HIGH_SCORES[diff];
+
+  if (scores.length === 0) {
+    container.innerHTML = '<div class="hs-table-title">NO HIGH SCORES YET</div>';
+    return;
+  }
+
+  let html = `<div class="hs-table-title">HIGH SCORES — ${CONFIGS[diff].label}</div>`;
+  let marked = false;
+  for (let i = 0; i < scores.length; i++) {
+    const s = scores[i];
+    const isCurrent = !marked && s.score === currentScore && s.name === currentName;
+    if (isCurrent) marked = true;
+    html += `<div class="hs-row ${isCurrent ? 'current' : ''}">
+      <span class="hs-rank">${i + 1}.</span>
+      <span class="hs-name">${s.name}</span>
+      <span class="hs-rounds">R${s.rounds}</span>
+      <span class="hs-score">${s.score}</span>
+    </div>`;
+  }
+  container.innerHTML = html;
+}
+
+function updateScoreboard() {
+  document.getElementById('score-display').textContent = G.score;
+  document.getElementById('streak-display').textContent = '×' + Math.min(G.streak + 1, 4);
+  if (G.streak > 0) {
+    document.getElementById('streak-display').textContent = '×' + Math.min(G.streak, 4);
+  } else {
+    document.getElementById('streak-display').textContent = '×1';
+  }
+}
+
+function updateHighScoreDisplay() {
+  const scores = HIGH_SCORES[G.diff];
+  const best = scores.length > 0 ? scores[0].score : 0;
+  document.getElementById('hs-display').textContent = best > 0 ? best : '---';
+  document.getElementById('best-display').textContent = best > 0 ? best : '0';
+}
+
+// === SCREENS ===
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function restartGame() {
+  stopHeatTimer();
+  startGame();
+}
+
+function backToMenu() {
+  stopHeatTimer();
+  selectedDiff = null;
+  document.querySelectorAll('.diff-btn').forEach(b => b.classList.remove('selected'));
+  document.getElementById('start-btn').classList.remove('ready');
+  showScreen('setup-screen');
+}
+
+function confirmMenu() {
+  if (confirm('Exit to menu? Your current run will be lost.')) {
+    backToMenu();
+  }
+}
+
+// === INIT ===
+showScreen('setup-screen');
+</script>
+</body>
+</html>
