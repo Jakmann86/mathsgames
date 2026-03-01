@@ -375,7 +375,6 @@
             from { transform: translateX(0); opacity: 0.6; }
             to { transform: translateX(80px); opacity: 0.2; }
         }
-        /* Player ship - right side, pointing left */
         .bs-player {
             position: absolute; right: 18px; top: 50%; transform: translateY(-50%);
             z-index: 5; animation: bsHover 1.8s ease-in-out infinite alternate;
@@ -402,10 +401,7 @@
             width: 5px; height: 5px; border-radius: 50%;
             background: #00ffff; box-shadow: 0 0 4px #00ffff;
         }
-        /* UFO enemies - left/center, moving right */
-        .bs-ufo {
-            position: absolute; z-index: 4;
-        }
+        .bs-ufo { position: absolute; z-index: 4; }
         .bs-ufo-dome {
             width: 28px; height: 14px;
             background: #aa44ff;
@@ -434,7 +430,6 @@
             position: relative; z-index: 5;
             text-shadow: 0 0 2px rgba(0,0,0,0.8);
         }
-        /* Laser bolt */
         .bs-laser {
             position: absolute; z-index: 3;
             width: 16px; height: 3px;
@@ -442,7 +437,6 @@
             box-shadow: 0 0 6px #00ff88, 0 0 12px rgba(0,255,136,0.4);
             border-radius: 1px;
         }
-        /* Category bar at bottom */
         .bs-category {
             position: absolute; bottom: 6px; left: 50%; transform: translateX(-50%);
             background: rgba(0,0,0,0.8); border: 1.5px solid #ffaa00;
@@ -453,7 +447,6 @@
             color: #ffaa00; text-shadow: 0 0 6px rgba(255,170,0,0.5);
             letter-spacing: 1px;
         }
-        /* HUD elements */
         .bs-hud {
             position: absolute; top: 5px; left: 6px; z-index: 10;
             display: flex; gap: 6px;
@@ -472,6 +465,66 @@
             width: 75%; height: 100%;
             background: linear-gradient(90deg, #ff4444, #ff6666);
             box-shadow: 0 0 4px #ff4444;
+        }
+
+        /* ─── FRACTIS ─── */
+        .cabinet-fractis .cabinet-glow { background: linear-gradient(135deg, #e74c3c, #3498db); }
+        .cabinet-fractis .cabinet-marquee { background: linear-gradient(90deg, #1a0a0a, #2a1018, #1a0a0a); border-bottom: 2px solid #e74c3c; }
+        .cabinet-fractis .cabinet-marquee::before {
+            content: ''; position: absolute; top: 0; left: -100%; width: 60%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(231,76,60,0.3), transparent);
+            animation: marqueeShine 3.4s infinite 0.6s;
+        }
+        .cabinet-fractis .cabinet-marquee-text { color: #e74c3c; }
+        .cabinet-fractis .cabinet-name { color: #e74c3c; }
+        .cabinet-fractis .play-btn { background: linear-gradient(135deg, #e74c3c, #c0392b); color: #fff; }
+        .cabinet-fractis .tag-a { background: rgba(231,76,60,0.15); color: #e74c3c; }
+        .cabinet-fractis .tag-b { background: rgba(52,152,219,0.15); color: #3498db; }
+        .fractis-screen {
+            width: 100%; height: 100%;
+            background: #0f0f0f;
+            display: flex; flex-direction: column;
+            padding: 8px;
+            gap: 3px;
+            position: relative;
+        }
+        .fractis-row {
+            display: flex;
+            height: 14px;
+            gap: 1px;
+            transition: all 0.4s ease;
+        }
+        .fractis-block {
+            height: 100%;
+            border-radius: 2px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Press Start 2P', monospace;
+            font-size: 5px;
+            color: rgba(255,255,255,0.9);
+            text-shadow: 0 0 2px rgba(0,0,0,0.8);
+            border: 1px solid rgba(255,255,255,0.15);
+            transition: all 0.3s ease;
+        }
+        .fractis-row.complete {
+            animation: fractisFlash 0.6s ease forwards;
+        }
+        @keyframes fractisFlash {
+            0% { opacity: 1; filter: brightness(1); }
+            30% { filter: brightness(2); }
+            100% { opacity: 0; transform: scaleY(0); }
+        }
+        .fractis-row.empty {
+            background: rgba(255,255,255,0.02);
+            border: 1px dashed rgba(255,255,255,0.04);
+            border-radius: 2px;
+        }
+        .fractis-indicator {
+            position: absolute; bottom: 6px; left: 50%; transform: translateX(-50%);
+            font-family: 'Press Start 2P', monospace; font-size: 6px;
+            color: #e74c3c; text-shadow: 0 0 6px rgba(231,76,60,0.6);
+            letter-spacing: 1px;
         }
 
         /* COMING SOON */
@@ -697,24 +750,17 @@
                 <div class="cabinet-marquee"><div class="cabinet-marquee-text">✧ NUMBER BLASTER ✧</div></div>
                 <div class="cabinet-screen">
                     <div class="blaster-screen" id="blaster-screen">
-                        <!-- HUD -->
                         <div class="bs-hud">
                             <div class="bs-hud-item"><span class="bs-hud-label">SCORE</span><span class="bs-hud-val">120</span></div>
                             <div class="bs-hud-item"><span class="bs-hud-label">STREAK</span><span class="bs-hud-val">3</span></div>
                         </div>
                         <div class="bs-health-bar"><div class="bs-health-fill"></div></div>
-
-                        <!-- Player ship on right -->
                         <div class="bs-player">
                             <div class="bs-player-body"></div>
                             <div class="bs-player-thruster"></div>
                             <div class="bs-player-cockpit"></div>
                         </div>
-
-                        <!-- Laser bolt -->
                         <div class="bs-laser" id="bs-laser" style="right:50px;top:50%;"></div>
-
-                        <!-- UFOs -->
                         <div class="bs-ufo" id="bs-ufo1" style="left:15%;top:25%;">
                             <div class="bs-ufo-num" id="bs-num1">12</div>
                             <div class="bs-ufo-dome"></div>
@@ -730,8 +776,6 @@
                             <div class="bs-ufo-dome"></div>
                             <div class="bs-ufo-base"><div class="bs-ufo-lights"><div class="bs-ufo-light"></div><div class="bs-ufo-light"></div><div class="bs-ufo-light"></div></div></div>
                         </div>
-
-                        <!-- Category bar -->
                         <div class="bs-category"><span>TARGET: <span id="blaster-cat">EVEN NUMBERS</span></span></div>
                     </div>
                 </div>
@@ -746,6 +790,29 @@
                 <div class="cabinet-footer">
                     <span class="play-btn">PLAY NOW</span>
                     <span class="cabinet-world">8 LEVELS</span>
+                </div>
+            </div>
+        </a>
+
+        <!-- FRACTIS -->
+        <a href="./fractis/index.html" class="cabinet cabinet-fractis">
+            <div class="cabinet-glow"></div>
+            <div class="cabinet-body">
+                <div class="cabinet-marquee"><div class="cabinet-marquee-text">▧ FRACTIS ▧</div></div>
+                <div class="cabinet-screen">
+                    <div class="fractis-screen" id="fractis-screen"></div>
+                </div>
+                <div class="cabinet-info">
+                    <div class="cabinet-name">FRACTIS</div>
+                    <div class="cabinet-desc">Fraction blocks fall from above — fit them together so each row sums to exactly 1 whole. Think fast as the speed increases!</div>
+                    <div class="cabinet-tags">
+                        <span class="tag tag-a">1 PLAYER</span>
+                        <span class="tag tag-b">FRACTIONS</span>
+                    </div>
+                </div>
+                <div class="cabinet-footer">
+                    <span class="play-btn">PLAY NOW</span>
+                    <span class="cabinet-world">ENDLESS</span>
                 </div>
             </div>
         </a>
@@ -826,7 +893,7 @@
     renderDivisPreview();
     setInterval(() => { frame++; renderDivisPreview(); }, 2200);
 
-    // Target Zero preview animation
+    // Target Zero preview
     const TZERO_HANDS = [
         [{v:'+3',cls:'pos'},{v:'-7',cls:'neg'},{v:'+2',cls:'pos'},{v:'-4',cls:'neg'},{v:'+6',cls:'pos'}],
         [{v:'+5',cls:'pos'},{v:'-3',cls:'neg'},{v:'+1',cls:'pos'},{v:'-8',cls:'neg'},{v:'+5',cls:'pos'}],
@@ -856,7 +923,7 @@
     renderTZeroPreview();
     setInterval(renderTZeroPreview, 900);
 
-    // Meltdown preview animation
+    // Meltdown preview
     const MELTDOWN_ROUNDS = [
         { expr: '2⁵ = ?', target: 'TARGET: 32' },
         { expr: '3⁴ = ?', target: 'TARGET: 81' },
@@ -875,6 +942,7 @@
     }
     renderMeltdownPreview();
     setInterval(renderMeltdownPreview, 2500);
+
     // Number Blaster preview
     const bsScreen = document.getElementById('blaster-screen');
     for (let i = 0; i < 20; i++) {
@@ -895,6 +963,125 @@
         document.getElementById('bs-num2').textContent = BLASTER_NUMS[idx][1];
         document.getElementById('bs-num3').textContent = BLASTER_NUMS[idx][2];
     }, 2200);
+
+    // ─── FRACTIS PREVIEW ───
+    // Animated fraction blocks filling rows, with completed rows flashing and clearing
+    const FRAC_COLORS = {
+        '1/2': '#e74c3c', '1/3': '#3498db', '1/4': '#2ecc71',
+        '1/6': '#f39c12', '1/12': '#e84393'
+    };
+    const FRAC_UNITS = { '1/2': 6, '1/3': 4, '1/4': 3, '1/6': 2, '1/12': 1 };
+    const FRAC_KEYS = Object.keys(FRAC_UNITS);
+
+    // Pre-built row combinations that sum to 12
+    const FRACTIS_ROWS = [
+        ['1/2', '1/3', '1/6'],
+        ['1/4', '1/4', '1/6', '1/6', '1/12', '1/12'],
+        ['1/3', '1/3', '1/6', '1/12', '1/12'],
+        ['1/2', '1/4', '1/12', '1/12', '1/12'],
+        ['1/6', '1/6', '1/6', '1/4', '1/12', '1/12', '1/12'],
+        ['1/2', '1/6', '1/4', '1/12'],
+        ['1/3', '1/4', '1/6', '1/12', '1/12', '1/12'],
+        ['1/4', '1/3', '1/4', '1/6'],
+    ];
+
+    // Partial rows (don't sum to 12)
+    const FRACTIS_PARTIALS = [
+        ['1/3', '1/4'],
+        ['1/2', '1/12'],
+        ['1/6', '1/6', '1/4'],
+        ['1/3', '1/6'],
+        ['1/4', '1/12', '1/12'],
+    ];
+
+    const fractisScreen = document.getElementById('fractis-screen');
+    let fractisState = [];
+    const FRACTIS_DISPLAY_ROWS = 9;
+    let fractisStep = 0;
+
+    function initFractisPreview() {
+        // Mix of complete rows, partial rows, and empty rows
+        fractisState = [];
+        for (let i = 0; i < FRACTIS_DISPLAY_ROWS; i++) {
+            if (i < 3) fractisState.push(null); // empty at top
+            else if (i < 5) fractisState.push({ blocks: FRACTIS_PARTIALS[i % FRACTIS_PARTIALS.length], complete: false });
+            else fractisState.push({ blocks: FRACTIS_ROWS[i % FRACTIS_ROWS.length], complete: false });
+        }
+    }
+
+    function renderFractisPreview() {
+        fractisScreen.innerHTML = '';
+        fractisState.forEach((row, idx) => {
+            const rowEl = document.createElement('div');
+            rowEl.className = 'fractis-row';
+            if (!row) {
+                rowEl.classList.add('empty');
+                fractisScreen.appendChild(rowEl);
+                return;
+            }
+            if (row.complete) rowEl.classList.add('complete');
+            row.blocks.forEach(frac => {
+                const block = document.createElement('div');
+                block.className = 'fractis-block';
+                const widthPct = (FRAC_UNITS[frac] / 12) * 100;
+                block.style.width = widthPct + '%';
+                block.style.background = FRAC_COLORS[frac];
+                block.textContent = frac;
+                rowEl.appendChild(block);
+            });
+            fractisScreen.appendChild(rowEl);
+        });
+        // Indicator
+        const ind = document.createElement('div');
+        ind.className = 'fractis-indicator';
+        const completedCount = fractisState.filter(r => r && r.complete).length;
+        ind.textContent = completedCount > 0 ? '= 1 WHOLE!' : 'FILL THE ROW';
+        fractisScreen.appendChild(ind);
+    }
+
+    function stepFractisPreview() {
+        fractisStep++;
+        const phase = fractisStep % 8;
+
+        if (phase === 0) {
+            // Reset
+            initFractisPreview();
+        } else if (phase <= 3) {
+            // Build up: convert a partial row to complete
+            for (let i = fractisState.length - 1; i >= 0; i--) {
+                if (fractisState[i] && !fractisState[i].complete) {
+                    fractisState[i] = { blocks: FRACTIS_ROWS[(fractisStep + i) % FRACTIS_ROWS.length], complete: false };
+                    break;
+                }
+            }
+        } else if (phase === 4) {
+            // Mark bottom complete rows
+            for (let i = fractisState.length - 1; i >= Math.max(0, fractisState.length - 3); i--) {
+                if (fractisState[i] && !fractisState[i].complete) {
+                    // Check if row sums to 12
+                    const total = fractisState[i].blocks.reduce((s, f) => s + FRAC_UNITS[f], 0);
+                    if (total === 12) fractisState[i].complete = true;
+                }
+            }
+        } else if (phase === 5) {
+            // Clear completed rows and shift down
+            fractisState = fractisState.filter(r => !(r && r.complete));
+            while (fractisState.length < FRACTIS_DISPLAY_ROWS) fractisState.unshift(null);
+        } else {
+            // Add new partial rows
+            const emptyIdx = fractisState.findIndex(r => r === null);
+            if (emptyIdx >= 0) {
+                const last = fractisState.lastIndexOf(null);
+                fractisState[last] = { blocks: FRACTIS_PARTIALS[(fractisStep) % FRACTIS_PARTIALS.length], complete: false };
+            }
+        }
+
+        renderFractisPreview();
+    }
+
+    initFractisPreview();
+    renderFractisPreview();
+    setInterval(stepFractisPreview, 1400);
 </script>
 </body>
 </html>

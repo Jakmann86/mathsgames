@@ -1,0 +1,1265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fractis</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&display=swap');
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: #000;
+  font-family: 'Silkscreen', monospace;
+  overflow: hidden;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+#gameContainer {
+  position: relative;
+  width: 1040px;
+  height: 720px;
+  background: #0b0b0b;
+  image-rendering: pixelated;
+  overflow: hidden;
+}
+
+#gameContainer:fullscreen,
+#gameContainer:-webkit-full-screen {
+  width: 100vw;
+  height: 100vh;
+}
+
+/* ═══ SCREENS ═══ */
+.screen {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background: #0b0b0b;
+  z-index: 200;
+  text-align: center;
+  gap: 14px;
+}
+.screen.hidden { display: none; }
+
+/* ═══ TITLE ═══ */
+.title-logo {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 12px;
+}
+
+.title-letter {
+  font-size: 56px;
+  font-weight: 700;
+  display: inline-block;
+  text-shadow: 3px 3px 0 rgba(0,0,0,0.5);
+  animation: letterBounce 1.2s ease-in-out infinite;
+}
+
+.title-letter:nth-child(1) { color: #e74c3c; animation-delay: 0s; }
+.title-letter:nth-child(2) { color: #f39c12; animation-delay: 0.1s; }
+.title-letter:nth-child(3) { color: #2ecc71; animation-delay: 0.2s; }
+.title-letter:nth-child(4) { color: #3498db; animation-delay: 0.3s; }
+.title-letter:nth-child(5) { color: #9b59b6; animation-delay: 0.4s; }
+.title-letter:nth-child(6) { color: #e84393; animation-delay: 0.5s; }
+.title-letter:nth-child(7) { color: #f39c12; animation-delay: 0.6s; }
+
+@keyframes letterBounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+.title-sub {
+  color: #888;
+  font-size: 11px;
+  letter-spacing: 3px;
+}
+
+.title-blocks-row {
+  display: flex;
+  gap: 3px;
+  margin: 16px 0 8px;
+}
+
+.title-block-demo {
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  border: 2px solid rgba(255,255,255,0.3);
+}
+
+.title-info {
+  color: #666;
+  font-size: 10px;
+  line-height: 2;
+  max-width: 500px;
+}
+
+.title-info .hl { color: #ffaa00; }
+
+.btn {
+  background: transparent;
+  border: 3px solid #ffaa00;
+  color: #ffaa00;
+  font-family: 'Silkscreen', monospace;
+  font-size: 16px;
+  padding: 14px 44px;
+  cursor: pointer;
+  margin-top: 8px;
+  transition: all 0.15s;
+  letter-spacing: 2px;
+}
+
+.btn:hover {
+  background: #ffaa00;
+  color: #0b0b0b;
+}
+
+.btn-sm {
+  font-size: 11px;
+  padding: 10px 28px;
+  border-width: 2px;
+}
+
+.btn-ghost {
+  border-color: #555;
+  color: #888;
+}
+
+.btn-ghost:hover {
+  background: #555;
+  color: #fff;
+}
+
+/* ═══ HOW TO PLAY ═══ */
+.how-grid {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 6px 20px;
+  text-align: left;
+  margin: 10px 0;
+}
+
+.how-key {
+  color: #ffaa00;
+  font-size: 10px;
+  text-align: right;
+}
+
+.how-desc {
+  color: #aaa;
+  font-size: 10px;
+}
+
+/* ═══ GAME AREA ═══ */
+#gameArea {
+  position: absolute;
+  inset: 0;
+  display: none;
+  background: #0b0b0b;
+}
+
+#gameArea.active { display: flex; }
+
+#leftPanel {
+  width: 160px;
+  padding: 20px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+#boardWrap {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#boardCanvas {
+  border: 3px solid #444;
+  background: #0f0f0f;
+}
+
+#rightPanel {
+  width: 160px;
+  padding: 20px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.widget {
+  background: #111;
+  border: 2px solid #333;
+  padding: 12px;
+}
+
+.widget-label {
+  color: #888;
+  font-size: 9px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.widget-value {
+  color: #fff;
+  font-size: 24px;
+}
+
+.widget-value.score-val { color: #ffaa00; }
+
+#nextCanvas { display: block; margin: 0 auto; }
+
+.ctrl-hints {
+  margin-top: auto;
+  color: #444;
+  font-size: 8px;
+  line-height: 2.2;
+}
+
+.ctrl-hints span { color: #666; }
+
+/* ═══ GAME OVER ═══ */
+.go-title {
+  color: #ff5555;
+  font-size: 36px;
+  font-weight: 700;
+  text-shadow: 3px 3px 0 rgba(0,0,0,0.5);
+  letter-spacing: 4px;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px 40px;
+  margin: 16px 0;
+}
+
+.stat-item { display: flex; flex-direction: column; gap: 3px; text-align: left; }
+.stat-label { color: #666; font-size: 8px; text-transform: uppercase; letter-spacing: 1px; }
+.stat-val { color: #fff; font-size: 16px; }
+.stat-val.hl { color: #ffaa00; }
+
+.hs-list { margin: 8px 0; }
+.hs-row { display: flex; justify-content: space-between; padding: 3px 0; border-bottom: 1px solid #1a1a1a; }
+.hs-rank { color: #ffaa00; font-size: 9px; width: 28px; }
+.hs-info { color: #888; font-size: 9px; flex: 1; }
+.hs-pts { color: #fff; font-size: 9px; }
+.hs-new { color: #55ff55; }
+
+.pause-title {
+  color: #fff;
+  font-size: 32px;
+  font-weight: 700;
+  letter-spacing: 6px;
+}
+
+#lineFlash {
+  position: absolute;
+  inset: 0;
+  background: rgba(255,255,255,0.15);
+  pointer-events: none;
+  opacity: 0;
+  z-index: 50;
+}
+
+#lineFlash.active { animation: flashBurst 0.3s ease; }
+
+@keyframes flashBurst {
+  0% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+#scorePopup {
+  position: absolute;
+  top: 45%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: #ffaa00;
+  font-size: 18px;
+  font-weight: 700;
+  text-shadow: 2px 2px 0 rgba(0,0,0,0.8);
+  opacity: 0;
+  z-index: 60;
+  pointer-events: none;
+}
+
+#scorePopup.show { animation: popUp 0.7s ease forwards; }
+
+@keyframes popUp {
+  0% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
+  15% { opacity: 1; transform: translate(-50%, -50%) scale(1.15); }
+  100% { opacity: 0; transform: translate(-50%, -65%) scale(1); }
+}
+
+.music-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 300;
+  background: none;
+  border: 2px solid #333;
+  color: #666;
+  font-family: 'Silkscreen', monospace;
+  font-size: 9px;
+  padding: 6px 10px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.music-btn:hover { border-color: #666; color: #aaa; }
+.music-btn.on { border-color: #55ff55; color: #55ff55; }
+</style>
+</head>
+<body>
+
+<div id="gameContainer">
+  <div id="lineFlash"></div>
+  <div id="scorePopup"></div>
+  <button class="music-btn" id="musicToggle" onclick="toggleMusic()">♪ OFF</button>
+
+  <!-- ═══ TITLE ═══ -->
+  <div id="titleScreen" class="screen">
+    <div class="title-logo">
+      <span class="title-letter">F</span>
+      <span class="title-letter">R</span>
+      <span class="title-letter">A</span>
+      <span class="title-letter">C</span>
+      <span class="title-letter">T</span>
+      <span class="title-letter">I</span>
+      <span class="title-letter">S</span>
+    </div>
+
+    <div class="title-blocks-row" id="titleDemoBlocks"></div>
+
+    <p class="title-info">
+      Fill each row with fractions that sum to <span class="hl">exactly 1 whole</span><br>
+      to clear the line. Don't let them stack to the top!
+    </p>
+
+    <div class="how-grid" style="margin:8px 0;">
+      <span class="how-key">← →</span><span class="how-desc">Move block left / right</span>
+      <span class="how-key">↓</span><span class="how-desc">Soft drop (fall faster)</span>
+      <span class="how-key">SPACE</span><span class="how-desc">Hard drop (place instantly)</span>
+      <span class="how-key">P / ESC</span><span class="how-desc">Pause</span>
+    </div>
+
+    <button class="btn" onclick="startGame()">PLAY</button>
+    <div style="display:flex; gap:10px; margin-top:4px;">
+      <button class="btn btn-sm btn-ghost" onclick="showHowTo()">HOW TO PLAY</button>
+    </div>
+  </div>
+
+  <!-- ═══ HOW TO PLAY ═══ -->
+  <div id="howToScreen" class="screen hidden">
+    <div style="color:#ffaa00; font-size:18px; font-weight:700; letter-spacing:3px; margin-bottom:8px;">HOW TO PLAY</div>
+    <p class="title-info" style="margin-bottom:12px;">
+      Fraction blocks fall from the top. Each block takes up<br>
+      its <span class="hl">proportional width</span> in the row.<br><br>
+      ½ fills half the row, ¼ fills a quarter, and so on.<br>
+      When a row's fractions add to <span class="hl">exactly 1</span>, it clears!<br><br>
+      Some blocks are <span class="hl">2 or 3 rows tall</span> — plan carefully!<br>
+      The game gets faster as you clear more lines.
+    </p>
+    <div class="how-grid">
+      <span class="how-key">← →</span><span class="how-desc">Move block left / right</span>
+      <span class="how-key">↓</span><span class="how-desc">Soft drop (fall faster)</span>
+      <span class="how-key">SPACE</span><span class="how-desc">Hard drop (instant)</span>
+      <span class="how-key">P / ESC</span><span class="how-desc">Pause</span>
+    </div>
+    <button class="btn" onclick="startGame()">PLAY</button>
+    <button class="btn btn-sm btn-ghost" onclick="showTitle()">BACK</button>
+  </div>
+
+  <!-- ═══ GAME OVER ═══ -->
+  <div id="gameOverScreen" class="screen hidden">
+    <div class="go-title">GAME OVER</div>
+    <div class="stats-grid">
+      <div class="stat-item"><div class="stat-label">Score</div><div class="stat-val hl" id="finalScore">0</div></div>
+      <div class="stat-item"><div class="stat-label">Lines</div><div class="stat-val" id="finalLines">0</div></div>
+      <div class="stat-item"><div class="stat-label">Level</div><div class="stat-val" id="finalLevel">1</div></div>
+      <div class="stat-item"><div class="stat-label">Time</div><div class="stat-val" id="finalTime">0:00</div></div>
+    </div>
+    <div id="newHsBanner" style="display:none; color:#55ff55; font-size:11px; letter-spacing:2px;">★ NEW HIGH SCORE ★</div>
+    <div id="highScoreList" class="hs-list"></div>
+    <button class="btn" onclick="startGame()">PLAY AGAIN</button>
+    <button class="btn btn-sm btn-ghost" onclick="showTitle()">MENU</button>
+  </div>
+
+  <!-- ═══ PAUSE ═══ -->
+  <div id="pauseScreen" class="screen hidden" style="background:rgba(0,0,0,0.85);">
+    <div class="pause-title">PAUSED</div>
+    <button class="btn" onclick="resumeGame()">RESUME</button>
+    <button class="btn btn-sm btn-ghost" onclick="quitToMenu()">QUIT</button>
+  </div>
+
+  <!-- ═══ GAME ═══ -->
+  <div id="gameArea">
+    <div id="leftPanel">
+      <div class="widget">
+        <div class="widget-label">Score</div>
+        <div class="widget-value score-val" id="scoreDisplay">0</div>
+      </div>
+      <div class="widget">
+        <div class="widget-label">Lines</div>
+        <div class="widget-value" id="linesDisplay">0</div>
+      </div>
+      <div class="widget">
+        <div class="widget-label">Level</div>
+        <div class="widget-value" id="levelDisplay">1</div>
+      </div>
+      <div class="ctrl-hints">
+        <span>← →</span> Move<br>
+        <span>↓</span> Soft drop<br>
+        <span>SPACE</span> Hard drop<br>
+        <span>P</span> Pause
+      </div>
+    </div>
+
+    <div id="boardWrap">
+      <canvas id="boardCanvas"></canvas>
+    </div>
+
+    <div id="rightPanel">
+      <div class="widget">
+        <div class="widget-label">Next</div>
+        <canvas id="nextCanvas" width="148" height="70"></canvas>
+      </div>
+      <div class="widget">
+        <div class="widget-label">Speed</div>
+        <div class="widget-value" id="speedDisplay" style="font-size:16px;">1.0×</div>
+      </div>
+      <div class="widget" id="comboWidget" style="opacity:0.3;">
+        <div class="widget-label">Combo</div>
+        <div class="widget-value" id="comboDisplay">0</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════════════
+// FRACTIS
+// ══════════════════════════════════════════════════════════════
+
+// ── AUDIO ──
+const AudioCtx = window.AudioContext || window.webkitAudioContext;
+let audioCtx;
+let musicPlaying = false;
+let boleroScheduler = null;
+let nextNoteTime = 0;
+let boleroIndex = 0;
+let boleroBeatCount = 0;
+
+function ensureAudio() {
+  if (!audioCtx) audioCtx = new AudioCtx();
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+}
+
+function playSound(type) {
+  ensureAudio();
+  const now = audioCtx.currentTime;
+  if (type === 'move') {
+    const o = audioCtx.createOscillator(), g = audioCtx.createGain();
+    o.connect(g); g.connect(audioCtx.destination);
+    o.type = 'square'; o.frequency.setValueAtTime(440, now);
+    g.gain.setValueAtTime(0.04, now); g.gain.exponentialRampToValueAtTime(0.001, now + 0.04);
+    o.start(now); o.stop(now + 0.04);
+  } else if (type === 'drop') {
+    const o = audioCtx.createOscillator(), g = audioCtx.createGain();
+    o.connect(g); g.connect(audioCtx.destination);
+    o.type = 'triangle'; o.frequency.setValueAtTime(220, now);
+    o.frequency.exponentialRampToValueAtTime(80, now + 0.12);
+    g.gain.setValueAtTime(0.1, now); g.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
+    o.start(now); o.stop(now + 0.12);
+  } else if (type === 'clear') {
+    [523, 659, 784, 1047].forEach((f, i) => {
+      const o = audioCtx.createOscillator(), g = audioCtx.createGain();
+      o.connect(g); g.connect(audioCtx.destination);
+      o.type = 'square'; const t = now + i * 0.07;
+      o.frequency.setValueAtTime(f, t);
+      g.gain.setValueAtTime(0.06, t); g.gain.exponentialRampToValueAtTime(0.001, t + 0.18);
+      o.start(t); o.stop(t + 0.18);
+    });
+  } else if (type === 'combo') {
+    [880, 1100, 1320].forEach((f, i) => {
+      const o = audioCtx.createOscillator(), g = audioCtx.createGain();
+      o.connect(g); g.connect(audioCtx.destination);
+      o.type = 'sine'; const t = now + i * 0.08;
+      o.frequency.setValueAtTime(f, t);
+      g.gain.setValueAtTime(0.05, t); g.gain.exponentialRampToValueAtTime(0.001, t + 0.12);
+      o.start(t); o.stop(t + 0.12);
+    });
+  } else if (type === 'gameover') {
+    [400, 300, 200, 150].forEach((f, i) => {
+      const o = audioCtx.createOscillator(), g = audioCtx.createGain();
+      o.connect(g); g.connect(audioCtx.destination);
+      o.type = 'sawtooth'; const t = now + i * 0.2;
+      o.frequency.setValueAtTime(f, t);
+      g.gain.setValueAtTime(0.06, t); g.gain.exponentialRampToValueAtTime(0.001, t + 0.25);
+      o.start(t); o.stop(t + 0.25);
+    });
+  }
+}
+
+// ── CHIPTUNE BOLÉRO (public domain since 2016) ──
+// Theme A of Boléro — the real melody in C major
+// The famous: dah-nah, nah nah nah nah nah nah nah nah nah
+// C4=262, D4=294, Eb4=311, E4=330, F4=349, G4=392, A4=440, Bb4=466, C5=523
+// ── CHIPTUNE MELODY — Phrygian Dominant / Misirlou style ──
+// Think Dick Dale's Misirlou — rapid tremolo runs up the Phrygian dominant scale
+// E Phrygian Dominant: E F G# A B C D# E (but we'll use C: C Db E F G Ab B C)
+// Key: fast ascending runs, driving rhythm, that exotic surf energy
+// C4=262, Db4=277, E4=330, F4=349, G4=392, Ab4=415, B4=494, C5=523
+const BOLERO = [
+  // === Section A: Relaxed Phrygian dominant groove ===
+  // Phrase 1: slow ascending — let each note breathe
+  { n: 262, d: 1.0 },  // C4
+  { n: 277, d: 0.5 },  // Db4
+  { n: 330, d: 0.5 },  // E4
+  { n: 349, d: 0.5 },  // F4
+  { n: 392, d: 0.5 },  // G4
+  { n: 415, d: 0.5 },  // Ab4
+  { n: 494, d: 0.5 },  // B4
+  { n: 523, d: 1.0 },  // C5 — hold
+
+  // Phrase 2: easy descent
+  { n: 494, d: 0.5 },  // B4
+  { n: 415, d: 0.5 },  // Ab4
+  { n: 392, d: 0.5 },  // G4
+  { n: 349, d: 0.75 }, // F4
+  { n: 330, d: 0.5 },  // E4
+  { n: 277, d: 0.5 },  // Db4
+  { n: 262, d: 1.0 },  // C4
+
+  // Phrase 3: ornamental motif — relaxed
+  { n: 330, d: 0.5 },  // E4
+  { n: 349, d: 0.5 },  // F4
+  { n: 330, d: 0.5 },  // E4
+  { n: 277, d: 0.5 },  // Db4
+  { n: 262, d: 1.0 },  // C4
+  { n: 277, d: 0.5 },  // Db4
+  { n: 330, d: 0.5 },  // E4
+  { n: 277, d: 0.5 },  // Db4
+  { n: 262, d: 1.0 },  // C4
+
+  // Phrase 4: gentle climb and resolve
+  { n: 262, d: 0.5 },  // C4
+  { n: 277, d: 0.5 },  // Db4
+  { n: 330, d: 0.75 }, // E4
+  { n: 349, d: 0.5 },  // F4
+  { n: 392, d: 0.75 }, // G4
+  { n: 349, d: 0.5 },  // F4
+  { n: 330, d: 0.5 },  // E4
+  { n: 277, d: 0.5 },  // Db4
+  { n: 262, d: 1.0 },  // C4
+  { n: 0, d: 0.5 },    // rest
+
+  // === Section B: Up the octave, still relaxed ===
+  // Phrase 5: higher restatement
+  { n: 523, d: 1.0 },  // C5
+  { n: 554, d: 0.5 },  // Db5
+  { n: 659, d: 0.5 },  // E5
+  { n: 698, d: 0.5 },  // F5
+  { n: 784, d: 0.5 },  // G5
+  { n: 831, d: 0.5 },  // Ab5
+  { n: 988, d: 0.5 },  // B5
+  { n: 1047, d: 1.0 }, // C6
+
+  // Phrase 6: come back down
+  { n: 988, d: 0.5 },  // B5
+  { n: 831, d: 0.5 },  // Ab5
+  { n: 784, d: 0.5 },  // G5
+  { n: 698, d: 0.75 }, // F5
+  { n: 659, d: 0.5 },  // E5
+  { n: 554, d: 0.5 },  // Db5
+  { n: 523, d: 1.0 },  // C5
+
+  // Phrase 7: high ornament
+  { n: 659, d: 0.5 },  // E5
+  { n: 698, d: 0.5 },  // F5
+  { n: 659, d: 0.5 },  // E5
+  { n: 554, d: 0.5 },  // Db5
+  { n: 523, d: 1.0 },  // C5
+  { n: 554, d: 0.5 },  // Db5
+  { n: 659, d: 0.5 },  // E5
+  { n: 554, d: 0.5 },  // Db5
+  { n: 523, d: 1.0 },  // C5
+
+  // Phrase 8: long cascade home
+  { n: 784, d: 0.5 },  // G5
+  { n: 698, d: 0.5 },  // F5
+  { n: 659, d: 0.5 },  // E5
+  { n: 554, d: 0.5 },  // Db5
+  { n: 523, d: 0.5 },  // C5
+  { n: 494, d: 0.5 },  // B4
+  { n: 415, d: 0.5 },  // Ab4
+  { n: 392, d: 0.5 },  // G4
+  { n: 349, d: 0.5 },  // F4
+  { n: 330, d: 0.5 },  // E4
+  { n: 277, d: 0.5 },  // Db4
+  { n: 262, d: 1.5 },  // C4
+  { n: 0, d: 0.75 },   // rest
+];
+
+const BOLERO_BEAT = 0.22; // seconds per duration unit — slower, more relaxed
+
+// Boléro's signature snare pattern: 
+// 3+3+3+3+2+2 = 16 subdivisions per bar
+// ta-ta-ta ta-ta-ta ta-ta-ta ta-ta-ta ta-ta ta-ta
+const SNARE_PATTERN = [1,0,0,1,0,0,1,0,0,1,0,0,1,0,1,0];
+let snareIndex = 0;
+let snareSubdivTime = 0;
+
+function scheduleBolero() {
+  if (!musicPlaying || !audioCtx) return;
+  while (nextNoteTime < audioCtx.currentTime + 0.25) {
+    const entry = BOLERO[boleroIndex % BOLERO.length];
+    const dur = entry.d * BOLERO_BEAT * 3;
+
+    if (entry.n > 0) {
+      const o = audioCtx.createOscillator(), g = audioCtx.createGain();
+      o.connect(g); g.connect(audioCtx.destination);
+      o.type = 'square';
+      o.frequency.setValueAtTime(entry.n, nextNoteTime);
+      g.gain.setValueAtTime(0.035, nextNoteTime);
+      g.gain.setValueAtTime(0.035, nextNoteTime + dur * 0.7);
+      g.gain.exponentialRampToValueAtTime(0.001, nextNoteTime + dur * 0.95);
+      o.start(nextNoteTime); o.stop(nextNoteTime + dur);
+    }
+
+    nextNoteTime += dur;
+    boleroIndex++;
+  }
+
+  // Schedule snare independently at a steady subdivision
+  const snareInterval = BOLERO_BEAT * 3 * 0.5; // subdivision timing
+  while (snareSubdivTime < audioCtx.currentTime + 0.25) {
+    const hit = SNARE_PATTERN[snareIndex % SNARE_PATTERN.length];
+    if (hit) {
+      const bufSz = audioCtx.sampleRate * 0.05;
+      const buf = audioCtx.createBuffer(1, bufSz, audioCtx.sampleRate);
+      const d = buf.getChannelData(0);
+      for (let i = 0; i < bufSz; i++) {
+        d[i] = (Math.random() * 2 - 1) * Math.exp(-i / (bufSz * 0.3));
+      }
+      const src = audioCtx.createBufferSource(), ng = audioCtx.createGain();
+      const filt = audioCtx.createBiquadFilter();
+      filt.type = 'highpass'; filt.frequency.value = 2000;
+      src.buffer = buf;
+      src.connect(filt); filt.connect(ng); ng.connect(audioCtx.destination);
+      ng.gain.setValueAtTime(0.045, snareSubdivTime);
+      ng.gain.exponentialRampToValueAtTime(0.001, snareSubdivTime + 0.05);
+      src.start(snareSubdivTime); src.stop(snareSubdivTime + 0.06);
+    }
+    snareSubdivTime += snareInterval;
+    snareIndex++;
+  }
+
+  boleroScheduler = setTimeout(scheduleBolero, 80);
+}
+
+function startMusic() {
+  ensureAudio();
+  musicPlaying = true;
+  boleroIndex = 0;
+  boleroBeatCount = 0;
+  snareIndex = 0;
+  nextNoteTime = audioCtx.currentTime + 0.1;
+  snareSubdivTime = audioCtx.currentTime + 0.1;
+  scheduleBolero();
+  document.getElementById('musicToggle').classList.add('on');
+  document.getElementById('musicToggle').textContent = '♪ ON';
+}
+
+function stopMusic() {
+  musicPlaying = false;
+  if (boleroScheduler) { clearTimeout(boleroScheduler); boleroScheduler = null; }
+  document.getElementById('musicToggle').classList.remove('on');
+  document.getElementById('musicToggle').textContent = '♪ OFF';
+}
+
+function toggleMusic() {
+  ensureAudio();
+  if (musicPlaying) stopMusic(); else startMusic();
+}
+
+// ══════════════════════════════════════════════════════════════
+// CONSTANTS
+// ══════════════════════════════════════════════════════════════
+
+const GRID = 12;
+const ROWS = 18;
+const CANVAS_W = 720;
+const CANVAS_H = ROWS * 36; // 648
+const UPX = CANVAS_W / GRID; // 60
+const RPX = CANVAS_H / ROWS; // 36
+
+const FRACTIONS = [
+  { num: 1, den: 2,  units: 6, label: '1/2',  color: '#e74c3c', dark: '#b83227' },
+  { num: 1, den: 3,  units: 4, label: '1/3',  color: '#3498db', dark: '#2476b0' },
+  { num: 1, den: 4,  units: 3, label: '1/4',  color: '#2ecc71', dark: '#1fa85a' },
+  { num: 1, den: 6,  units: 2, label: '1/6',  color: '#f39c12', dark: '#c47d0e' },
+  { num: 1, den: 12, units: 1, label: '1/12', color: '#e84393', dark: '#ba3477' },
+];
+
+const H_WEIGHTS = [{ h: 1, w: 70 }, { h: 2, w: 24 }, { h: 3, w: 6 }];
+
+// ══════════════════════════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════════════════════════
+
+let board, cur, nxt, gs;
+let particles = [];
+let highScores = [];
+try { highScores = JSON.parse(localStorage.getItem('fractis_hs2') || '[]'); } catch(e) {}
+
+const cv = document.getElementById('boardCanvas');
+cv.width = CANVAS_W; cv.height = CANVAS_H;
+const cx = cv.getContext('2d');
+const nCv = document.getElementById('nextCanvas');
+const nCx = nCv.getContext('2d');
+
+function initBoard() {
+  board = [];
+  for (let r = 0; r < ROWS; r++) board[r] = [];
+}
+
+function getRow(r) {
+  if (r < 0 || r >= ROWS || !Array.isArray(board[r])) return [];
+  return board[r];
+}
+
+// ══════════════════════════════════════════════════════════════
+// PIECES
+// ══════════════════════════════════════════════════════════════
+
+function rndFrac() {
+  const weights = FRACTIONS.map(f => {
+    if (gs.level <= 2) {
+      if (f.den === 12) return 4;
+      if (f.den === 6) return 3;
+      if (f.den <= 4) return 3;
+      return 2;
+    } else if (gs.level <= 5) {
+      if (f.den === 12) return 5;
+      if (f.den === 6) return 4;
+      if (f.den <= 4) return 2;
+      return 2;
+    } else {
+      if (f.den === 12) return 6;
+      if (f.den === 6) return 4;
+      return 2;
+    }
+  });
+  const total = weights.reduce((s, w) => s + w, 0);
+  let r = Math.random() * total;
+  for (let i = 0; i < FRACTIONS.length; i++) {
+    r -= weights[i];
+    if (r <= 0) return FRACTIONS[i];
+  }
+  return FRACTIONS[0];
+}
+
+function rndHeight() {
+  const total = H_WEIGHTS.reduce((s, x) => s + x.w, 0);
+  let r = Math.random() * total;
+  for (const x of H_WEIGHTS) { r -= x.w; if (r <= 0) return x.h; }
+  return 1;
+}
+
+function makePiece() {
+  const f = rndFrac(), h = rndHeight();
+  return { units: f.units, height: h, col: Math.floor((GRID - f.units) / 2), row: -h,
+    color: f.color, dark: f.dark, label: f.label, den: f.den };
+}
+
+// ══════════════════════════════════════════════════════════════
+// COLLISION & PLACEMENT
+// ══════════════════════════════════════════════════════════════
+
+function canPlace(p, col, row) {
+  if (col < 0 || col + p.units > GRID) return false;
+  for (let r = row; r < row + p.height; r++) {
+    if (r < 0) continue;
+    if (r >= ROWS) return false;
+    for (const b of getRow(r)) {
+      if (col < b.col + b.units && col + p.units > b.col) return false;
+    }
+  }
+  return true;
+}
+
+function place(p) {
+  for (let r = p.row; r < p.row + p.height; r++) {
+    if (r < 0 || r >= ROWS) continue;
+    if (!Array.isArray(board[r])) board[r] = [];
+    board[r].push({ col: p.col, units: p.units, color: p.color, dark: p.dark, label: p.label, den: p.den });
+  }
+}
+
+function checkLines() {
+  const cleared = [];
+  for (let r = 0; r < ROWS; r++) {
+    if (getRow(r).reduce((s, b) => s + b.units, 0) === GRID) cleared.push(r);
+  }
+  return cleared;
+}
+
+function clearLines(rows) {
+  rows.sort((a, b) => b - a);
+  for (const r of rows) board.splice(r, 1);
+  while (board.length < ROWS) board.unshift([]);
+}
+
+function ghostRow(p) {
+  let r = p.row;
+  while (canPlace(p, p.col, r + 1)) r++;
+  return r;
+}
+
+// ══════════════════════════════════════════════════════════════
+// MOVEMENT
+// ══════════════════════════════════════════════════════════════
+
+function moveL() {
+  if (!cur || !gs.playing || gs.paused) return;
+  const nc = cur.col - 1;
+  if (canPlace(cur, nc, cur.row)) { cur.col = nc; playSound('move'); }
+}
+
+function moveR() {
+  if (!cur || !gs.playing || gs.paused) return;
+  const nc = cur.col + 1;
+  if (canPlace(cur, nc, cur.row)) { cur.col = nc; playSound('move'); }
+}
+
+function softDrop() {
+  if (!cur || !gs.playing || gs.paused) return;
+  if (canPlace(cur, cur.col, cur.row + 1)) { cur.row++; gs.dropTimer = 0; gs.score += 1; }
+}
+
+function hardDrop() {
+  if (!cur || !gs.playing || gs.paused) return;
+  const gr = ghostRow(cur);
+  gs.score += (gr - cur.row) * 2;
+  cur.row = gr;
+  lock();
+  playSound('drop');
+}
+
+function lock() {
+  place(cur);
+  const cleared = checkLines();
+  if (cleared.length > 0) {
+    const pts = [0, 100, 300, 600, 1000][Math.min(cleared.length, 4)] * gs.level;
+    gs.score += pts;
+    gs.lines += cleared.length;
+    gs.combo++;
+    if (gs.combo > 1) { gs.score += gs.combo * 50; showPopup(`COMBO ×${gs.combo}!`); playSound('combo'); }
+    else { showPopup(`+${pts}`); playSound('clear'); }
+
+    // Spawn explosion particles from cleared rows BEFORE removing them
+    for (const r of cleared) {
+      const rowBlocks = getRow(r);
+      for (const b of rowBlocks) {
+        const bx = b.col * UPX;
+        const by = r * RPX;
+        const bw = b.units * UPX;
+        // Spawn particles from each block in the cleared row
+        const numParticles = Math.max(4, b.units * 3);
+        for (let i = 0; i < numParticles; i++) {
+          particles.push({
+            x: bx + Math.random() * bw,
+            y: by + Math.random() * RPX,
+            vx: (Math.random() - 0.5) * 8,
+            vy: (Math.random() - 0.5) * 6 - 2,
+            size: Math.random() * 5 + 2,
+            color: b.color,
+            life: 1.0,
+            decay: 0.015 + Math.random() * 0.01,
+          });
+        }
+      }
+      // Also add some white sparkle particles across the row
+      for (let i = 0; i < 12; i++) {
+        particles.push({
+          x: Math.random() * CANVAS_W,
+          y: r * RPX + RPX / 2,
+          vx: (Math.random() - 0.5) * 10,
+          vy: (Math.random() - 0.5) * 8,
+          size: Math.random() * 3 + 1,
+          color: '#fff',
+          life: 1.0,
+          decay: 0.02 + Math.random() * 0.015,
+        });
+      }
+    }
+
+    clearLines(cleared);
+    flashLine();
+    const nl = Math.floor(gs.lines / 5) + 1;
+    if (nl > gs.level) gs.level = nl;
+    gs.speedMult = Math.min(2.4, 1.0 + gs.lines * 0.03);
+    gs.dropInterval = Math.max(375, 900 - gs.lines * 18); // 375ms = 2.4x of 900ms base
+  } else { gs.combo = 0; }
+
+  if (getRow(0).length > 0) { endGame(); return; }
+  spawnNext();
+  updateUI();
+}
+
+function spawnNext() {
+  cur = nxt || makePiece();
+  nxt = makePiece();
+  gs.dropTimer = 0;
+  if (!canPlace(cur, cur.col, cur.row)) {
+    let ok = false;
+    for (let c = 0; c <= GRID - cur.units; c++) {
+      if (canPlace(cur, c, cur.row)) { cur.col = c; ok = true; break; }
+    }
+    if (!ok) endGame();
+  }
+  drawNext();
+}
+
+// ══════════════════════════════════════════════════════════════
+// RENDERING
+// ══════════════════════════════════════════════════════════════
+
+function drawBlock(c, x, y, w, h, color, dark, label, den, alpha) {
+  c.globalAlpha = alpha != null ? alpha : 1;
+
+  // Main fill
+  c.fillStyle = color;
+  c.fillRect(x, y, w, h);
+
+  // Classic Tetris 3D bevel
+  // Light top & left
+  c.fillStyle = 'rgba(255,255,255,0.25)';
+  c.fillRect(x, y, w, 3);
+  c.fillRect(x, y, 3, h);
+
+  // Dark bottom & right
+  c.fillStyle = 'rgba(0,0,0,0.35)';
+  c.fillRect(x, y + h - 3, w, 3);
+  c.fillRect(x + w - 3, y, 3, h);
+
+  // Inner face
+  c.fillStyle = dark || color;
+  c.fillRect(x + 3, y + 3, w - 6, h - 6);
+
+  // Subtle grid subdivision marks showing units out of 12
+  const numUnits = GRID / den;
+  if (numUnits > 1 && w > 20) {
+    const cellW = w / numUnits;
+    c.strokeStyle = 'rgba(255,255,255,0.1)';
+    c.lineWidth = 1;
+    for (let i = 1; i < numUnits; i++) {
+      const lx = x + i * cellW;
+      c.beginPath();
+      c.moveTo(Math.round(lx) + 0.5, y + 5);
+      c.lineTo(Math.round(lx) + 0.5, y + h - 5);
+      c.stroke();
+    }
+  }
+
+  // Label — big and readable
+  if (h > 14) {
+    // Scale font based on both block dimensions and label length
+    const maxByHeight = Math.floor(h * 0.5);
+    const maxByWidth = Math.floor(w / (label.length * 0.6));
+    const fs = Math.max(9, Math.min(maxByHeight, maxByWidth));
+    c.fillStyle = '#fff';
+    c.font = `bold ${fs}px 'Silkscreen', monospace`;
+    c.textAlign = 'center';
+    c.textBaseline = 'middle';
+    c.shadowColor = 'rgba(0,0,0,0.8)';
+    c.shadowBlur = 0;
+    c.shadowOffsetX = 1;
+    c.shadowOffsetY = 1;
+    c.fillText(label, x + w / 2, y + h / 2 + 1);
+    c.shadowOffsetX = 0;
+    c.shadowOffsetY = 0;
+  }
+
+  c.globalAlpha = 1;
+}
+
+function render() {
+  cx.fillStyle = '#0f0f0f';
+  cx.fillRect(0, 0, CANVAS_W, CANVAS_H);
+
+  if (!board) return;
+
+  // Grid
+  cx.strokeStyle = 'rgba(255,255,255,0.035)';
+  cx.lineWidth = 1;
+  for (let r = 0; r <= ROWS; r++) {
+    cx.beginPath(); cx.moveTo(0, r * RPX); cx.lineTo(CANVAS_W, r * RPX); cx.stroke();
+  }
+  for (let c = 0; c <= GRID; c++) {
+    cx.beginPath(); cx.moveTo(c * UPX, 0); cx.lineTo(c * UPX, CANVAS_H); cx.stroke();
+  }
+
+  // Placed blocks
+  for (let r = 0; r < ROWS; r++) {
+    const row = getRow(r);
+    for (const b of row) {
+      drawBlock(cx, b.col * UPX, r * RPX, b.units * UPX, RPX, b.color, b.dark, b.label, b.den, 1);
+    }
+    // Fill indicator as fraction of 12
+    const total = row.reduce((s, b) => s + b.units, 0);
+    if (total > 0 && total < GRID) {
+      cx.fillStyle = total >= 9 ? 'rgba(255,170,0,0.8)' : 'rgba(255,255,255,0.2)';
+      cx.font = "bold 11px 'Silkscreen', monospace";
+      cx.textAlign = 'right';
+      cx.textBaseline = 'middle';
+      cx.fillText(`${total}/12`, CANVAS_W - 4, r * RPX + RPX / 2);
+    }
+  }
+
+  if (!cur || !gs.playing || gs.paused) return;
+
+  // Ghost
+  const gr = ghostRow(cur);
+  if (gr !== cur.row) {
+    for (let r = gr; r < gr + cur.height; r++) {
+      if (r >= 0 && r < ROWS) {
+        drawBlock(cx, cur.col * UPX, r * RPX, cur.units * UPX, RPX,
+          cur.color, cur.dark, cur.label, cur.den, 0.15);
+      }
+    }
+  }
+
+  // Current piece
+  for (let r = cur.row; r < cur.row + cur.height; r++) {
+    if (r >= 0 && r < ROWS) {
+      drawBlock(cx, cur.col * UPX, r * RPX, cur.units * UPX, RPX,
+        cur.color, cur.dark, cur.label, cur.den, 1);
+    }
+  }
+
+  // Danger zone
+  for (let r = 0; r < 3; r++) {
+    if (getRow(r + 1).length > 0) {
+      cx.fillStyle = `rgba(255,40,40,${0.03 + r * 0.015})`;
+      cx.fillRect(0, r * RPX, CANVAS_W, RPX);
+    }
+  }
+
+  // Particles
+  for (let i = particles.length - 1; i >= 0; i--) {
+    const p = particles[i];
+    p.x += p.vx;
+    p.y += p.vy;
+    p.vy += 0.15; // gravity
+    p.life -= p.decay;
+    if (p.life <= 0) { particles.splice(i, 1); continue; }
+
+    cx.globalAlpha = p.life;
+    cx.fillStyle = p.color;
+    cx.shadowColor = p.color;
+    cx.shadowBlur = p.size * 2;
+
+    // Draw as small square (pixel-art style)
+    const s = p.size * p.life;
+    cx.fillRect(p.x - s / 2, p.y - s / 2, s, s);
+
+    cx.shadowBlur = 0;
+    cx.globalAlpha = 1;
+  }
+}
+
+function drawNext() {
+  if (!nxt) return;
+  nCx.clearRect(0, 0, 148, 70);
+  const scale = 130 / CANVAS_W;
+  const w = nxt.units * UPX * scale;
+  const rh = Math.min(22, 55 / nxt.height);
+  const th = rh * nxt.height;
+  const x = (148 - w) / 2;
+  const y = (70 - th) / 2;
+  for (let i = 0; i < nxt.height; i++) {
+    drawBlock(nCx, x, y + i * rh, w, rh, nxt.color, nxt.dark, nxt.label, nxt.den, 0.9);
+  }
+}
+
+// ══════════════════════════════════════════════════════════════
+// UI
+// ══════════════════════════════════════════════════════════════
+
+function updateUI() {
+  document.getElementById('scoreDisplay').textContent = gs.score;
+  document.getElementById('linesDisplay').textContent = gs.lines;
+  document.getElementById('levelDisplay').textContent = gs.level;
+  document.getElementById('speedDisplay').textContent = gs.speedMult.toFixed(1) + '×';
+  document.getElementById('comboDisplay').textContent = gs.combo;
+  document.getElementById('comboWidget').style.opacity = gs.combo > 0 ? '1' : '0.3';
+}
+
+function flashLine() {
+  const el = document.getElementById('lineFlash');
+  el.classList.remove('active'); void el.offsetWidth; el.classList.add('active');
+}
+
+function showPopup(t) {
+  const el = document.getElementById('scorePopup');
+  el.textContent = t;
+  el.classList.remove('show'); void el.offsetWidth; el.classList.add('show');
+}
+
+// ══════════════════════════════════════════════════════════════
+// SCREENS
+// ══════════════════════════════════════════════════════════════
+
+function hideAll() {
+  document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
+  document.getElementById('gameArea').classList.remove('active');
+}
+
+function showTitle() { hideAll(); gs && (gs.playing = false); stopMusic(); document.getElementById('titleScreen').classList.remove('hidden'); }
+function showHowTo() { hideAll(); document.getElementById('howToScreen').classList.remove('hidden'); }
+function showPause() { gs.paused = true; document.getElementById('pauseScreen').classList.remove('hidden'); }
+function resumeGame() { gs.paused = false; document.getElementById('pauseScreen').classList.add('hidden'); lastTs = performance.now(); }
+function quitToMenu() { gs.playing = false; stopMusic(); showTitle(); }
+
+function startGame() {
+  ensureAudio();
+  hideAll();
+  document.getElementById('gameArea').classList.add('active');
+  initBoard();
+  particles = [];
+  gs = { playing: true, paused: false, score: 0, lines: 0, level: 1, combo: 0,
+    startTime: Date.now(), dropInterval: 900, dropTimer: 0, speedMult: 1.0 };
+  cur = null; nxt = makePiece();
+  spawnNext(); updateUI();
+  lastTs = performance.now();
+}
+
+function endGame() {
+  gs.playing = false;
+  stopMusic();
+  playSound('gameover');
+  const el = Math.floor((Date.now() - gs.startTime) / 1000);
+  document.getElementById('finalScore').textContent = gs.score;
+  document.getElementById('finalLines').textContent = gs.lines;
+  document.getElementById('finalLevel').textContent = gs.level;
+  document.getElementById('finalTime').textContent = `${Math.floor(el / 60)}:${(el % 60).toString().padStart(2, '0')}`;
+
+  const isNew = highScores.length < 5 || gs.score > (highScores[highScores.length - 1]?.score || 0);
+  if (isNew && gs.score > 0) {
+    highScores.push({ score: gs.score, lines: gs.lines });
+    highScores.sort((a, b) => b.score - a.score);
+    highScores = highScores.slice(0, 5);
+    try { localStorage.setItem('fractis_hs2', JSON.stringify(highScores)); } catch(e) {}
+    document.getElementById('newHsBanner').style.display = 'block';
+  } else {
+    document.getElementById('newHsBanner').style.display = 'none';
+  }
+
+  let html = '';
+  highScores.forEach((h, i) => {
+    const cls = h.score === gs.score ? ' hs-new' : '';
+    html += `<div class="hs-row"><span class="hs-rank">${i + 1}.</span><span class="hs-info${cls}">${h.lines} lines</span><span class="hs-pts${cls}">${h.score}</span></div>`;
+  });
+  document.getElementById('highScoreList').innerHTML = html;
+  hideAll();
+  document.getElementById('gameOverScreen').classList.remove('hidden');
+}
+
+// ══════════════════════════════════════════════════════════════
+// INPUT
+// ══════════════════════════════════════════════════════════════
+
+document.addEventListener('keydown', (e) => {
+  if (!gs || !gs.playing) return;
+  if (e.key === 'p' || e.key === 'P' || e.key === 'Escape') {
+    if (gs.paused) resumeGame(); else showPause();
+    e.preventDefault(); return;
+  }
+  if (gs.paused) return;
+  switch (e.key) {
+    case 'ArrowLeft': moveL(); e.preventDefault(); break;
+    case 'ArrowRight': moveR(); e.preventDefault(); break;
+    case 'ArrowDown': softDrop(); e.preventDefault(); break;
+    case ' ': hardDrop(); e.preventDefault(); break;
+  }
+});
+
+// ══════════════════════════════════════════════════════════════
+// GAME LOOP
+// ══════════════════════════════════════════════════════════════
+
+let lastTs = 0;
+
+function loop(ts) {
+  const dt = ts - lastTs;
+  lastTs = ts;
+
+  if (gs && gs.playing && !gs.paused && cur) {
+    gs.dropTimer += dt;
+    if (gs.dropTimer >= gs.dropInterval) {
+      gs.dropTimer = 0;
+      if (canPlace(cur, cur.col, cur.row + 1)) {
+        cur.row++;
+      } else {
+        // Double-check: snap to the absolute lowest valid position before locking
+        // This prevents pieces appearing to float if they somehow didn't fall fully
+        const lowest = ghostRow(cur);
+        if (lowest > cur.row) {
+          cur.row = lowest;
+        }
+        if (cur.row < 0) endGame(); else lock();
+      }
+    }
+  }
+
+  render();
+  requestAnimationFrame(loop);
+}
+
+// ══════════════════════════════════════════════════════════════
+// TITLE DEMO
+// ══════════════════════════════════════════════════════════════
+
+function buildDemo() {
+  const el = document.getElementById('titleDemoBlocks');
+  const W = 560;
+  FRACTIONS.forEach(f => {
+    const d = document.createElement('div');
+    d.className = 'title-block-demo';
+    d.style.width = (f.units / GRID * W) + 'px';
+    d.style.background = f.color;
+    d.textContent = f.label;
+    el.appendChild(d);
+  });
+}
+
+// ══════════════════════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════════════════════
+
+gs = { playing: false };
+board = [];
+for (let r = 0; r < ROWS; r++) board[r] = [];
+buildDemo();
+showTitle();
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>
