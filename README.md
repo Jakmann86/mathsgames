@@ -13,8 +13,12 @@ A place to store and share all the maths based games created for Northlands Scho
 | Game | Topic | IB Relevance | Link |
 |------|-------|--------------|------|
 | ⚡ TRANSFORM | Geometric Transformations | AA & AI — Geometry | [Play](https://jakmann86.github.io/mathsgames/transform-game) |
-| *(coming soon)* | — | — | — |
-| *(coming soon)* | — | — | — |
+| ✦ DIVISIBILITY CONNECT | Divisibility rules | Number | [Play](https://jakmann86.github.io/mathsgames/divisibility-connect) |
+| ♠ TARGET ZERO | Integer addition | Number | [Play](https://jakmann86.github.io/mathsgames/target-zero) |
+| ☢ MELTDOWN | Powers / indices | Number & Algebra | [Play](https://jakmann86.github.io/mathsgames/meltdown) |
+| ✧ NUMBER BLASTER | Number properties | Number | [Play](https://jakmann86.github.io/mathsgames/number-blaster) |
+| ▧ FRACTIS | Adding fractions | Number | [Play](https://jakmann86.github.io/mathsgames/fractis) |
+| ★ JOHN'S PAINT SHOP | Ratio & proportion | Number & Algebra | [Play](https://jakmann86.github.io/mathsgames/johns-paint-shop) |
 
 ---
 
@@ -24,6 +28,7 @@ A place to store and share all the maths based games created for Northlands Scho
 mathsgames/
 ├── index.html              ← Landing page (arcade homepage)
 ├── README.md               ← This file
+├── johns-paint-shop/       ← Ratio game (single index.html)
 ├── transform-game/         ← Transformations game
 │   ├── index.html
 │   ├── css/
@@ -139,6 +144,7 @@ For easy sharing with staff, paste these links directly into your resource sprea
 ```
 Landing page:     https://jakmann86.github.io/mathsgames
 Transform game:   https://jakmann86.github.io/mathsgames/transform-game
+John's Paint Shop: https://jakmann86.github.io/mathsgames/johns-paint-shop
 ```
 
 ---
