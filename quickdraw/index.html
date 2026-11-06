@@ -54,7 +54,10 @@ button:focus-visible,a:focus-visible,.poster:focus-visible{outline:3px solid var
 .tg button{font-family:'Press Start 2P',monospace;font-size:10px;padding:10px 12px;background:rgba(30,15,8,.85);color:var(--paper);
   border:2px solid var(--wood3);border-radius:4px;cursor:pointer}
 .tg button.on{background:var(--gold);color:var(--ink);border-color:#fff2b0}
-.posters{display:grid;grid-template-columns:repeat(4,272px);gap:20px 22px}
+.posters{display:grid;grid-template-columns:repeat(5,226px);gap:20px 16px}
+.poster.boss{background:radial-gradient(ellipse at 50% 40%,#f0d0b0 0%,#d89a70 68%,#b0603a 100%)}
+.poster.boss .p-se{color:#8a0a0a}
+.poster.boss .p-topic{background:#8a0a0a}
 .poster{position:relative;height:246px;color:var(--ink);border-radius:3px;padding:16px 14px 12px;text-align:center;cursor:pointer;
   background:radial-gradient(ellipse at 50% 40%,#f7e9c6 0%,#ead09a 68%,#d2ac6c 100%);
   box-shadow:4px 6px 0 rgba(0,0,0,.45);transform:rotate(var(--rot));transition:transform .15s}
@@ -206,7 +209,13 @@ const sfx = {
   fanfare:() => [523, 659, 784, 1047].forEach((f, i) => tone(f, .17, 'square', .05, null, i * .1)),
   ghost:  () => { tone(330, .5, 'sine', .07, 660); tone(495, .5, 'sine', .04, 990, .05); },
   toss:   () => noise(.22, .1, 500, 'bandpass', 0, 1600),
-  chug:   () => noise(.09, .045, 260, 'lowpass')
+  chug:   () => noise(.09, .045, 260, 'lowpass'),
+  alarm:  () => [880, 660, 880, 660].forEach((f, i) => tone(f, .12, 'square', .06, null, i * .13)),
+  splat:  () => { noise(.3, .4, 900, 'lowpass', 0, 200); tone(120, .2, 'sine', .1, 60); },
+  throwT: () => noise(.2, .12, 800, 'bandpass', 0, 2400),
+  hit:    () => { noise(.3, .5, 1800, 'lowpass', 0, 300); tone(90, .3, 'square', .08, 40); },
+  cock:   () => { tone(1200, .04, 'square', .05); tone(700, .05, 'square', .05, null, .12); },
+  laugh:  () => [300, 260, 300, 240].forEach((f, i) => tone(f, .1, 'sawtooth', .05, null, i * .12))
 };
 function toggleSound(){ G.sound = !G.sound; document.getElementById('snd').textContent = G.sound ? 'SOUND ON' : 'SOUND OFF'; }
 
@@ -269,9 +278,10 @@ function wantedDecor(c, x, y){
   c.fillStyle = '#7a5a3a'; c.fillRect(x + 9, y + 13, 16, 16); c.fillStyle = '#5a1e0c'; c.fillRect(x + 4, y + 33, 26, 3); c.fillRect(x + 4, y + 38, 18, 3);
 }
 
-function townBG(){
+function townBG(night){
   const cv = mk(), c = cv.getContext('2d');
-  skyAndGround(c, [[0,'#1d0f33'],[.35,'#4a1d4f'],[.62,'#b2403a'],[.85,'#f08a3c'],[1,'#ffc35a']], [525, 205, 78], '#3e1838', '#b8743e', '#7a4423');
+  if (night) skyAndGround(c, [[0,'#05051a'],[.5,'#1a1640'],[.85,'#4a2a50'],[1,'#7a3a40']], [640, 150, 60], '#140c24', '#7a5a3e', '#3a2416');
+  else skyAndGround(c, [[0,'#1d0f33'],[.35,'#4a1d4f'],[.62,'#b2403a'],[.85,'#f08a3c'],[1,'#ffc35a']], [525, 205, 78], '#3e1838', '#b8743e', '#7a4423');
   facade(c, 30, 180, 360, '#8b4a2b', '#4a2410');
   facade(c, 410, 280, 230, '#8a7a62', '#4e4234', 'stone');
   facade(c, 660, 250, 270, '#e6d3ad', '#a8432a', 'adobe');
@@ -292,6 +302,9 @@ function townBG(){
   wantedDecor(c, 290, 450); wantedDecor(c, 880, 470); wantedDecor(c, 1240 - 30, 480);
   c.fillStyle = '#2a1a10'; c.fillRect(642, 330, 4, 230); c.fillStyle = '#ffcf6a'; c.fillRect(636, 322, 16, 14);
   street(c);
+  if (night){ c.fillStyle = 'rgba(10,8,40,.42)'; c.fillRect(0, 140, W, H - 140);
+    const lg = c.createRadialGradient(644, 330, 4, 644, 330, 220); lg.addColorStop(0, 'rgba(255,200,110,.5)'); lg.addColorStop(1, 'rgba(255,200,110,0)');
+    c.fillStyle = lg; c.fillRect(380, 120, 540, 460); }
   return cv;
 }
 function street(c){
@@ -792,6 +805,57 @@ function duckBG(tbg){
   return cv;
 }
 function duckFG(){ const cv = mk(), c = cv.getContext('2d'); fence(c); return cv; }
+function bullseye(c, x, y, r){ ['#b8282a','#f3e2b8','#b8282a','#f3e2b8','#b8282a'].forEach((col, i) => { c.fillStyle = col; c.beginPath(); c.arc(x, y, r * (1 - i * .19), 0, 7); c.fill(); }); }
+function galleryBG(){
+  const cv = mk(), c = cv.getContext('2d');
+  c.fillStyle = '#1a0c06'; c.fillRect(0, 0, W, H);
+  for (let x = 54; x < W - 54; x += 64){ c.fillStyle = ((x - 54) / 64) % 2 ? '#ecdcb4' : '#b8282a'; c.fillRect(x, 60, 64, 560); }
+  const sh = c.createLinearGradient(0, 60, 0, 620); sh.addColorStop(0, 'rgba(0,0,0,.5)'); sh.addColorStop(.3, 'rgba(0,0,0,.05)'); sh.addColorStop(1, 'rgba(0,0,0,.4)');
+  c.fillStyle = sh; c.fillRect(0, 60, W, 560);
+  bullseye(c, 250, 300, 74); bullseye(c, 1030, 300, 74); bullseye(c, 640, 400, 54);
+  // painted stars + horseshoes
+  const star = (x, y, r) => { c.fillStyle = '#ffd23f'; c.beginPath(); for (let i = 0; i < 10; i++){ const a = -Math.PI / 2 + i * Math.PI / 5, rr2 = i % 2 ? r * .45 : r; c.lineTo(x + Math.cos(a) * rr2, y + Math.sin(a) * rr2); } c.fill(); };
+  [[430,220,22],[850,220,22],[440,470,16],[840,470,16]].forEach(a => star(...a));
+  // prize shelves
+  [[70,450],[1030,450]].forEach(([x, y]) => {
+    c.fillStyle = '#6b4423'; c.fillRect(x, y, 180, 10); c.fillRect(x, y + 80, 180, 10);
+    c.strokeStyle = '#d9b14a'; c.lineWidth = 6; c.beginPath(); c.arc(x + 30, y - 18, 14, 0, Math.PI, true); c.stroke();
+    c.fillStyle = '#8a5a2a'; c.beginPath(); c.ellipse(x + 80, y - 18, 16, 20, 0, 0, 7); c.fill(); c.fillStyle = '#c8ccd2'; c.fillRect(x + 84, y - 50, 4, 20);
+    c.fillStyle = '#2a1a10'; c.fillRect(x + 112, y - 12, 52, 6); c.fillRect(x + 124, y - 30, 28, 20);
+    c.fillStyle = '#8a5a3a'; c.beginPath(); c.arc(x + 40, y + 60, 18, 0, 7); c.fill(); c.beginPath(); c.arc(x + 40, y + 38, 12, 0, 7); c.fill();
+    c.beginPath(); c.arc(x + 31, y + 28, 5, 0, 7); c.fill(); c.beginPath(); c.arc(x + 49, y + 28, 5, 0, 7); c.fill();
+    c.fillStyle = '#3a6a8a'; c.fillRect(x + 100, y + 44, 60, 36); c.fillStyle = '#ffd23f'; c.fillRect(x + 126, y + 44, 8, 36);
+  });
+  // pillars
+  [[0],[W - 54]].forEach(([x]) => { c.fillStyle = '#6b4423'; c.fillRect(x, 0, 54, H); c.fillStyle = 'rgba(0,0,0,.25)'; c.fillRect(x + 12, 0, 4, H); c.fillRect(x + 38, 0, 4, H); });
+  // awning valance
+  c.fillStyle = '#2a1608'; c.fillRect(0, 0, W, 30);
+  for (let x = 0, i = 0; x < W; x += 80, i++){ c.fillStyle = i % 2 ? '#ecdcb4' : '#b8282a';
+    c.beginPath(); c.moveTo(x, 28); c.lineTo(x + 80, 28); c.lineTo(x + 80, 62); c.arc(x + 40, 62, 40, 0, Math.PI); c.closePath(); c.fill(); }
+  c.fillStyle = '#d9b14a'; c.fillRect(0, 26, W, 5);
+  return cv;
+}
+function galleryUnder(c){
+  const k = Math.floor(G.t * 6);
+  const bulb = (x, y, on) => { if (on){ const gl = c.createRadialGradient(x, y, 2, x, y, 18); gl.addColorStop(0, 'rgba(255,236,150,.8)'); gl.addColorStop(1, 'rgba(255,236,150,0)');
+      c.fillStyle = gl; c.fillRect(x - 18, y - 18, 36, 36); c.fillStyle = '#fff6c0'; } else c.fillStyle = '#8a6a3a';
+    c.beginPath(); c.arc(x, y, 6, 0, 7); c.fill(); };
+  for (let i = 0; i < 32; i++) bulb(20 + i * 40, 112, (i + k) % 3 === 0);
+  for (let i = 0; i < 9; i++){ bulb(27, 150 + i * 50, (i + k) % 3 === 0); bulb(W - 27, 150 + i * 50, (i + k + 1) % 3 === 0); }
+}
+function galleryFG(){
+  const cv = mk(), c = cv.getContext('2d');
+  c.fillStyle = '#a0703a'; c.fillRect(0, 588, W, 18); c.fillStyle = '#c08a4a'; c.fillRect(0, 586, W, 5);
+  c.fillStyle = '#6b4423'; c.fillRect(0, 606, W, 114);
+  c.fillStyle = 'rgba(0,0,0,.25)'; for (let x = 0; x < W; x += 36) c.fillRect(x, 606, 2, 114);
+  for (let x = 0, i = 0; x < W; x += 50, i++){ c.fillStyle = ['#b8282a','#ecdcb4','#2f5a9a'][i % 3];
+    c.beginPath(); c.moveTo(x, 606); c.lineTo(x + 50, 606); c.lineTo(x + 25, 640); c.closePath(); c.fill(); }
+  board(c, 640, 644, 360, 62, '★ TIRO AL BLANCO ★', 28, 'premios · 3 tiros $1');
+  const rifle = (x, flip) => { c.save(); c.translate(x, 584); c.scale(flip ? -1 : 1, 1);
+    c.fillStyle = '#4a2c14'; c.fillRect(0, -10, 70, 14); c.fillStyle = '#2a2a30'; c.fillRect(66, -8, 150, 7); c.fillRect(120, -4, 60, 6); c.restore(); };
+  rifle(110, false); rifle(1170, true);
+  return cv;
+}
 
 const SCENES = {};
 function buildScenes(){
@@ -806,14 +870,15 @@ function buildScenes(){
     ...CAVES.map(k => caveSlot(...k)),
     ...ROCKS.map(b => riseSlot(b[0], b[1] + 8, 86 * b[2], b[2]))
   ]};
-  SCENES.duck = { bg:duckBG(tbg), fg:duckFG(), slots:[] };
-  SCENES.bar = { bg:barBG(), fg:barFG(), slots:[
+  SCENES.gallery = { bg:galleryBG(), under:galleryUnder, fg:galleryFG(), slots:[], indoor:true };
+  SCENES.townNight = { bg:townBG(true), fg:SCENES.town.fg, slots:SCENES.town.slots };
+  SCENES.bar = { bg:barBG(), fg:barFG(), indoor:true, slots:[
     ...BAR_DOORS.map(d => doorSlot(d[0], d[1], d[2], d[3], false)),
     doorSlot(BAR_BAT[0], BAR_BAT[1], BAR_BAT[2], BAR_BAT[3], true), winSlot(...BAR_WIN),
     ...BAR_RISE.map(b => riseSlot(b[0], b[1], b[2], 1))
   ]};
   TRAIN_FAR = trainFar(); TRAIN_NEAR = trainNear();
-  SCENES.train = { bg:trainSky(), under:trainUnder, fg:trainFG(), over:trainOver, slots:[
+  SCENES.train = { bg:trainSky(), under:trainUnder, fg:trainFG(), over:trainOver, indoor:true, slots:[
     ...TRAIN_WIN.map(w => Object.assign(winSlot(...w), {interior:'#2a1610', curtain:true})),
     ...TRAIN_ROOF.map(([x, y, h]) => riseSlot(x, y, h, .9))
   ]};
@@ -872,10 +937,14 @@ function personLocal(c, t){
   if (L.stache){ c.fillStyle = '#3a2416'; c.fillRect(-12, -86, 24, 4); }
   if (L.band){ c.fillStyle = L.bandC; c.beginPath(); c.moveTo(-17, -88); c.lineTo(17, -88); c.lineTo(0, -74); c.closePath(); c.fill(); }
   if (!t.noHat) hatLocal(c, L);
+  if (t.windup && !t.done){ c.fillStyle = L.poncho ? L.ponchoC : L.shirt; c.fillRect(30, -112, 13, 44);
+    c.fillStyle = '#d8261a'; c.beginPath(); c.arc(38, -122, 14, 0, 7); c.fill();
+    c.fillStyle = 'rgba(255,255,255,.4)'; c.beginPath(); c.arc(33, -127, 4, 0, 7); c.fill();
+    c.fillStyle = '#3a7a2a'; c.fillRect(34, -139, 8, 5); }
   // the sign they hold (taller for fractions, wider for 3-part ratios)
   const tall = !!t.label.frac, sw = t.label.ratio && t.label.ratio.length > 2 ? 62 : 48, sy = tall ? -80 : -66, sh = tall ? 66 : 50;
-  c.fillStyle = '#5a3418'; c.fillRect(-sw, sy, sw * 2, sh);
-  c.fillStyle = '#f3e2b8'; c.fillRect(-sw + 3, sy + 3, sw * 2 - 6, sh - 6);
+  c.fillStyle = t.boss ? '#d9b14a' : '#5a3418'; c.fillRect(-sw, sy, sw * 2, sh);
+  c.fillStyle = t.signFlash > 0 ? '#fffbd0' : '#f3e2b8'; c.fillRect(-sw + 3, sy + 3, sw * 2 - 6, sh - 6);
   drawLabel(c, t.label, 0, tall ? -47 : -41, sw * 2 - 10, sh - 8);
   c.fillStyle = L.skin; c.fillRect(-50, -46, 12, 12); c.fillRect(38, -46, 12, 12);
   if (t.bola){ c.strokeStyle = '#3a2416'; c.lineWidth = 4; c.beginPath(); c.ellipse(0, -40, 46, 12, 0, 0, Math.PI * 2); c.stroke();
@@ -930,7 +999,7 @@ function drawLabel(c, lab, cx, cy, w, h){
 // =====================================================================
 // ---------- section builders: every target carries the reason it is (or isn't) wanted ----------
 const gapFor = hard => hard ? [.62, .3] : [.95, .4];
-const firstGap = si => si === 0 ? .4 : 2.4;
+const firstGap = si => si === 0 ? .4 : .7;   // the intermission gives the pause between sections
 const nb = (si, a, b) => si > 0 ? [a, b] : null;
 function mkSection(r, o){
   const flags = rshuffle(r, Array.from({length:o.n}, (_, i) => i < o.goods)), used = new Set(), q = [], g = o.gap || [1, .4];
@@ -1030,25 +1099,25 @@ function secRatios(r, hard, base, n, si){
 
 // ---------- the stages ----------
 function buildSaloon(r, hard){
-  const q = []; rshuffle(r, hard ? [6,7,8,9,12] : [2,3,4,5,10]).slice(0, 3).forEach((k, si) => q.push(...secMultiples(r, hard, k, 13, si))); return q;
+  const q = []; rshuffle(r, hard ? [6,7,8,9,12] : [2,3,4,5,10]).slice(0, 3).forEach((k, si) => q.push(...secMultiples(r, hard, k, 16, si))); return q;
 }
 function buildBank(r, hard){
   const q = []; rshuffle(r, hard ? [36,48,40,54,64,72,90] : [12,18,20,24,16,30,28]).slice(0, 3).forEach((N, si) => q.push(...secFactors(r, hard, N, si, true))); return q;
 }
 function buildBootHill(r, hard){
-  const q = []; (hard ? [[1,50],[50,100]] : [[1,30],[30,60]]).forEach(([lo, hi], si) => q.push(...secPrimes(r, hard, lo, hi, 15, si, true))); return q;
+  const q = []; (hard ? [[1,50],[50,100]] : [[1,30],[30,60]]).forEach(([lo, hi], si) => q.push(...secPrimes(r, hard, lo, hi, 18, si, true))); return q;
 }
 function buildRailroad(r, hard){
   const q = []; rshuffle(r, hard ? [[4,6],[6,8],[6,9],[4,10],[8,12],[6,10],[9,12]] : [[2,3],[2,5],[3,4],[3,5],[4,5],[2,7]]).slice(0, 3)
-    .forEach(([a, b], si) => q.push(...secCommon(r, hard, a, b, 12, si))); return q;
+    .forEach(([a, b], si) => q.push(...secCommon(r, hard, a, b, 14, si))); return q;
 }
 function buildEstancia(r, hard){
   const bases = hard ? rshuffle(r, [[3,8],[4,5],[5,7],[4,7],[5,8],[3,7]]).slice(0, 2).concat([rpick(r, [[1,2,3],[2,3,4],[2,3,5]])])
                      : rshuffle(r, [[1,2],[1,3],[2,3],[3,4],[2,5],[3,5],[1,4]]).slice(0, 3);
-  const q = []; bases.forEach((b, si) => q.push(...secRatios(r, hard, b, 12, si))); return q;
+  const q = []; bases.forEach((b, si) => q.push(...secRatios(r, hard, b, 14, si))); return q;
 }
 function buildRoundup(r, hard){
-  const n = 8, secs = [
+  const n = 9, secs = [
     si => secMultiples(r, hard, rpick(r, hard ? [6,7,8,9] : [3,4,5,6]), n, si),
     si => secFactors(r, hard, rpick(r, hard ? [36,48,60] : [12,18,20,24]), si, false),
     si => secPrimes(r, hard, 1, hard ? 80 : 40, n, si, false),
@@ -1070,13 +1139,13 @@ function buildFence(r, hard){
   const q = [];
   bases.forEach(([a, b], si) => {
     const used = new Set();
-    for (let vi = 0; vi < 4; vi++){
+    for (let vi = 0; vi < 5; vi++){
       const size = hard ? 4 : (si === 0 && vi < 2 ? 3 : rpick(r, [3, 4])), goods = hard ? rint(r, 1, 3) : rint(r, 1, 2);
       const volley = rshuffle(r, Array.from({length:size}, (_, i) => i < goods)).map(good => {
         let it; for (let k = 0; k < 60; k++){ it = good ? fracGood(r, a, b, hard) : fracBad(r, a, b, hard); if (!used.has(it.key)) break; }
         used.add(it.key); return {kind:'bottle', label:it.label, good, why:it.why, data:{}};
       });
-      q.push({volley, gap: vi === 0 ? (si === 0 ? .5 : 2.2) : .7,
+      q.push({volley, gap: vi === 0 ? .5 : .7,
         poster: vi === 0 ? {top:'SHOOT BOTTLES EQUAL TO', frac:[a, b]} : null, banner: vi === 0 && si > 0 ? ['NEW TARGET!', `Fractions equal to ${a}/${b}`] : null});
     }
   });
@@ -1084,7 +1153,7 @@ function buildFence(r, hard){
 }
 function launchVolley(rd, v){
   if (v.poster){ rd.poster = v.poster; rd.posterPulse = 1; }
-  if (v.banner){ banner(v.banner[0], v.banner[1]); sfx.bell(); }
+  if (v.banner && !v.introDone){ banner(v.banner[0], v.banner[1]); sfx.bell(); }
   const n = v.volley.length, hard = G.diff === 1, gr = hard ? 330 : 230, lanes = rshuffle(rd.r, Array.from({length:n}, (_, i) => i));
   v.volley.forEach((rec, i) => {
     const x0 = 200 + (lanes[i] + .5) * (880 / n) + (rd.r() - .5) * 60, apex = 190 + rd.r() * 120, y0 = 730;
@@ -1095,7 +1164,10 @@ function launchVolley(rd, v){
   });
 }
 function duckSpawn(rd, dt){
+  if (rd.inter) return;
   if (rd.targets.length){ rd.timer = 0; return; }
+  const v0 = rd.queue[0];
+  if (v0 && v0.banner && !v0.introDone){ v0.introDone = true; startInter(rd, v0.banner[0], v0.banner[1].toUpperCase(), v0.poster); return; }
   rd.timer += dt;
   if (rd.queue.length && rd.timer >= rd.queue[0].gap){ launchVolley(rd, rd.queue.shift()); rd.timer = 0; }
 }
@@ -1207,20 +1279,26 @@ const STAGES = {
     brief:{rule:'Every gang member is a factor of the boss. <b>Shoot</b> a composite number to split it into a factor pair and keep splitting. Primes can\'t be split — catch them with the <b>boleadoras</b>.',
       ex:`40 → 4 × 10 → (2 × 2) × (2 × 5). Keep splitting until only primes are left:<br>${OK('40 = 2 × 2 × 2 × 5')} — gang captured!`,
       tip:'Bullets bounce off primes. Bolas won\'t hold a composite.'}},
-  railroad:{name:'THE RAILROAD', gang:'Common Multiple Express', topic:'COMMON MULTIPLES', scene:'train', stay:[2.6, 1.9], max:[3, 4], build:buildRailroad, rot:1,
+  railroad:{name:'THE RAILROAD', gang:'Common Multiple Express', topic:'COMMON MULTIPLES', scene:'train', stay:[2.9, 2.1], max:[3, 4], build:buildRailroad, rot:1,
+    throws:true, hearts:true,
     onTick(rd, dt){ rd.chug = (rd.chug || 0) - dt; if (rd.chug <= 0){ sfx.chug(); rd.chug = .42; } },
     brief:{rule:'Outlaws are robbing the express! Shoot numbers that are multiples of <b>both</b> numbers on the poster — numbers in both times tables.',
       ex:`COMMON MULTIPLES OF 4 AND 6: ${OK('12, 24, 36 ✔')} &nbsp; ${NO('16 ✘')} in the 4s, not the 6s &nbsp; ${NO('18 ✘')} in the 6s, not the 4s<br>The smallest one, 12, is the <b>LCM</b>.`,
-      tip:'Mind the telegraph poles!'}},
-  fence:{name:'BOTTLE FENCE', gang:'Los Equivalentes', topic:'EQUIV. FRACTIONS', scene:'duck', kind:'bottle', duck:true, stay:[2.9, 2.1], max:[3, 4],
+      tip:'Wanted outlaws you leave too long throw tomatoes — lose all your hearts and you\'re BUSTED. Mind the telegraph poles!'}},
+  fence:{name:'TIRO AL BLANCO', gang:'Los Equivalentes', topic:'EQUIV. FRACTIONS', scene:'gallery', kind:'bottle', duck:true, stay:[2.9, 2.1], max:[3, 4],
     build:buildFence, spawner:duckSpawn, rot:-1,
-    brief:{rule:'The gauchos are tossing bottles into the air. Shoot every bottle with a fraction <b>equal</b> to the poster before it drops behind the fence.',
+    brief:{rule:'Step up to the shooting gallery! Bottles get tossed into the air — shoot every one with a fraction <b>equal</b> to the poster before it drops behind the counter.',
       ex:`EQUAL TO 2/3: ${OK('4/6 ✔')} (× 2) &nbsp; ${OK('10/15 ✔')} (× 5) &nbsp; ${NO('3/4 ✘')} added 1 — never add! &nbsp; ${NO('3/2 ✘')} upside down`,
       tip:'Multiply or divide the top and bottom by the SAME number.'}},
   estancia:{name:'LA ESTANCIA', gang:'Los Proporcionales', topic:'EQUIV. RATIOS', scene:'estancia', stay:[2.8, 2.0], max:[3, 4], build:buildEstancia, rot:1.5,
     brief:{rule:'Shoot the outlaws holding a ratio <b>equivalent</b> to the poster — every part multiplied (or divided) by the same number.',
       ex:`2 : 3 → ${OK('4 : 6 ✔')} ${OK('10 : 15 ✔')} &nbsp; ${NO('3 : 2 ✘')} wrong way round — order matters! &nbsp; ${NO('3 : 4 ✘')} added 1`,
       tip:'The poster says what the ratio counts — like 2 gauchos for every 3 horses.'}},
+  boss:{name:'EL GRAN DIVISOR', gang:'The boss of San Divisor', topic:'BOSS FIGHT', scene:'townNight', boss:true, hearts:true, stay:[2.5, 1.8], max:[3, 4],
+    build:() => [], rot:1.5,
+    brief:{rule:'The boss runs all over town and the number on his sign keeps changing. Shoot him <b>only</b> when his number fits the poster — hit him on a wrong number and <b>you</b> lose a heart!',
+      ex:'Phase 1: MULTIPLES &nbsp;→&nbsp; Phase 2: FACTORS &nbsp;→&nbsp; Phase 3: PRIMES<br>When the red ring closes he fires — hit him on a correct number to disarm him.',
+      tip:'5 hearts on Greenhorn, 4 on Sheriff. Wait for the right number — don\'t panic-shoot!'}},
   roundup:{name:'THE LAST ROUNDUP', gang:'Every outlaw in town', topic:'MIXED REVIEW', scene:'town', stay:[2.7, 1.9], max:[3, 4], build:buildRoundup, rot:-2,
     brief:{rule:'Every outlaw in San Divisor at once. The poster changes every few outlaws — multiples, factors, primes, fractions, common multiples and ratios.',
       ex:'MULTIPLES → FACTORS → PRIMES → FRACTIONS → COMMON MULTIPLES → RATIOS',
@@ -1249,7 +1327,9 @@ function startRound(stageId, seed, player){
     players: show ? [mkPlayer(), mkPlayer()] : [mkPlayer()], cur:0,
     lessons:[], poster:null, posterPulse:0, gangs:[], endT:0, idSeq:0, lastSlot:null };
   G.round = rd; G.sceneKey = sceneKey; G.keys.clear();
-  FX.parts = []; FX.floats = []; FX.holes = []; FX.bolas = []; FX.toast = null; FX.banner = null;
+  rd.hearts = st.hearts && !show ? (G.diff ? 4 : 5) : null; rd.maxHearts = rd.hearts;
+  if (st.boss){ rd.boss = makeBoss(rd); rd.poster = rd.boss.phases[0].poster; }
+  FX.parts = []; FX.floats = []; FX.holes = []; FX.bolas = []; FX.toast = null; FX.banner = null; FX.splats = []; FX.cracks = []; FX.toms = [];
   if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
   showScreen(null); document.getElementById('stage').classList.add('aim'); document.getElementById('backLink').style.display = 'none';
   G.state = 'countdown'; G.cd = 0; G.cdStep = -1;
@@ -1274,7 +1354,7 @@ function spawn(rd, rec, slot){
     look:makeLook(rd.lr, kind), pop:0, t:0, state:'in', stay:rd.st.stay[G.diff] * (rec.stayMul || 1), shake:0 };
   slot.occ = t; rd.targets.push(t);
   if (rec.poster){ rd.poster = rec.poster; rd.posterPulse = 1; }
-  if (rec.banner){ banner(rec.banner[0], rec.banner[1]); sfx.bell(); }
+  if (rec.banner && !rec.introDone){ banner(rec.banner[0], rec.banner[1]); sfx.bell(); }
   if (rec.vault) openVault(rd, rec.vault);
   if (rec.lcm) note(rd, `Common multiples of ${rec.lcm[0]} and ${rec.lcm[1]} are all multiples of ${rec.lcm[2]} — the LCM (lowest common multiple).`);
   if (rd.st.onSpawn) rd.st.onSpawn(rd, t);
@@ -1286,16 +1366,25 @@ function updateRound(dt){
   rd.slots.forEach(s => s.cool -= dt);
   if (rd.pending.length){ rd.pendT += dt;
     if (rd.pendT > .12){ const pc = rd.pending[0], slot = nearestFree(rd, pc.near); if (slot){ rd.pending.shift(); spawn(rd, pc, slot); rd.pendT = 0; } } }
+  if (rd.inter){ rd.inter.t += dt; rd.posterPulse = .5; if (rd.inter.t >= rd.inter.dur){ rd.inter = null; rd.timer = 0; } }
   if (rd.st.spawner && !rd.show) rd.st.spawner(rd, dt);
-  else { rd.timer += dt;
-    if (rd.queue.length && rd.timer >= rd.queue[0].gap){ const slot = pickFree(rd); if (slot){ spawn(rd, rd.queue.shift(), slot); rd.timer = 0; } } }
+  else if (!rd.inter && !rd.busted){
+    const q0 = rd.queue[0];
+    if (q0 && q0.banner && !q0.introDone){        // new poster: wait for the board to clear, then flash it up
+      if (!rd.targets.some(t => !t.done) && !rd.pending.length){ q0.introDone = true; startInter(rd, q0.banner[0], q0.banner[1].toUpperCase(), q0.poster); }
+    } else { rd.timer += dt;
+      if (q0 && rd.timer >= q0.gap){ const slot = pickFree(rd); if (slot){ spawn(rd, rd.queue.shift(), slot); rd.timer = 0; } } }
+  }
   if (rd.st.onTick) rd.st.onTick(rd, dt);
+  if (rd.boss) updateBoss(rd, dt);
 
   rd.targets.forEach(t => {
     t.shake = Math.max(0, t.shake - dt);
     if (t.fly){ if (!t.dead) updateFly(rd, t, dt); return; }
     if (t.state === 'in'){ t.pop = Math.min(1, t.pop + dt / .22); if (t.pop >= 1) t.state = 'up'; }
-    else if (t.state === 'up'){ t.t += dt; if (t.t >= t.stay){ t.state = 'out'; if (!t.done) escape(rd, t); } }
+    else if (t.state === 'up'){ t.t += dt;
+      if (rd.st.throws && rd.hearts != null && t.good && !t.done && t.t > t.stay * .5 && !t.windup){ t.windup = true; sfx.cock(); }
+      if (t.t >= t.stay){ t.state = 'out'; if (!t.done) escape(rd, t); } }
     else if (t.state === 'out'){ t.pop -= dt / .22; if (t.pop <= 0) kill(t); }
     else if (t.state === 'down'){ t.pop -= dt / .16; if (t.pop <= 0) kill(t); }
     else if (t.state === 'oops'){ t.oopsT -= dt; if (t.oopsT <= 0) t.state = 'out'; }
@@ -1309,7 +1398,117 @@ function updateRound(dt){
   });
   rd.posterPulse = Math.max(0, rd.posterPulse - dt * 2);
 
-  if (!rd.queue.length && !rd.pending.length && !rd.targets.length){ rd.endT += dt; if (rd.endT > .9) endRound(); }
+  if (rd.busted || rd.bossDone){ rd.endT += dt; if (rd.endT > 1.8) endRound(); }
+  else if (!rd.boss && !rd.inter && !rd.queue.length && !rd.pending.length && !rd.targets.length){ rd.endT += dt; if (rd.endT > .9) endRound(); }
+}
+function startInter(rd, a, b, poster){
+  rd.inter = {t:0, dur:2.8, a, b}; if (poster) rd.poster = poster; rd.posterPulse = 1; sfx.alarm();
+}
+
+// ---------- hearts: outlaws (and the boss) can fight back ----------
+function hurt(rd, type, x, y){
+  if (rd.hearts == null || rd.busted || G.state !== 'play') return;
+  rd.hearts--; rd.players[0].stats.escaped++; G.hurt = .5; G.shake = .25;
+  if (type === 'tomato'){ FX.splats.push({x, y, r:80 + Math.random() * 40, life:2.8, seed:(Math.random() * 1e6) | 0}); sfx.splat(); }
+  else { FX.cracks.push({x:x ?? 220 + Math.random() * 840, y:y ?? 180 + Math.random() * 340, life:2.4, seed:(Math.random() * 1e6) | 0}); sfx.hit(); }
+  if (rd.hearts <= 0){ rd.busted = true; banner('BUSTED!', 'Out of hearts, partner'); sfx.laugh(); }
+}
+function throwTomato(rd, t){
+  const h = headOf(t);
+  FX.toms.push({x0:h.x + 30, y0:h.y - 10, x1:240 + Math.random() * 800, y1:170 + Math.random() * 360, t:0});
+  sfx.throwT();
+}
+
+// ---------- the boss: EL GRAN DIVISOR ----------
+const BOSS_LOOK = {hat:'chambergo', hatC:'#111', skin:'#d9a273', shirt:'#2a2a2a', poncho:true, ponchoC:'#8a1414', stripe:'#ffd23f', band:true, bandC:'#111', stache:true, beard:false};
+const BOSS_PATH = [[150,562],[320,562],[480,562],[700,562],[900,562],[1060,562],[1150,562],[140,378],[290,378],[1020,352],[1150,352]];
+const divisors = N => { const d = []; for (let i = 1; i <= N; i++) if (N % i === 0) d.push(i); return d; };
+function bossPhases(r, hard){
+  const k = rpick(r, hard ? [6,7,8,9] : [3,4,5]), N = rpick(r, hard ? [48,60,72] : [24,30,36]), P = hard ? 100 : 40;
+  return [
+    {poster:{top:'SHOOT HIM WHEN HE HOLDS', main:`A MULTIPLE OF ${k}`}, title:`Multiples of ${k}`,
+      good: r => { const m = rint(r, 2, hard ? 14 : 12); return {v:k * m}; },
+      bad: r => { const v = decoyMultiple(r, k, hard), q0 = Math.floor(v / k);
+        return {v, why:`${v} isn't a multiple of ${k}: ${k} × ${q0} = ${k*q0} and ${k} × ${q0+1} = ${k*(q0+1)}.`}; }},
+    {poster:{top:'SHOOT HIM WHEN HE HOLDS', main:`A FACTOR OF ${N}`}, title:`Factors of ${N}`,
+      good: r => ({v:rpick(r, divisors(N))}),
+      bad: r => { let v; do { v = r() < .25 ? N * rint(r, 2, 3) : rint(r, 2, N - 1); } while (N % v === 0);
+        return {v, why: v > N ? `${v} is a multiple of ${N}, not a factor — factors are never bigger than the number.` : `${v} isn't a factor of ${N}: ${N} ÷ ${v} = ${Math.floor(N / v)} remainder ${N % v}.`}; }},
+    {poster:{top:'SHOOT HIM WHEN HE HOLDS', main:'A PRIME NUMBER'}, title:'Prime numbers',
+      good: r => { let v; do { v = rint(r, 2, P); } while (!isPrime(v)); return {v}; },
+      bad: r => { let v; do { v = r() < .6 ? rpick(r, TRICKY.filter(x => x <= P)) : rint(r, 1, P); } while (isPrime(v));
+        return {v, why: v === 1 ? '1 is not prime — it only has one factor.' : `${v} = ${smallestFactor(v)} × ${v / smallestFactor(v)}, so it isn't prime.`}; }}
+  ];
+}
+function makeBoss(rd){
+  const hard = G.diff === 1, per = hard ? 4 : 3;
+  const b = {phases:bossPhases(rd.r, hard), phase:0, per, hp:per * 3, maxHp:per * 3, inPhase:0, s:1.3,
+    x:1360, y:562, fx:1360, fy:562, tx:1080, ty:562, mt:0, md:1.4, wp:5, state:'move', pause:0, aim:0, aimMax:1, aimCD:2,
+    inv:0, flash:0, signFlash:0, num:0, good:false, why:'', numT:0, numEvery: hard ? 1.0 : 1.35, dead:false, deadT:0, vy:0, rot:0,
+    slot:null, pop:0, slotState:'in', hopT:2.6};
+  if (rd.show){ b.slot = rpick(rd.r, rd.slots); }
+  rollNum(rd, b, false); return b;
+}
+function rollNum(rd, b, forceGood){
+  const ph = b.phases[b.phase], good = forceGood === undefined ? rd.r() < .45 : forceGood;
+  let it; for (let k = 0; k < 20; k++){ it = good ? ph.good(rd.r) : ph.bad(rd.r); if (it.v !== b.num) break; }
+  b.num = it.v; b.good = good; b.why = it.why || ''; b.numT = 0; b.signFlash = .18;
+}
+const bossT = b => ({look:BOSS_LOOK, label:{num:b.num}, angry:true, boss:true, signFlash:b.signFlash, noHat:b.dead});
+function bossBox(b, x, y){ return !b.dead && !b.slot && x > b.x - 58 * b.s && x < b.x + 58 * b.s && y > b.y - 140 * b.s && y < b.y; }
+function updateBoss(rd, dt){
+  const b = rd.boss, hard = G.diff === 1;
+  b.inv -= dt; b.flash -= dt; b.signFlash -= dt;
+  if (b.dead){ b.deadT += dt;
+    if (b.slot) b.pop = Math.max(0, b.pop - dt * 1.5); else { b.vy += 1100 * dt; b.y += b.vy * dt; b.rot += dt * 4; }
+    if (b.deadT > 2.4) rd.bossDone = true; return; }
+  if (rd.inter) return;
+  b.numT += dt; if (b.numT >= b.numEvery) rollNum(rd, b);
+  if (b.slot){                                    // showdown: hop between the 8 spots
+    if (b.slotState === 'in'){ b.pop = Math.min(1, b.pop + dt / .22); if (b.pop >= 1) b.slotState = 'up'; }
+    else if (b.slotState === 'up'){ b.hopT -= dt; if (b.hopT <= 0) b.slotState = 'out'; }
+    else { b.pop -= dt / .2; if (b.pop <= 0){ b.pop = 0; b.slot = rpick(rd.r, rd.slots.filter(s => s !== b.slot)); b.slotState = 'in'; b.hopT = hard ? 2 : 2.6; } }
+    return;
+  }
+  if (b.state === 'move'){ b.mt += dt; const p = clamp(b.mt / b.md, 0, 1), e = p < .5 ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2;
+    b.x = b.fx + (b.tx - b.fx) * e;
+    b.y = b.fy + (b.ty - b.fy) * e - (Math.abs(b.fy - b.ty) > 5 ? Math.sin(p * Math.PI) * 140 : Math.abs(Math.sin(p * Math.PI * 4)) * 10);
+    if (p >= 1){ b.state = 'pause'; b.pause = .45 + rd.r() * .6; b.aimCD--;
+      if (b.aimCD <= 0){ b.state = 'aim'; b.aim = b.aimMax = hard ? 1.5 : 2.1; b.aimCD = 2 + rint(rd.r, 0, 1); sfx.cock(); } } }
+  else if (b.state === 'pause'){ b.pause -= dt; if (b.pause <= 0) bossMove(rd, b); }
+  else if (b.state === 'aim'){ b.aim -= dt;
+    if (b.aim <= 0){ sfx.shot(); G.flash = .1; hurt(rd, 'shot'); floater(b.x, b.y - 200 * b.s, 'BANG!', '#ff5a4a'); b.state = 'pause'; b.pause = .7; } }
+}
+function bossMove(rd, b){
+  let i; do { i = rint(rd.r, 0, BOSS_PATH.length - 1); } while (i === b.wp);
+  b.wp = i; b.fx = b.x; b.fy = b.y; b.tx = BOSS_PATH[i][0]; b.ty = BOSS_PATH[i][1]; b.mt = 0;
+  b.md = .7 + Math.hypot(b.tx - b.fx, b.ty - b.fy) / (G.diff ? 900 : 700); b.state = 'move';
+}
+function bossShot(rd, i){
+  const b = rd.boss, P = rd.players[i]; rd.cur = i;
+  if (b.dead || b.inv > 0) return;
+  const hx = b.slot ? b.slot.hx : b.x, hy = b.slot ? b.slot.hy - 112 * b.slot.s : b.y - 150 * b.s;
+  if (b.good){
+    P.streak++; P.best = Math.max(P.best, P.streak); P.stats.correct++;
+    const amt = 150 * multOf(P.streak); P.bounty += amt;
+    floater(hx, hy, (rd.show ? `P${i + 1} ` : '') + '+' + money(amt), rd.show ? PCOL[i] : '#ffd23f'); sfx.thud(); sfx.cash();
+    b.hp--; b.inPhase++; b.inv = .45; b.flash = .35;
+    if (b.state === 'aim'){ b.state = 'pause'; b.pause = .5; floater(hx, hy + 36, 'DISARMED!', '#7aff9a'); }
+    if (b.hp <= 0){
+      b.dead = true; b.vy = -520; const bonus = 1000 * multOf(P.streak); P.bounty += bonus;
+      part({type:'hat', look:BOSS_LOOK, x:hx, y:hy, vx:120, vy:-460, g:1100, vr:6, life:1.4, s:(b.slot ? b.slot.s : b.s)});
+      banner('¡EL GRAN DIVISOR HA CAÍDO!', 'BOSS DEFEATED  +' + money(bonus)); sfx.fanfare();
+      b.phases.forEach(ph => note(rd, `Beat the boss on ${ph.title.toLowerCase()}.`));
+    } else if (b.inPhase >= b.per){
+      b.phase++; b.inPhase = 0; const ph = b.phases[b.phase];
+      startInter(rd, "HE'S FURIOUS!", ph.title.toUpperCase(), ph.poster); rollNum(rd, b, false);
+    } else rollNum(rd, b, false);
+  } else {
+    P.streak = 0; P.stats.wrong++; P.bounty = Math.max(0, P.bounty - 150);
+    floater(hx, hy, (rd.show ? `P${i + 1} ` : '') + '-' + money(150), '#ff5a4a');
+    sfx.wrong(); sfx.laugh(); toast(b.why, 'bad'); lesson(rd, b.why);
+    if (rd.show) P.stun = 1; else hurt(rd, 'shot', G.mx, G.my);
+  }
 }
 
 // ---------- scoring (always for the player who acted: rd.cur) ----------
@@ -1351,7 +1550,8 @@ function escape(rd, t){
   const h = headOf(t); floater(h.x, h.y, 'GOT AWAY!', '#ffa040'); sfx.escape();
   const m = t.why.escape || 'An outlaw got away!'; toast(m, 'bad'); lesson(rd, m);
   if (rd.show) return;          // showdown: nobody loses money when both miss
-  const P = rd.players[0]; P.streak = 0; P.stats.escaped++; P.bounty = Math.max(0, P.bounty - 50);
+  const P = rd.players[0]; P.streak = 0; P.bounty = Math.max(0, P.bounty - 50);
+  if (rd.st.throws && rd.hearts != null) throwTomato(rd, t); else P.stats.escaped++;
 }
 function lesson(rd, m){ if (!rd.lessons.includes(m)) rd.lessons.push(m); }
 function note(rd, m){ if (!rd.notes.includes(m)) rd.notes.push(m); }
@@ -1365,7 +1565,8 @@ function fireGun(){
   if (P.bullets <= 0){ sfx.dry(); startReload(P); return; }
   P.bullets--; P.stats.shots++; sfx.shot(); G.flash = .07; G.shake = .09;
   const t = targetAt(G.mx, G.my);
-  if (t){ P.stats.hits++; (rd.st.onShot || defaultShot)(rd, t, 'gun'); }
+  if (rd.boss && bossBox(rd.boss, G.mx, G.my)){ P.stats.hits++; bossShot(rd, 0); }
+  else if (t){ P.stats.hits++; (rd.st.onShot || defaultShot)(rd, t, 'gun'); }
   else { FX.holes.push({x:G.mx, y:G.my, life:4}); dust(G.mx, G.my); }
   if (P.bullets === 0) P.autoReload = .3;
 }
@@ -1400,8 +1601,9 @@ function showFire(i, tool){
     return;
   }
   P.cool = .28; P.stats.shots++; P.flash = .07; sfx.shot(); G.shake = .06;
-  const t = slot && slot.occ;
-  if (t && validT(t)){ P.stats.hits++; rd.cur = i; (rd.st.onShot || defaultShot)(rd, t, 'gun'); }
+  const t = slot && slot.occ, bo = rd.boss;
+  if (bo && slot && bo.slot === slot && bo.pop > .6 && !bo.dead){ P.stats.hits++; bossShot(rd, i); }
+  else if (t && validT(t)){ P.stats.hits++; rd.cur = i; (rd.st.onShot || defaultShot)(rd, t, 'gun'); }
   else { FX.holes.push({x:a.x + (Math.random() - .5) * 16, y:a.y + (Math.random() - .5) * 16, life:3}); dust(a.x, a.y); }
 }
 function offsetOf(t){ if (t.fly) return {dx:0, dy:0}; const s = t.slot, p = easeOut(t.pop); let dx = 0, dy = 0;
@@ -1461,7 +1663,11 @@ function updateFX(dt){
   if (Math.random() < dt * .08 && FX.weeds.length < 1) FX.weeds.push({x:-60, y:690, r:22 + Math.random() * 10, vx:110 + Math.random() * 80, rot:0, hop:0});
   FX.weeds.forEach(w => { w.x += w.vx * dt; w.rot += w.vx * dt / w.r; w.hop = Math.abs(Math.sin(w.x / 60)) * 18; });
   FX.weeds = FX.weeds.filter(w => w.x < W + 80);
-  G.flash = Math.max(0, G.flash - dt); G.shake = Math.max(0, G.shake - dt);
+  G.flash = Math.max(0, G.flash - dt); G.shake = Math.max(0, G.shake - dt); G.hurt = Math.max(0, (G.hurt || 0) - dt);
+  (FX.splats || []).forEach(s => s.life -= dt); FX.splats = (FX.splats || []).filter(s => s.life > 0);
+  (FX.cracks || []).forEach(s => s.life -= dt); FX.cracks = (FX.cracks || []).filter(s => s.life > 0);
+  (FX.toms || []).forEach(m => { m.t += dt / .42; if (m.t >= 1 && !m.hit){ m.hit = true; if (G.round) hurt(G.round, 'tomato', m.x1, m.y1); } });
+  FX.toms = (FX.toms || []).filter(m => !m.hit);
 }
 
 // =====================================================================
@@ -1470,8 +1676,13 @@ function updateFX(dt){
 const cv = document.getElementById('cv'), g = cv.getContext('2d');
 
 function clipSlot(c, s){ c.beginPath(); if (s.kind === 'cave') archPath(c, s.x, s.y, s.w, s.h); else c.rect(s.x, s.y, s.w, s.h); c.clip(); }
+function slotOff(s, pop){ const p = easeOut(pop); return s.mode === 'up' ? {dx:0, dy:(1 - p) * s.dist} : {dx:-(1 - p) * s.dist, dy:0}; }
 function drawSlot(c, s){
-  const o = s.occ, open = o ? clamp(o.pop * 1.6, 0, 1) : 0;
+  const bo = G.round && G.round.boss && G.round.boss.slot === s ? G.round.boss : null;
+  const o = s.occ, open = o ? clamp(o.pop * 1.6, 0, 1) : bo ? clamp(bo.pop * 1.6, 0, 1) : 0;
+  if (bo && bo.pop > 0){ if (s.kind === 'window' || s.kind === 'door'){ c.fillStyle = s.interior || '#1a0c06'; c.fillRect(s.x, s.y, s.w, s.h); }
+    const off = slotOff(s, bo.pop); c.save(); clipSlot(c, s); c.translate(s.hx + off.dx, s.hy + off.dy); c.scale(s.s, s.s);
+    if (bo.flash > 0 && Math.floor(G.t * 30) % 2) c.globalAlpha = .45; personLocal(c, bossT(bo)); c.restore(); }
   if ((s.kind === 'window' || s.kind === 'door') && (o || s.bat || s.interior)){ c.fillStyle = s.interior || '#1a0c06'; c.fillRect(s.x, s.y, s.w, s.h);
     c.fillStyle = 'rgba(255,190,90,.12)'; c.fillRect(s.x, s.y, s.w, s.h * .4); }
   if (o){
@@ -1499,12 +1710,22 @@ function render(){
   (rd ? rd.slots : sc.slots).forEach(s => drawSlot(g, s));
   if (rd) rd.targets.forEach(t => { if (!t.fly || t.dead || t.wait > 0) return;
     g.save(); g.translate(t.x, t.y - 50 * t.s); g.rotate(t.rot); g.translate(0, 50 * t.s); g.scale(t.s, t.s); bottleLocal(g, t); g.restore(); });
+  if (rd && rd.boss && !rd.boss.slot){ const b = rd.boss;
+    if (!b.dead){ g.fillStyle = 'rgba(0,0,0,.3)'; g.beginPath(); g.ellipse(b.x, b.y + 4, 46, 9, 0, 0, 7); g.fill(); }
+    g.save(); g.translate(b.x, b.y); if (b.dead) g.rotate(b.rot); g.scale(b.s, b.s);
+    if (b.flash > 0 && Math.floor(G.t * 30) % 2) g.globalAlpha = .45; personLocal(g, bossT(b)); g.restore(); }
   g.drawImage(sc.fg, 0, 0);
   if (sc.over) sc.over(g);
+  if (rd && rd.st.throws) rd.targets.forEach(t => { if (!t.windup || t.done || t.state !== 'up') return;
+    const h = headOf(t); warnMark(g, h.x, h.y - 52 * sOf(t)); });
+  if (rd && rd.boss && !rd.boss.slot && rd.boss.state === 'aim' && !rd.boss.dead){ const b = rd.boss, p = 1 - b.aim / b.aimMax, cy = b.y - 80 * b.s;
+    g.strokeStyle = `rgba(255,60,40,${(.5 + p * .5).toFixed(2)})`; g.lineWidth = 6; g.beginPath(); g.arc(b.x, cy, 130 - p * 70, 0, 7); g.stroke();
+    g.lineWidth = 3; g.beginPath(); g.arc(b.x, cy, 130, -Math.PI / 2, -Math.PI / 2 + p * Math.PI * 2); g.stroke();
+    warnMark(g, b.x - 92, b.y - 150 * b.s); }
 
   if (rd) rd.targets.forEach(t => { if (t.angry && t.state === 'oops'){ const h = headOf(t);
     speech(g, h.x + 36, h.y - 6, '¡EH!'); } });
-  FX.weeds.forEach(w => tumbleweed(g, w));
+  if (!sc.indoor) FX.weeds.forEach(w => tumbleweed(g, w));
   FX.parts.forEach(p => {
     g.globalAlpha = clamp(p.life / p.max * 2, 0, 1);
     if (p.type === 'hat'){ g.save(); g.translate(p.x, p.y); g.rotate(p.rot); g.scale(p.s, p.s); g.translate(0, 115); hatLocal(g, p.look); g.restore(); }
@@ -1521,6 +1742,11 @@ function render(){
   FX.floats.forEach(f => { g.globalAlpha = clamp(f.life / f.max * 2, 0, 1); g.font = '34px VT323'; g.textAlign = 'center'; g.textBaseline = 'middle';
     g.lineWidth = 5; g.strokeStyle = '#1a0c06'; g.strokeText(f.text, f.x, f.y); g.fillStyle = f.color; g.fillText(f.text, f.x, f.y); g.globalAlpha = 1; });
 
+  (FX.toms || []).forEach(m => { const p = Math.min(1, m.t), x = m.x0 + (m.x1 - m.x0) * p, y = m.y0 + (m.y1 - m.y0) * p - Math.sin(p * Math.PI) * 80, r = 10 + p * p * 60;
+    g.fillStyle = '#d8261a'; g.beginPath(); g.arc(x, y, r, 0, 7); g.fill(); g.fillStyle = '#3a7a2a'; g.fillRect(x - r * .2, y - r * 1.05, r * .4, r * .3); });
+  (FX.splats || []).forEach(s => drawSplat(g, s));
+  (FX.cracks || []).forEach(s => drawCrack(g, s));
+  if (G.hurt > 0){ g.fillStyle = `rgba(200,20,10,${(G.hurt * .7).toFixed(2)})`; g.fillRect(0, 0, W, H); }
   if (rd && G.state !== 'title' && G.state !== 'select') (rd.show ? drawShowHUD(g, rd) : drawHUD(g, rd));
   g.restore();
 
@@ -1532,6 +1758,29 @@ function render(){
   }
   if (G.state === 'play' || G.state === 'countdown') (rd && rd.show ? showCrosshairs(g, rd) : crosshair(g));
 }
+function warnMark(c, x, y){ if (Math.floor(G.t * 8) % 2) return;
+  c.fillStyle = '#d8261a'; c.beginPath(); c.arc(x, y, 18, 0, 7); c.fill(); c.strokeStyle = '#fff3d6'; c.lineWidth = 3; c.stroke();
+  c.fillStyle = '#fff3d6'; c.font = '26px Rye'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText('!', x, y + 1); }
+function drawSplat(c, s){
+  const r = rng(s.seed), a = clamp(s.life / .8, 0, 1), age = 2.8 - s.life;
+  c.globalAlpha = a * .92; c.fillStyle = '#c01810';
+  c.beginPath(); c.arc(s.x, s.y, s.r, 0, 7); c.fill();
+  for (let i = 0; i < 10; i++){ const an = r() * 7, d = s.r * (.8 + r() * .6), rad = s.r * (.18 + r() * .25);
+    c.beginPath(); c.arc(s.x + Math.cos(an) * d, s.y + Math.sin(an) * d, rad, 0, 7); c.fill(); }
+  for (let i = 0; i < 5; i++){ const dx = (r() - .5) * s.r * 1.4, len = 20 + age * (30 + r() * 50); c.fillRect(s.x + dx - 6, s.y, 12, s.r * .6 + len);
+    c.beginPath(); c.arc(s.x + dx, s.y + s.r * .6 + len, 8, 0, 7); c.fill(); }
+  c.fillStyle = '#f0d070'; for (let i = 0; i < 9; i++){ c.beginPath(); c.ellipse(s.x + (r() - .5) * s.r, s.y + (r() - .5) * s.r, 6, 3.5, r() * 3, 0, 7); c.fill(); }
+  c.fillStyle = 'rgba(255,255,255,.25)'; c.beginPath(); c.arc(s.x - s.r * .35, s.y - s.r * .35, s.r * .25, 0, 7); c.fill();
+  c.globalAlpha = 1;
+}
+function drawCrack(c, s){
+  const r = rng(s.seed); c.globalAlpha = clamp(s.life / .6, 0, 1);
+  c.strokeStyle = 'rgba(255,255,255,.85)'; c.lineWidth = 2.5;
+  for (let i = 0; i < 9; i++){ let x = s.x, y = s.y, an = i * .7 + r() * .5; c.beginPath(); c.moveTo(x, y);
+    for (let k = 0; k < 4; k++){ an += (r() - .5) * .6; x += Math.cos(an) * (24 + r() * 30); y += Math.sin(an) * (24 + r() * 30); c.lineTo(x, y); } c.stroke(); }
+  c.beginPath(); c.arc(s.x, s.y, 14, 0, 7); c.stroke(); c.beginPath(); c.arc(s.x, s.y, 36, 0, 7); c.stroke();
+  c.globalAlpha = 1;
+}
 function bigText(c, t, x, y, size, col){ c.font = `${size}px Rye`; c.textAlign = 'center'; c.textBaseline = 'middle';
   c.lineWidth = size / 8; c.strokeStyle = '#3a1206'; c.strokeText(t, x, y); c.fillStyle = col; c.fillText(t, x, y); }
 function speech(c, x, y, t){ c.fillStyle = '#fff3d6'; rr(c, x, y - 34, 74, 36, 8); c.fill(); c.beginPath(); c.moveTo(x + 8, y); c.lineTo(x - 6, y + 12); c.lineTo(x + 22, y); c.fill();
@@ -1539,7 +1788,7 @@ function speech(c, x, y, t){ c.fillStyle = '#fff3d6'; rr(c, x, y - 34, 74, 36, 8
 function tumbleweed(c, w){ c.save(); c.translate(w.x, w.y - w.hop); c.rotate(w.rot); c.strokeStyle = '#8a6a3a'; c.lineWidth = 2;
   for (let i = 0; i < 7; i++){ c.beginPath(); c.arc(0, 0, w.r - i * 2, i, i + 4); c.stroke(); } c.restore(); }
 function crosshair(c){
-  const x = G.mx, y = G.my, over = G.state === 'play' && targetAt(x, y);
+  const x = G.mx, y = G.my, over = G.state === 'play' && (targetAt(x, y) || (G.round && G.round.boss && bossBox(G.round.boss, x, y)));
   if (G.flash > 0) burst(c, x, y);
   c.lineWidth = 6; c.strokeStyle = 'rgba(0,0,0,.6)'; ring(c, x, y);
   c.lineWidth = 3; c.strokeStyle = over ? '#ff4a3a' : '#fff6e0'; ring(c, x, y);
@@ -1569,10 +1818,10 @@ function drawHUD(c, rd){
   c.font = '9px "Press Start 2P"'; c.fillStyle = '#d8b98a'; c.fillText(G.mode === 2 ? `PLAYER ${rd.player} · BOUNTY` : 'BOUNTY', 28, 34);
   c.font = '36px Rye'; c.fillStyle = '#ffd23f'; c.fillText(money(P.bounty), 26, 74);
   plank(c, 1016, 12, 250, 74);
-  c.font = '9px "Press Start 2P"'; c.fillStyle = '#d8b98a'; c.fillText('STREAK', 1030, 34); c.fillText('TARGETS LEFT', 1030, 74);
+  c.font = '9px "Press Start 2P"'; c.fillStyle = '#d8b98a'; c.fillText('STREAK', 1030, 34); c.fillText(rd.boss ? 'BOSS HP' : 'TARGETS LEFT', 1030, 74);
   c.textAlign = 'right'; c.font = '30px Rye'; const m = multOf(P.streak);
   c.fillStyle = m > 1 ? '#ffd23f' : '#f3e2b8'; c.fillText(`${P.streak}  ×${m}`, 1252, 44);
-  const left = rd.queue.reduce((n, q) => n + (q.volley ? q.volley.length : 1), 0) + rd.pending.length + rd.targets.filter(t => !t.done).length;
+  const left = rd.boss ? `${rd.boss.hp}/${rd.boss.maxHp}` : rd.queue.reduce((n, q) => n + (q.volley ? q.volley.length : 1), 0) + rd.pending.length + rd.targets.filter(t => !t.done).length;
   c.font = '26px VT323'; c.fillStyle = '#f3e2b8'; c.fillText(left, 1252, 78);
   drawPoster(c, rd.poster, rd.posterPulse);
   // revolver cylinder
@@ -1595,7 +1844,38 @@ function drawHUD(c, rd){
     c.fillStyle = '#d8b98a'; c.font = '8px "Press Start 2P"'; c.fillText('RIGHT-CLICK / SPACE', 1056, 666);
   }
   drawVault(c, rd, 116);
+  drawBossBar(c, rd);
+  if (rd.hearts != null){ plank(c, 14, 92, 34 * rd.maxHearts + 14, 36);
+    for (let i = 0; i < rd.maxHearts; i++) heart(c, 38 + i * 34, 110, i < rd.hearts); }
   drawMessages(c, -712, 680);
+  drawInter(c, rd);
+}
+function heart(c, x, y, full){
+  c.fillStyle = full ? '#e8262a' : 'rgba(0,0,0,.5)';
+  c.beginPath(); c.arc(x - 6, y - 4, 7, 0, 7); c.arc(x + 6, y - 4, 7, 0, 7); c.fill();
+  c.beginPath(); c.moveTo(x - 13, y - 1); c.lineTo(x, y + 13); c.lineTo(x + 13, y - 1); c.closePath(); c.fill();
+  if (full){ c.fillStyle = 'rgba(255,255,255,.45)'; c.fillRect(x - 9, y - 8, 4, 4); }
+}
+function drawBossBar(c, rd){
+  const b = rd.boss; if (!b) return;
+  const w = 360, x = W / 2 - w / 2, y = 114;
+  plank(c, x, y, w, 32);
+  c.font = '9px "Press Start 2P"'; c.fillStyle = '#ff6a4a'; c.textAlign = 'left'; c.textBaseline = 'middle'; c.fillText('EL GRAN DIVISOR', x + 12, y + 17);
+  const sx = x + 156, sw = (w - 168) / b.maxHp;
+  for (let i = 0; i < b.maxHp; i++){ c.fillStyle = i < b.hp ? (b.flash > 0 ? '#fff3d6' : '#e83a2a') : 'rgba(0,0,0,.5)'; c.fillRect(sx + i * sw + 1, y + 8, sw - 3, 16); }
+}
+function drawInter(c, rd){
+  const I = rd.inter; if (!I) return; const t = I.t;
+  if (Math.floor(t * 8) % 2 === 0){ c.strokeStyle = '#ff3a2a'; c.lineWidth = 7; c.strokeRect(W / 2 - 186, 2, 372, 114); }
+  if (t < .35){ c.fillStyle = `rgba(255,250,220,${((.35 - t) / .35 * .85).toFixed(2)})`; c.fillRect(0, 0, W, H); }
+  c.fillStyle = 'rgba(14,7,16,.62)'; c.fillRect(0, 218, W, 230);
+  c.fillStyle = Math.floor(t * 7) % 2 ? '#ffd23f' : '#ff5a3a'; c.fillRect(0, 218, W, 6); c.fillRect(0, 442, W, 6);
+  bigText(c, I.a, W / 2, 272, 52, t < 1.4 && Math.floor(t * 7) % 2 === 0 ? '#ff5a3a' : '#ffd23f');
+  let fs = 74; c.font = `${fs}px Rye`; while (c.measureText(I.b).width > W - 120 && fs > 30){ fs -= 4; c.font = `${fs}px Rye`; }
+  bigText(c, I.b, W / 2, 356, fs, '#fff3d6');
+  const left = Math.max(1, 3 - Math.floor(t / (I.dur / 3)));
+  c.font = '12px "Press Start 2P"'; c.fillStyle = '#d8b98a'; c.textAlign = 'center'; c.textBaseline = 'middle';
+  c.fillText('READ THE NEW POSTER!   ' + left + '...', W / 2, 418);
 }
 function drawVault(c, rd, y){
   const v = rd.vault; if (!v) return;
@@ -1625,7 +1905,9 @@ function drawShowHUD(c, rd){
   });
   drawPoster(c, rd.poster, rd.posterPulse);
   drawVault(c, rd, 676);
+  drawBossBar(c, rd);
   drawMessages(c, 296, 720);
+  drawInter(c, rd);
 }
 function wrapLines(c, text, maxW){
   const words = text.split(' '), lines = []; let line = '';
@@ -1688,10 +1970,10 @@ function getBest(id){ try { return +localStorage.getItem(bestKey(id)) || 0; } ca
 function setBest(id, v){ try { if (v > getBest(id)) localStorage.setItem(bestKey(id), v); } catch(e){} }
 
 function renderPosters(){
-  const play = Object.entries(STAGES).map(([id, s]) => {
+  const play = Object.entries(STAGES).sort((a, b) => (a[1].boss ? 1 : 0) - (b[1].boss ? 1 : 0)).map(([id, s]) => {
     const best = getBest(id);
-    return `<div class="poster" tabindex="0" style="--rot:${s.rot}deg" onclick="pickStage('${id}')" onkeydown="if(event.key==='Enter')pickStage('${id}')">
-      <div class="p-se">SE BUSCA</div><div class="p-w">W A N T E D</div>
+    return `<div class="poster${s.boss ? ' boss' : ''}" tabindex="0" style="--rot:${s.rot}deg" onclick="pickStage('${id}')" onkeydown="if(event.key==='Enter')pickStage('${id}')">
+      <div class="p-se">SE BUSCA</div><div class="p-w">${s.boss ? 'VIVO O MUERTO' : 'W A N T E D'}</div>
       <div class="p-name">${s.name}</div><div class="p-gang">${s.gang}</div><div class="p-topic">${s.topic}</div>
       <div class="p-best">${best ? 'BEST ' + money(best) : 'REWARD: UNCLAIMED'}</div></div>`;
   });
@@ -1730,7 +2012,9 @@ function endRound(){
   closeVault(rd);
   if (rd.show) return showdownResult(rd);
   const P = rd.players[0], s = P.stats, dec = s.correct + s.wrong + s.escaped, acc = dec ? s.correct / dec : 0;
-  const stars = acc >= .95 ? 3 : acc >= .8 ? 2 : acc >= .6 ? 1 : 0;
+  let stars = acc >= .95 ? 3 : acc >= .8 ? 2 : acc >= .6 ? 1 : 0;
+  if (rd.busted) stars = 0;
+  else if (rd.boss) stars = rd.hearts === rd.maxHearts ? 3 : rd.hearts * 2 >= rd.maxHearts ? 2 : 1;
   setBest(rd.stageId, P.bounty);
   const titles = ['THE OUTLAWS GOT AWAY', 'NOT BAD, PARTNER', "FINE SHOOTIN'", 'LEGEND OF THE PAMPA'];
   let btns;
@@ -1741,15 +2025,15 @@ function endRound(){
   const shotAcc = s.shots ? Math.round(s.hits / s.shots * 100) + '%' : '—';
   document.getElementById('sumCard').innerHTML = `
     <div class="c-kick">${G.mode === 2 ? 'PLAYER ' + rd.player + ' · ' : ''}${rd.st.name} · ${G.diff ? 'SHERIFF' : 'GREENHORN'}</div>
-    <div class="c-title">${titles[stars]}</div>
+    <div class="c-title">${rd.busted ? 'BUSTED!' : rd.boss ? '¡EL GRAN DIVISOR HA CAÍDO!' : titles[stars]}</div>
     <div class="c-bounty">${money(P.bounty)}</div>
     <div class="stars">${'★'.repeat(stars)}${'☆'.repeat(3 - stars)}</div>
     <div class="stats">
       <div class="stat"><b>${s.correct}</b><span>CORRECT</span></div>
       <div class="stat"><b>${s.wrong}</b><span>WRONG SHOTS</span></div>
-      <div class="stat"><b>${s.escaped}</b><span>GOT AWAY</span></div>
+      <div class="stat"><b>${s.escaped}</b><span>${rd.hearts != null ? 'HITS TAKEN' : 'GOT AWAY'}</span></div>
       <div class="stat"><b>${P.best}</b><span>BEST STREAK</span></div>
-      <div class="stat"><b>${shotAcc}</b><span>AIM</span></div>
+      <div class="stat"><b>${rd.hearts != null ? rd.hearts + '/' + rd.maxHearts : shotAcc}</b><span>${rd.hearts != null ? 'HEARTS LEFT' : 'AIM'}</span></div>
     </div>
     ${lessonsHTML(rd)}
     <div class="c-btns">${btns}</div>`;
