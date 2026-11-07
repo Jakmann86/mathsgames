@@ -157,6 +157,7 @@ function rng(seed){ let a = seed >>> 0; return () => { a = a + 0x6D2B79F5 | 0; l
 const rint = (r, a, b) => a + Math.floor(r() * (b - a + 1));
 const rpick = (r, arr) => arr[Math.floor(r() * arr.length)];
 function rshuffle(r, arr){ const a = arr.slice(); for (let i = a.length - 1; i > 0; i--){ const j = Math.floor(r() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+const pf = n => { const f = []; let m = n; for (let d = 2; d * d <= m; d++) while (m % d === 0){ f.push(d); m /= d; } if (m > 1) f.push(m); return f; };
 const isPrime = n => { if (n < 2) return false; for (let i = 2; i * i <= n; i++) if (n % i === 0) return false; return true; };
 const factorPairs = n => { const p = []; for (let a = 2; a * a <= n; a++) if (n % a === 0) p.push([a, n / a]); return p; };
 const money = v => '$' + v.toLocaleString('en-US');
@@ -835,6 +836,48 @@ function galleryBG(){
   c.fillStyle = '#d9b14a'; c.fillRect(0, 26, W, 5);
   return cv;
 }
+function fairBG(){
+  const cv = mk(), c = cv.getContext('2d');
+  const gr = c.createLinearGradient(0, 0, 0, H); gr.addColorStop(0, '#0a0820'); gr.addColorStop(.55, '#2a1a4a'); gr.addColorStop(1, '#4a2048');
+  c.fillStyle = gr; c.fillRect(0, 0, W, H);
+  const r = rng(91); for (let i = 0; i < 120; i++){ c.fillStyle = `rgba(255,250,230,${(.3 + r() * .5).toFixed(2)})`; c.fillRect(Math.round(r() * W), Math.round(r() * 320), 2, 2); }
+  c.fillStyle = '#140c24'; c.fillRect(0, 520, W, 200);
+  // big top tent
+  c.save(); c.beginPath(); c.moveTo(40, 560); c.lineTo(110, 330); c.lineTo(250, 210); c.lineTo(390, 330); c.lineTo(460, 560); c.closePath(); c.clip();
+  for (let x = 0; x < 500; x += 44){ c.fillStyle = (x / 44) % 2 ? '#e8d8b0' : '#a82028'; c.beginPath(); c.moveTo(250, 200); c.lineTo(x - 40, 600); c.lineTo(x + 4, 600); c.closePath(); c.fill(); }
+  c.fillStyle = 'rgba(10,6,30,.35)'; c.fillRect(0, 0, 500, 600); c.restore();
+  c.fillStyle = '#ffd23f'; c.beginPath(); c.moveTo(250, 210); c.lineTo(250, 176); c.lineTo(278, 186); c.lineTo(250, 196); c.fill();
+  // small tents right
+  [[1080, 470, 90], [1200, 480, 70]].forEach(([x, y, w]) => { c.fillStyle = '#2f5a9a'; c.beginPath(); c.moveTo(x - w, 560); c.lineTo(x, y); c.lineTo(x + w, 560); c.fill();
+    c.fillStyle = 'rgba(232,216,176,.8)'; c.beginPath(); c.moveTo(x - w * .45, 560); c.lineTo(x, y); c.lineTo(x + w * .1, 560); c.fill(); });
+  c.fillStyle = '#4a2c14'; c.fillRect(0, 0, 40, H); c.fillRect(W - 40, 0, 40, H);
+  c.fillStyle = 'rgba(0,0,0,.3)'; c.fillRect(14, 0, 4, H); c.fillRect(W - 26, 0, 4, H);
+  return cv;
+}
+function fairUnder(c){
+  const cx = 860, cy = 330, R = 210, a = G.t * .22, k = Math.floor(G.t * 5);
+  c.strokeStyle = 'rgba(190,170,255,.35)'; c.lineWidth = 5;
+  c.beginPath(); c.moveTo(cx, cy); c.lineTo(cx - 150, 600); c.moveTo(cx, cy); c.lineTo(cx + 150, 600); c.stroke();
+  c.beginPath(); c.arc(cx, cy, R, 0, 7); c.stroke(); c.lineWidth = 3; c.beginPath(); c.arc(cx, cy, R * .35, 0, 7); c.stroke();
+  for (let i = 0; i < 12; i++){ const an = a + i * Math.PI / 6, x = cx + Math.cos(an) * R, y = cy + Math.sin(an) * R;
+    c.beginPath(); c.moveTo(cx, cy); c.lineTo(x, y); c.stroke();
+    c.fillStyle = ['#a82028', '#2f5a9a', '#d9b14a'][i % 3]; c.fillRect(x - 12, y + 4, 24, 18);
+    c.fillStyle = (i + k) % 3 === 0 ? '#fff6c0' : '#8a6a3a'; c.beginPath(); c.arc(x, y, 5, 0, 7); c.fill(); }
+  for (let i = 0; i < 21; i++){ const x = 40 + i * 60, y = 36 + (i % 2) * 22, on = (i + k) % 3 === 0;
+    if (i < 20){ c.strokeStyle = 'rgba(40,30,30,.8)'; c.lineWidth = 2; c.beginPath(); c.moveTo(x, y); c.lineTo(x + 60, 36 + ((i + 1) % 2) * 22); c.stroke(); }
+    c.fillStyle = on ? '#fff6c0' : ['#a82028', '#2f8a5a', '#2f5a9a'][i % 3]; c.beginPath(); c.arc(x, y + 6, on ? 7 : 5, 0, 7); c.fill(); }
+}
+function fairFG(){
+  const cv = mk(), c = cv.getContext('2d');
+  RAILS.forEach(R => { c.fillStyle = '#d9b14a'; c.fillRect(0, R.y - 4, W, 6); c.fillStyle = '#6b4423'; c.fillRect(0, R.y + 2, W, 24);
+    c.fillStyle = 'rgba(0,0,0,.25)'; for (let x = 0; x < W; x += 40) c.fillRect(x, R.y + 2, 2, 24);
+    c.fillStyle = '#2a1a10'; [24, W - 24].forEach(x => { c.beginPath(); c.arc(x, R.y + 12, 12, 0, 7); c.fill(); }); });
+  c.fillStyle = '#5a3418'; c.fillRect(0, 640, W, 80); c.fillStyle = '#a0703a'; c.fillRect(0, 634, W, 10);
+  for (let x = 0, i = 0; x < W; x += 50, i++){ c.fillStyle = ['#a82028', '#ecdcb4', '#2f5a9a'][i % 3];
+    c.beginPath(); c.moveTo(x, 644); c.lineTo(x + 50, 644); c.lineTo(x + 25, 672); c.closePath(); c.fill(); }
+  board(c, 640, 654, 380, 58, '★ THE FAIRGROUND ★', 28, "la feria · knock 'em down");
+  return cv;
+}
 function galleryUnder(c){
   const k = Math.floor(G.t * 6);
   const bulb = (x, y, on) => { if (on){ const gl = c.createRadialGradient(x, y, 2, x, y, 18); gl.addColorStop(0, 'rgba(255,236,150,.8)'); gl.addColorStop(1, 'rgba(255,236,150,0)');
@@ -850,7 +893,7 @@ function galleryFG(){
   c.fillStyle = 'rgba(0,0,0,.25)'; for (let x = 0; x < W; x += 36) c.fillRect(x, 606, 2, 114);
   for (let x = 0, i = 0; x < W; x += 50, i++){ c.fillStyle = ['#b8282a','#ecdcb4','#2f5a9a'][i % 3];
     c.beginPath(); c.moveTo(x, 606); c.lineTo(x + 50, 606); c.lineTo(x + 25, 640); c.closePath(); c.fill(); }
-  board(c, 640, 644, 360, 62, '★ TIRO AL BLANCO ★', 28, 'premios · 3 tiros $1');
+  board(c, 640, 644, 360, 62, '★ SHOOTING GALLERY ★', 28, 'tiro al blanco · 3 shots for $1');
   const rifle = (x, flip) => { c.save(); c.translate(x, 584); c.scale(flip ? -1 : 1, 1);
     c.fillStyle = '#4a2c14'; c.fillRect(0, -10, 70, 14); c.fillStyle = '#2a2a30'; c.fillRect(66, -8, 150, 7); c.fillRect(120, -4, 60, 6); c.restore(); };
   rifle(110, false); rifle(1170, true);
@@ -871,6 +914,7 @@ function buildScenes(){
     ...ROCKS.map(b => riseSlot(b[0], b[1] + 8, 86 * b[2], b[2]))
   ]};
   SCENES.gallery = { bg:galleryBG(), under:galleryUnder, fg:galleryFG(), slots:[], indoor:true };
+  SCENES.fair = { bg:fairBG(), under:fairUnder, fg:fairFG(), slots:[], indoor:true };
   SCENES.townNight = { bg:townBG(true), fg:SCENES.town.fg, slots:SCENES.town.slots };
   SCENES.bar = { bg:barBG(), fg:barFG(), indoor:true, slots:[
     ...BAR_DOORS.map(d => doorSlot(d[0], d[1], d[2], d[3], false)),
@@ -987,7 +1031,7 @@ function drawLabel(c, lab, cx, cy, w, h){
     const bw = Math.max(c.measureText(String(lab.frac[0])).width, c.measureText(String(lab.frac[1])).width) + 8;
     c.fillRect(cx - bw/2, cy + 1, bw, 3);
   } else {
-    const txt = lab.ratio ? lab.ratio.join(':') : String(lab.num);
+    const txt = lab.ratio ? lab.ratio.join(':') : lab.txt != null ? lab.txt : String(lab.num);
     let fs = 46; c.font = `${fs}px VT323`;
     while (c.measureText(txt).width > w - 8 && fs > 20){ fs -= 2; c.font = `${fs}px VT323`; }
     c.fillText(txt, cx, cy + 2);
@@ -1016,7 +1060,7 @@ function mkSection(r, o){
 }
 function secMultiples(r, hard, k, n, si){
   return mkSection(r, {n, goods:Math.round(n * .5) - (r() < .5 ? 1 : 0), first:firstGap(si), gap:gapFor(hard),
-    poster:{top:'SE BUSCA · WANTED', main:`MULTIPLES OF ${k}`}, banner:nb(si, 'NEW BOUNTY!', `Multiples of ${k}`),
+    poster:{top:'WANTED', main:`MULTIPLES OF ${k}`}, banner:nb(si, 'NEW BOUNTY!', `Multiples of ${k}`),
     good: r => { const m = rint(r, hard ? 3 : 2, hard ? 15 : 12), v = k * m;
       return {key:v, label:{num:v}, why:{escape:`${v} = ${k} × ${m} — that was a multiple of ${k}!`}}; },
     bad: r => { const v = decoyMultiple(r, k, hard), q0 = Math.floor(v / k);
@@ -1038,7 +1082,7 @@ function secFactors(r, hard, N, si, vault){
     .concat([...bads].map(v => ({label:{num:v}, good:false, data:{n:v}, why:{wrong:why(v)}}))));
   const g = vault ? (hard ? [.75, .3] : [1.1, .45]) : gapFor(hard);
   items.forEach((it, i) => { it.gap = i === 0 ? firstGap(si) : g[0] + r() * g[1]; });
-  Object.assign(items[0], {poster: vault ? {top:'CRACK THE VAULT · FACTORS OF', main:String(N)} : {top:'SE BUSCA · WANTED', main:`FACTORS OF ${N}`},
+  Object.assign(items[0], {poster: vault ? {top:'CRACK THE VAULT · FACTORS OF', main:String(N)} : {top:'WANTED', main:`FACTORS OF ${N}`},
     banner:nb(si, vault ? 'NEW VAULT!' : 'NEW BOUNTY!', `Factors of ${N}`), vault: vault ? N : null});
   return items;
 }
@@ -1050,7 +1094,7 @@ function secPrimes(r, hard, lo, hi, n, si, ghost){
   const tricky = cs.filter(v => TRICKY.includes(v));
   const main = lo <= 2 ? `PRIMES UP TO ${hi}` : `PRIMES ${lo} TO ${hi}`;
   return mkSection(r, {n, goods:Math.round(n * .45), first:firstGap(si), gap:gapFor(hard), kind: ghost ? 'ghost' : null,
-    poster:{top: ghost ? 'ONLY THE REAL GHOSTS' : 'SE BUSCA · WANTED', main},
+    poster:{top: ghost ? 'ONLY THE REAL GHOSTS' : 'WANTED', main},
     banner:nb(si, ghost ? 'MIDNIGHT!' : 'NEW BOUNTY!', lo <= 2 ? `Primes up to ${hi}` : `Primes from ${lo} to ${hi}`),
     forceGood: lo <= 2 ? [primeItem(2)] : null,
     good: r => primeItem(rpick(r, ps)),
@@ -1105,7 +1149,10 @@ function buildBank(r, hard){
   const q = []; rshuffle(r, hard ? [36,48,40,54,64,72,90] : [12,18,20,24,16,30,28]).slice(0, 3).forEach((N, si) => q.push(...secFactors(r, hard, N, si, true))); return q;
 }
 function buildBootHill(r, hard){
-  const q = []; (hard ? [[1,50],[50,100]] : [[1,30],[30,60]]).forEach(([lo, hi], si) => q.push(...secPrimes(r, hard, lo, hi, 18, si, true))); return q;
+  const q = []; (hard ? [[1,50],[50,100]] : [[1,30],[30,60]]).forEach(([lo, hi], si) => q.push(...secPrimes(r, hard, lo, hi, 18, si, true)));
+  q.forEach(rec => { if (r() < .5){ rec.mover = 'bat'; rec.kind = 'bat';
+    if (rec.why.wrong) rec.why = {wrong: rec.why.wrong.replace(' — just a townsperson in a sheet!', ' — just an ordinary bat!')}; } });
+  return q;
 }
 function buildRailroad(r, hard){
   const q = []; rshuffle(r, hard ? [[4,6],[6,8],[6,9],[4,10],[8,12],[6,10],[9,12]] : [[2,3],[2,5],[3,4],[3,5],[4,5],[2,7]]).slice(0, 3)
@@ -1114,7 +1161,43 @@ function buildRailroad(r, hard){
 function buildEstancia(r, hard){
   const bases = hard ? rshuffle(r, [[3,8],[4,5],[5,7],[4,7],[5,8],[3,7]]).slice(0, 2).concat([rpick(r, [[1,2,3],[2,3,4],[2,3,5]])])
                      : rshuffle(r, [[1,2],[1,3],[2,3],[3,4],[2,5],[3,5],[1,4]]).slice(0, 3);
-  const q = []; bases.forEach((b, si) => q.push(...secRatios(r, hard, b, 14, si))); return q;
+  const q = []; bases.forEach((b, si) => q.push(...secRatios(r, hard, b, 14, si)));
+  q.forEach(rec => { rec.mover = 'rider'; rec.kind = 'rider'; });
+  return q;
+}
+// ---------- fractions, decimals and percentages ----------
+const fmtDec = v => String(+v.toFixed(4));
+const labVal = L => L.frac ? L.frac[0] / L.frac[1] : String(L.txt).endsWith('%') ? parseFloat(L.txt) / 100 : parseFloat(L.txt);
+function fdpGood(r, a, b, hard){
+  const ty = r(), v = a / b;
+  if (ty < .2){ const d = fmtDec(v); return {key:d, label:{txt:d}, why:{escape:`${d} = ${a}/${b}  (${a} ÷ ${b} = ${d}) — that one rolled away!`}}; }
+  if (ty < .4){ const pc = fmtDec(v * 100) + '%'; return {key:pc, label:{txt:pc}, why:{escape:`${pc} = ${fmtDec(v * 100)}/100 = ${a}/${b} — that one rolled away!`}}; }
+  const m = rint(r, 2, hard ? 9 : 6), f = [a * m, b * m];
+  return {key:f.join('/'), label:{frac:f}, why:{escape:`${f[0]}/${f[1]} = ${a}/${b} (top and bottom × ${m}) — that one rolled away!`}};
+}
+function fdpBad(r, a, b, hard){
+  const v = a / b, D = fmtDec(v), PC = fmtDec(v * 100) + '%';
+  for (let k = 0; k < 40; k++){
+    const ty = rint(r, 0, 6); let L, msg;
+    if (ty === 0 && b < 10){ const t2 = `0.${b}`; L = {txt:t2}; msg = `${t2} = ${b}/10, not ${a}/${b}. Don't just copy the bottom number — ${a}/${b} = ${D}.`; }
+    else if (ty === 1){ const t2 = `0.${a}${b}`; L = {txt:t2}; msg = `${t2} isn't ${a}/${b} — you can't just write the top and bottom as digits. ${a} ÷ ${b} = ${D}.`; }
+    else if (ty === 2){ const t2 = `${b}%`; L = {txt:t2}; msg = `${t2} = ${b}/100, not ${a}/${b}. ${a}/${b} = ${PC}.`; }
+    else if (ty === 3){ const t2 = fmtDec(v * (r() < .5 ? 10 : .1)); L = {txt:t2}; msg = `${t2} is ten times too ${+t2 > v ? 'big' : 'small'} — ${a}/${b} = ${D}.`; }
+    else if (ty === 4){ const t2 = D + '%'; L = {txt:t2}; msg = `${t2} is tiny! To turn ${D} into a percentage, multiply by 100: ${a}/${b} = ${PC}.`; }
+    else if (ty === 5){ const d = rint(r, 1, 3); L = {frac:[a + d, b + d]}; msg = `${a + d}/${b + d} ≠ ${a}/${b}. Adding to the top and bottom changes the fraction — multiply instead.`; }
+    else { const m1 = rint(r, 2, 5); L = {frac:[a * m1 + 1, b * m1]}; msg = `${L.frac[0]}/${L.frac[1]} ≠ ${a}/${b} — so close! ${a}/${b} = ${a * m1}/${b * m1}.`; }
+    if (Math.abs(labVal(L) - v) > 1e-9) return {key:L.frac ? L.frac.join('/') : L.txt, label:L, why:{wrong:msg}};
+  }
+  return {key:`${b}%`, label:{txt:`${b}%`}, why:{wrong:`${b}% = ${b}/100, not ${a}/${b}.`}};
+}
+function buildFair(r, hard){
+  const bases = rshuffle(r, hard ? [[1,8],[3,8],[3,5],[4,5],[7,10],[3,20],[7,20],[1,25]] : [[1,2],[1,4],[3,4],[1,5],[2,5],[1,10],[3,10]]).slice(0, 3);
+  const q = [];
+  bases.forEach(([a, b], si) => q.push(...mkSection(r, {n:16, goods:7, first:firstGap(si), gap: hard ? [.4, .25] : [.55, .35],
+    poster:{top:'KNOCK DOWN ANYTHING EQUAL TO', frac:[a, b]}, banner:nb(si, 'NEW TARGET!', `Anything equal to ${a}/${b}`),
+    good: r => fdpGood(r, a, b, hard), bad: r => fdpBad(r, a, b, hard)})));
+  q.forEach(rec => { rec.mover = 'tin'; rec.kind = 'tin'; });
+  return q;
 }
 function buildRoundup(r, hard){
   const n = 9, secs = [
@@ -1173,8 +1256,109 @@ function duckSpawn(rd, dt){
 }
 function updateFly(rd, t, dt){
   if (t.wait > 0){ t.wait -= dt; if (t.wait <= 0) sfx.toss(); return; }
-  t.vy += t.g * dt; t.x += t.vx * dt; t.y += t.vy * dt; t.t += dt; t.rot = Math.sin(t.t * 2.2 + t.id) * .2;
-  if (t.vy > 0 && t.y > 712){ if (!t.done) escape(rd, t); t.dead = true; }
+  if (t.kind === 'bottle'){
+    t.vy += t.g * dt; t.x += t.vx * dt; t.y += t.vy * dt; t.t += dt; t.rot = Math.sin(t.t * 2.2 + t.id) * .2;
+    if (t.vy > 0 && t.y > 712){ if (!t.done) escape(rd, t); t.dead = true; }
+    return;
+  }
+  t.t += dt; t.x += t.vx * dt;
+  if (t.kind === 'bat'){
+    if (t.falling){ t.vy += 900 * dt; t.y += t.vy * dt; t.rot += dt * 9; if (t.y > H + 90) t.dead = true; return; }
+    t.y = t.y0 + Math.sin(t.t * t.freq) * t.amp;
+  }
+  if (t.kind === 'tin' && t.knock != null) t.knock += dt / .22;
+  if (t.vx > 0 ? t.x > W + 180 : t.x < -180){ if (!t.done) escape(rd, t); t.dead = true; }
+}
+
+// ---------- movers ----------
+const RIDE_LANES = [{y:560, s:.62, front:false}, {y:652, s:.8, front:false}, {y:714, s:.95, front:true}];
+const RAILS = [{y:236, s:.66, dir:1, sp:1}, {y:410, s:.78, dir:-1, sp:1.2}, {y:598, s:.86, dir:1, sp:.9}];
+const HORSES = ['#6a4422', '#8a6a4a', '#c8b090', '#4a2c18', '#9a5a2a'];
+function recEffects(rd, rec, t){
+  if (rec.poster){ rd.poster = rec.poster; rd.posterPulse = 1; }
+  if (rec.banner && !rec.introDone){ banner(rec.banner[0], rec.banner[1]); sfx.bell(); }
+  if (rec.vault) openVault(rd, rec.vault);
+  if (rec.lcm) note(rd, `Common multiples of ${rec.lcm[0]} and ${rec.lcm[1]} are all multiples of ${rec.lcm[2]} — the LCM (lowest common multiple).`);
+  if (rd.st.onSpawn) rd.st.onSpawn(rd, t);
+}
+function spawnMover(rd, rec){
+  const hard = G.diff === 1, r = rd.r, kind = rec.mover;
+  const t = {id:++rd.idSeq, fly:true, slot:null, kind, rec, label:rec.label, good:rec.good, why:rec.why || {}, data:rec.data || {},
+    look:makeLook(rd.lr, 'person'), pop:1, state:'up', t:0, shake:0, rot:0};
+  if (kind === 'rider'){
+    rd.laneT = rd.laneT || [0, 0, 0];
+    const free = [0, 1, 2].filter(i => rd.laneT[i] <= 0); if (!free.length) return false;
+    const lane = rpick(r, free), L = RIDE_LANES[lane], dir = r() < .5 ? 1 : -1, sp = (hard ? 340 : 250) * (.9 + r() * .25) * (.75 + L.s * .3);
+    Object.assign(t, {x: dir > 0 ? -170 : W + 170, y:L.y, s:L.s, vx:dir * sp, front:L.front, horse:rpick(r, HORSES)});
+    t.stay = (W + 340) / sp; rd.laneT[lane] = 1.7;
+  } else if (kind === 'bat'){
+    const dir = r() < .5 ? 1 : -1, vult = r() < .35, sp = (hard ? 260 : 180) * (.9 + r() * .3) * (vult ? .8 : 1);
+    Object.assign(t, {x: dir > 0 ? -110 : W + 110, y0:160 + r() * 200, amp:26 + r() * 46, freq:1.5 + r() * 1.3, vx:dir * sp, s: vult ? 1.05 : .9, vult});
+    t.y = t.y0; t.stay = (W + 220) / sp;
+  } else if (kind === 'tin'){
+    rd.rowLast = rd.rowLast || [null, null, null];
+    const free = [0, 1, 2].filter(i => { const R = RAILS[i], last = rd.rowLast[i], x0 = R.dir > 0 ? -80 : W + 80;
+      return !last || last.dead || Math.abs(last.x - x0) > 250 * R.s; });
+    if (!free.length) return false;
+    const row = rpick(r, free), R = RAILS[row], sp = (hard ? 200 : 135) * R.sp;
+    Object.assign(t, {x: R.dir > 0 ? -80 : W + 80, y:R.y, s:R.s, vx:R.dir * sp}); t.stay = (W + 160) / sp; rd.rowLast[row] = t;
+  }
+  rd.targets.push(t); recEffects(rd, rec, t);
+  return true;
+}
+function riderLocal(c, t){
+  const dir = t.vx > 0 ? 1 : -1, ph = t.t * 11, Hc = t.horse;
+  c.save(); c.scale(dir, 1);
+  const leg = (x, a, col) => { c.save(); c.translate(x, -48); c.rotate(Math.sin(ph + a) * .55); c.fillStyle = col; c.fillRect(-5, 0, 11, 44);
+    c.fillStyle = '#1a1008'; c.fillRect(-6, 40, 13, 8); c.restore(); };
+  leg(-44, 1.6, '#2a1a10'); leg(30, 4.7, '#2a1a10');
+  c.strokeStyle = '#1a1008'; c.lineWidth = 9; c.beginPath(); c.moveTo(-58, -78); c.quadraticCurveTo(-92, -70 + Math.sin(ph) * 8, -98, -38); c.stroke();
+  c.fillStyle = Hc; c.beginPath(); c.ellipse(0, -68, 62, 25, 0, 0, 7); c.fill();
+  c.beginPath(); c.moveTo(36, -84); c.lineTo(62, -128); c.lineTo(84, -124); c.lineTo(70, -74); c.closePath(); c.fill();
+  c.beginPath(); c.ellipse(86, -118, 23, 11, .55, 0, 7); c.fill();
+  c.fillStyle = '#1a1008'; c.beginPath(); c.moveTo(56, -130); c.lineTo(66, -132); c.lineTo(44, -84); c.lineTo(34, -86); c.closePath(); c.fill();
+  c.fillRect(90, -126, 5, 5);
+  leg(-32, 0, Hc); leg(42, 3.1, Hc);
+  c.fillStyle = t.look.ponchoC; c.fillRect(-28, -94, 46, 22); c.fillStyle = t.look.stripe; c.fillRect(-28, -78, 46, 3);
+  c.restore();
+  if (!t.riderless){ c.save(); c.translate(-6 * dir, -86 - Math.abs(Math.sin(ph)) * 4); personLocal(c, t); c.restore(); }
+}
+function batLocal(c, t){
+  const flap = Math.sin(t.t * (t.vult ? 6 : 17));
+  c.strokeStyle = '#c8c0a8'; c.lineWidth = 2; c.beginPath(); c.moveTo(0, 8); c.lineTo(0, 24); c.stroke();
+  c.fillStyle = '#5a3418'; c.fillRect(-48, 22, 96, 50); c.fillStyle = '#f3e2b8'; c.fillRect(-45, 25, 90, 44);
+  drawLabel(c, t.label, 0, 47, 86, 42);
+  if (t.vult){
+    c.fillStyle = '#3a2a1e';
+    [-1, 1].forEach(sd => { c.beginPath(); c.moveTo(0, -4); c.lineTo(sd * 70, -22 - flap * 16); c.lineTo(sd * 96, -2 - flap * 10); c.lineTo(sd * 40, 8); c.closePath(); c.fill(); });
+    c.fillStyle = '#2a1e14'; c.beginPath(); c.ellipse(0, 2, 20, 15, 0, 0, 7); c.fill();
+    c.fillStyle = '#efe6d2'; c.fillRect(-13, -12, 26, 7);
+    c.fillStyle = '#c87a6a'; c.beginPath(); c.arc(0, -22, 9, 0, 7); c.fill();
+    c.fillStyle = '#e0b040'; c.beginPath(); c.moveTo(-3, -18); c.lineTo(3, -18); c.lineTo(0, -8); c.closePath(); c.fill();
+    c.fillStyle = '#1a1008'; c.fillRect(-5, -25, 3, 3); c.fillRect(2, -25, 3, 3);
+  } else {
+    c.fillStyle = '#2a1a3a';
+    [-1, 1].forEach(sd => { c.beginPath(); c.moveTo(sd * 8, -6); c.lineTo(sd * 52, -26 - flap * 20); c.lineTo(sd * 62, 2 - flap * 8);
+      c.lineTo(sd * 46, -4); c.lineTo(sd * 36, 8); c.lineTo(sd * 24, 0); c.lineTo(sd * 10, 8); c.closePath(); c.fill(); });
+    c.beginPath(); c.ellipse(0, 0, 13, 15, 0, 0, 7); c.fill();
+    c.beginPath(); c.moveTo(-10, -10); c.lineTo(-7, -24); c.lineTo(-2, -12); c.moveTo(10, -10); c.lineTo(7, -24); c.lineTo(2, -12); c.fill();
+    c.fillStyle = '#ff3a2a'; c.fillRect(-6, -5, 4, 4); c.fillRect(2, -5, 4, 4);
+  }
+}
+function tinLocal(c, t){          // stands on the rail: feet 54px above it, on a metal post
+  c.fillStyle = '#6a6a72'; c.fillRect(-7, -60, 14, 66);
+  c.save(); c.translate(0, -54); personLocal(c, t);
+  c.fillStyle = 'rgba(255,255,255,.14)'; c.fillRect(-26, -72, 9, 66);
+  c.fillStyle = '#9a9aa4'; [[-22,-60],[22,-60],[-22,-10],[22,-10]].forEach(([x, y]) => { c.beginPath(); c.arc(x, y, 2.5, 0, 7); c.fill(); });
+  c.restore();
+}
+function drawMover(c, t){
+  if (t.kind === 'bottle'){ c.save(); c.translate(t.x, t.y - 50 * t.s); c.rotate(t.rot); c.translate(0, 50 * t.s); c.scale(t.s, t.s); bottleLocal(c, t); c.restore(); return; }
+  c.save(); c.translate(t.x, t.y);
+  if (t.kind === 'tin'){ c.scale(t.s, t.s * (t.knock != null ? Math.max(.06, Math.cos(Math.min(1, t.knock) * Math.PI / 2)) : 1)); tinLocal(c, t); }
+  else if (t.kind === 'rider'){ c.scale(t.s, t.s); riderLocal(c, t); }
+  else if (t.kind === 'bat'){ c.rotate(t.rot); c.scale(t.s, t.s); batLocal(c, t); }
+  c.restore();
 }
 function decoyFraction(r, a, b, hard){
   for (let tries = 0; tries < 30; tries++){
@@ -1200,18 +1384,31 @@ function buildCanyon(r, hard){
   const lone = rshuffle(r, hard ? [51,57,87,91,93,53,59,61,67,71,79,89] : [7,11,13,17,19,23,29,9,15,21,25,33]).slice(0, hard ? 6 : 5);
   const q = []; let gi = 0;
   roots.forEach((n, i) => {
-    q.push({gap: i === 0 ? .4 : (hard ? 2.4 : 3.2), label:{num:n}, good:true, data:{n, gang:gi++, depth:0, root:true},
+    q.push({gap: i === 0 ? .4 : 1.6, label:{num:n}, good:true, data:{n, gang:gi++, depth:0, root:true},
       why:{escape:`${n} escaped — and took the whole gang with him!`},
       poster: i === 0 ? {top:'FACTOR TREE CANYON', lines:['SHOOT ▸ SPLIT COMPOSITES', 'BOLAS ▸ CATCH PRIMES']} : null});
     if (lone[i] !== undefined){ const m = lone[i];
-      q.push({gap: hard ? 1.1 : 1.5, label:{num:m}, good:true, data:{n:m, gang:gi++, depth:0, root:true}, why:{escape:`${m} escaped!`}}); }
+      q.push({gap: 1.6, label:{num:m}, good:true, data:{n:m, gang:gi++, depth:0, root:true}, why:{escape:`${m} escaped!`}}); }
   });
   return q;
 }
+function resolveGang(rd, g){
+  if (g.open > 0 || g.resolved) return; g.resolved = true;
+  const full = pf(g.n), fs = full.join(' × ');
+  if (full.length > 1){
+    if (!g.failed){ const P = PL(rd), bonus = 150 * multOf(P.streak); P.bounty += bonus;
+      banner('GANG CAPTURED! +' + money(bonus), `${g.n} = ${fs}`); sfx.fanfare(); }
+    else lesson(rd, `${g.n} = ${fs} — keep splitting until every piece is prime.`);
+    note(rd, `${g.n} = ${fs}`);
+  }
+  rd.treeShow = {gang:g, t:2.4};
+}
 const canyonRules = {
-  onSpawn(rd, t){ if (t.data.root) rd.gangs[t.data.gang] = {n:t.data.n, open:1, primes:[], failed:false}; },
+  canSpawn(rd){ return !rd.pending.length && !rd.gangs.some(g => g && g.open > 0); },   // one gang at a time
+  onSpawn(rd, t){ if (t.data.root){ const leaf = {id:++rd.idSeq, v:t.data.n, st:'open'};
+    rd.gangs[t.data.gang] = rd.tree = {n:t.data.n, open:1, leaves:[leaf], failed:false}; t.data.leaf = leaf.id; rd.treeShow = null; } },
   onShot(rd, t, tool){
-    const n = t.data.n, prime = isPrime(n), gang = rd.gangs[t.data.gang];
+    const n = t.data.n, prime = isPrime(n), gang = rd.gangs[t.data.gang], li = gang.leaves.findIndex(l => l.id === t.data.leaf);
     if (tool === 'gun'){
       if (prime){ sparks(t); sfx.ping();
         return wrongT(rd, t, `${n} is prime — a bullet can't split it! Catch primes with the boleadoras (right-click or SPACE).`, {keep:true, pen:100}); }
@@ -1219,21 +1416,22 @@ const canyonRules = {
       reward(rd, t, 50, `${n} = ${a} × ${b}`);
       t.done = true; t.state = 'down'; hatFly(t); sfx.thud();
       gang.open += 1;
+      const la = {id:++rd.idSeq, v:a, st:'open'}, lb = {id:++rd.idSeq, v:b, st:'open'};
+      if (li >= 0) gang.leaves.splice(li, 1, la, lb);
       const near = {x:t.slot.hx, y:t.slot.hy};
-      [a, b].forEach(v => rd.pending.push({label:{num:v}, good:true, data:{n:v, gang:t.data.gang, depth:t.data.depth + 1}, near, stayMul:1.35,
+      [[a, la], [b, lb]].forEach(([v, leaf]) => rd.pending.push({label:{num:v}, good:true, data:{n:v, gang:t.data.gang, depth:t.data.depth + 1, leaf:leaf.id}, near, stayMul:1.35,
         why:{escape:`${v} escaped — part of the ${gang.n} gang!`}}));
     } else {
       if (!prime){ const [a, b] = factorPairs(n)[0];
         return wrongT(rd, t, `${n} isn't prime — ${n} = ${a} × ${b}. Shoot it to split the gang!`, {keep:true, pen:100}); }
       t.bola = true; catchT(rd, t);
-      gang.open -= 1; gang.primes.push(n);
-      if (gang.open === 0 && !gang.failed && gang.primes.length > 1){
-        const f = gang.primes.slice().sort((x, y) => x - y).join(' × '), P = PL(rd), bonus = 150 * multOf(P.streak);
-        P.bounty += bonus; banner('GANG CAPTURED! +' + money(bonus), `${gang.n} = ${f}`); sfx.fanfare(); note(rd, `${gang.n} = ${f}`);
-      }
+      if (li >= 0) gang.leaves[li].st = 'caught';
+      gang.open -= 1; resolveGang(rd, gang);
     }
   },
-  onEscape(rd, t){ const g = rd.gangs[t.data.gang]; if (g){ g.open -= 1; g.failed = true; } }
+  onEscape(rd, t){ const g = rd.gangs[t.data.gang]; if (!g) return;
+    const l = g.leaves.find(x => x.id === t.data.leaf); if (l) l.st = 'lost';
+    g.open -= 1; g.failed = true; resolveGang(rd, g); }
 };
 
 function openVault(rd, N){
@@ -1272,7 +1470,7 @@ const STAGES = {
       ex:`FACTORS OF 12 &nbsp;(1 × 12, 2 × 6, 3 × 4): ${OK('1, 2, 3, 4, 6, 12 ✔')}<br>${NO('24 ✘')} a multiple, not a factor &nbsp; ${NO('5 ✘')} 12 ÷ 5 = 2 remainder 2`,
       tip:'Find every pair to crack the vault for a bonus. A factor that escapes comes back once.'}},
   boothill:{name:'BOOT HILL', gang:'Ghosts of the Primes', topic:'PRIMES', scene:'boothill', kind:'ghost', stay:[2.7, 1.9], max:[3, 4], build:buildBootHill, rot:-1.5,
-    brief:{rule:'Only ghosts holding a <b>prime</b> are real. A prime has exactly two factors: 1 and itself. Shoot a composite number and you\'ve hit a townsperson in a sheet!',
+    brief:{rule:'Ghosts rise from the graves and bats swoop across the moon. Only the ones holding a <b>prime</b> are wanted. A prime has exactly two factors: 1 and itself. Shoot a composite number and you\'ve hit a townsperson in a sheet!',
       ex:`${OK('13 ✔')} only 1 × 13 &nbsp; ${NO('15 ✘')} 3 × 5 &nbsp; ${NO('1 ✘')} only one factor &nbsp; ${OK('2 ✔')} the only even prime`,
       tip:'Watch out for odd numbers that look prime: 9, 21, 27, 49, 51, 91…'}},
   canyon:{name:'FACTOR TREE CANYON', gang:'La Banda Compuesta', topic:'PRIME FACTORS', scene:'canyon', stay:[3.3, 2.5], max:[3, 4], build:buildCanyon, alt:true, ...canyonRules, rot:1.5,
@@ -1285,15 +1483,19 @@ const STAGES = {
     brief:{rule:'Outlaws are robbing the express! Shoot numbers that are multiples of <b>both</b> numbers on the poster — numbers in both times tables.',
       ex:`COMMON MULTIPLES OF 4 AND 6: ${OK('12, 24, 36 ✔')} &nbsp; ${NO('16 ✘')} in the 4s, not the 6s &nbsp; ${NO('18 ✘')} in the 6s, not the 4s<br>The smallest one, 12, is the <b>LCM</b>.`,
       tip:'Wanted outlaws you leave too long throw tomatoes — lose all your hearts and you\'re BUSTED. Mind the telegraph poles!'}},
-  fence:{name:'TIRO AL BLANCO', gang:'Los Equivalentes', topic:'EQUIV. FRACTIONS', scene:'gallery', kind:'bottle', duck:true, stay:[2.9, 2.1], max:[3, 4],
+  fence:{name:'SHOOTING GALLERY', gang:'Los Equivalentes', topic:'EQUIV. FRACTIONS', scene:'gallery', kind:'bottle', duck:true, stay:[2.9, 2.1], max:[3, 4],
     build:buildFence, spawner:duckSpawn, rot:-1,
     brief:{rule:'Step up to the shooting gallery! Bottles get tossed into the air — shoot every one with a fraction <b>equal</b> to the poster before it drops behind the counter.',
       ex:`EQUAL TO 2/3: ${OK('4/6 ✔')} (× 2) &nbsp; ${OK('10/15 ✔')} (× 5) &nbsp; ${NO('3/4 ✘')} added 1 — never add! &nbsp; ${NO('3/2 ✘')} upside down`,
       tip:'Multiply or divide the top and bottom by the SAME number.'}},
-  estancia:{name:'LA ESTANCIA', gang:'Los Proporcionales', topic:'EQUIV. RATIOS', scene:'estancia', stay:[2.8, 2.0], max:[3, 4], build:buildEstancia, rot:1.5,
-    brief:{rule:'Shoot the outlaws holding a ratio <b>equivalent</b> to the poster — every part multiplied (or divided) by the same number.',
+  estancia:{name:'THE RANCH', gang:'Los Proporcionales', topic:'EQUIV. RATIOS', scene:'estancia', stay:[2.8, 2.0], max:[3, 4], build:buildEstancia, rot:1.5,
+    brief:{rule:'Gauchos are galloping across the pampa! Shoot every rider holding a ratio <b>equivalent</b> to the poster — every part multiplied (or divided) by the same number.',
       ex:`2 : 3 → ${OK('4 : 6 ✔')} ${OK('10 : 15 ✔')} &nbsp; ${NO('3 : 2 ✘')} wrong way round — order matters! &nbsp; ${NO('3 : 4 ✘')} added 1`,
       tip:'The poster says what the ratio counts — like 2 gauchos for every 3 horses.'}},
+  fair:{name:'THE FAIRGROUND', gang:'The Tin Gang', topic:'DECIMALS & %', scene:'fair', stay:[3, 2.2], max:[6, 8], build:buildFair, rot:-1.5,
+    brief:{rule:'Tin outlaws roll past on three rails. Knock down every one that is <b>equal</b> to the poster — it could be a fraction, a decimal or a percentage!',
+      ex:`EQUAL TO 1/4: ${OK('0.25 ✔')} ${OK('25% ✔')} ${OK('3/12 ✔')} &nbsp; ${NO('0.4 ✘')} that's 4/10 &nbsp; ${NO('4% ✘')} that's 4/100 &nbsp; ${NO('0.14 ✘')}`,
+      tip:'Hit them before they roll off the end of the rail.'}},
   boss:{name:'EL GRAN DIVISOR', gang:'The boss of San Divisor', topic:'BOSS FIGHT', scene:'townNight', boss:true, hearts:true, stay:[2.5, 1.8], max:[3, 4],
     build:() => [], rot:1.5,
     brief:{rule:'The boss runs all over town and the number on his sign keeps changing. Shoot him <b>only</b> when his number fits the poster — hit him on a wrong number and <b>you</b> lose a heart!',
@@ -1320,6 +1522,7 @@ function startRound(stageId, seed, player){
   const sceneKey = show ? (st.kind === 'bottle' ? 'plazaB' : 'plaza') : st.scene, sc = SCENES[sceneKey];
   const r = rng(seed);
   let queue = st.build(r, G.diff === 1);
+  if (show) queue = queue.map(q => q.mover ? Object.assign({}, q, {mover:null, kind: q.kind === 'bat' ? 'ghost' : 'person'}) : q);
   if (show && st.duck) queue = queue.flatMap(v => v.volley.map((rec, i) => Object.assign({}, rec,
     i === 0 ? {gap:v.gap + .6, poster:v.poster, banner:v.banner} : {gap:1.05})));
   const rd = { stageId, st, seed, player, show, r, lr:rng(seed ^ 0x9e3779b9), queue, pending:[], targets:[], vault:null, notes:[],
@@ -1348,16 +1551,13 @@ function nearestFree(rd, p){
   free.sort((a, b) => Math.hypot(a.hx - p.x, a.hy - p.y) - Math.hypot(b.hx - p.x, b.hy - p.y));
   return free[0];
 }
+function activeCount(rd){ return rd.targets.filter(t => !t.done).length; }
 function spawn(rd, rec, slot){
   const kind = rec.kind || rd.st.kind || 'person';
   const t = { id:++rd.idSeq, slot, kind, rec, label:rec.label, good:rec.good, why:rec.why || {}, data:rec.data || {},
     look:makeLook(rd.lr, kind), pop:0, t:0, state:'in', stay:rd.st.stay[G.diff] * (rec.stayMul || 1), shake:0 };
   slot.occ = t; rd.targets.push(t);
-  if (rec.poster){ rd.poster = rec.poster; rd.posterPulse = 1; }
-  if (rec.banner && !rec.introDone){ banner(rec.banner[0], rec.banner[1]); sfx.bell(); }
-  if (rec.vault) openVault(rd, rec.vault);
-  if (rec.lcm) note(rd, `Common multiples of ${rec.lcm[0]} and ${rec.lcm[1]} are all multiples of ${rec.lcm[2]} — the LCM (lowest common multiple).`);
-  if (rd.st.onSpawn) rd.st.onSpawn(rd, t);
+  recEffects(rd, rec, t);
 }
 function kill(t){ t.dead = true; if (t.slot){ t.slot.occ = null; t.slot.cool = .35; } }
 
@@ -1372,11 +1572,16 @@ function updateRound(dt){
     const q0 = rd.queue[0];
     if (q0 && q0.banner && !q0.introDone){        // new poster: wait for the board to clear, then flash it up
       if (!rd.targets.some(t => !t.done) && !rd.pending.length){ q0.introDone = true; startInter(rd, q0.banner[0], q0.banner[1].toUpperCase(), q0.poster); }
-    } else { rd.timer += dt;
-      if (q0 && rd.timer >= q0.gap){ const slot = pickFree(rd); if (slot){ spawn(rd, rd.queue.shift(), slot); rd.timer = 0; } } }
+    } else if (rd.st.canSpawn && !rd.st.canSpawn(rd)) rd.timer = 0;
+    else { rd.timer += dt;
+      if (q0 && rd.timer >= q0.gap){
+        if (q0.mover){ if (activeCount(rd) < rd.st.max[G.diff] && spawnMover(rd, q0)){ rd.queue.shift(); rd.timer = 0; } }
+        else { const slot = pickFree(rd); if (slot){ spawn(rd, rd.queue.shift(), slot); rd.timer = 0; } } } }
   }
   if (rd.st.onTick) rd.st.onTick(rd, dt);
   if (rd.boss) updateBoss(rd, dt);
+  if (rd.laneT) rd.laneT = rd.laneT.map(v => v - dt);
+  if (rd.treeShow && (rd.treeShow.t -= dt) <= 0) rd.treeShow = null;
 
   rd.targets.forEach(t => {
     t.shake = Math.max(0, t.shake - dt);
@@ -1497,7 +1702,7 @@ function bossShot(rd, i){
     if (b.hp <= 0){
       b.dead = true; b.vy = -520; const bonus = 1000 * multOf(P.streak); P.bounty += bonus;
       part({type:'hat', look:BOSS_LOOK, x:hx, y:hy, vx:120, vy:-460, g:1100, vr:6, life:1.4, s:(b.slot ? b.slot.s : b.s)});
-      banner('¡EL GRAN DIVISOR HA CAÍDO!', 'BOSS DEFEATED  +' + money(bonus)); sfx.fanfare();
+      banner('EL GRAN DIVISOR IS DOWN!', 'BOSS DEFEATED  +' + money(bonus)); sfx.fanfare();
       b.phases.forEach(ph => note(rd, `Beat the boss on ${ph.title.toLowerCase()}.`));
     } else if (b.inPhase >= b.per){
       b.phase++; b.inPhase = 0; const ph = b.phases[b.phase];
@@ -1514,7 +1719,7 @@ function bossShot(rd, i){
 // ---------- scoring (always for the player who acted: rd.cur) ----------
 const PCOL = ['#ff5a4a', '#3ab0ff'];
 const sOf = t => t.slot ? t.slot.s : (t.s || 1);
-function headOf(t){ if (t.fly) return {x:t.x, y:t.y - 112 * t.s};
+function headOf(t){ if (t.fly) return {x:t.x, y:t.y - (t.kind === 'rider' ? 222 : t.kind === 'bat' ? 26 : t.kind === 'tin' ? 166 : 112) * t.s};
   const o = offsetOf(t); return {x:t.slot.hx + o.dx, y:t.slot.hy + o.dy - 112 * t.slot.s}; }
 function reward(rd, t, base, note){
   const P = PL(rd);
@@ -1528,6 +1733,9 @@ function reward(rd, t, base, note){
 function catchT(rd, t){
   reward(rd, t, 100); t.done = true;
   if (t.kind === 'bottle'){ shatter(t); kill(t); sfx.glass(); }
+  else if (t.fly){ if (t.kind === 'tin'){ t.knock = 0; sfx.ping(); sfx.thud(); }
+    else if (t.kind === 'rider'){ t.riderless = true; hatFly(t); dust(t.x, t.y - 120 * t.s); sfx.thud(); }
+    else if (t.kind === 'bat'){ t.falling = true; t.vy = -140; sfx.thud(); } }
   else if (t.kind === 'ghost' && !t.unmasked){ poof(t); t.vanish = true; t.state = 'down'; sfx.ghost(); }
   else { t.state = 'down'; if (!t.bola) hatFly(t); sfx.thud(); }
 }
@@ -1611,7 +1819,11 @@ function offsetOf(t){ if (t.fly) return {dx:0, dy:0}; const s = t.slot, p = ease
   if (t.shake > 0) dx += Math.sin(G.t * 70) * 5;
   return {dx, dy}; }
 function boxOf(t){
-  if (t.fly) return {x0:t.x - 36 * t.s, x1:t.x + 36 * t.s, y0:t.y - 122 * t.s, y1:t.y};
+  if (t.fly){ const k = t.s;
+    if (t.kind === 'rider') return {x0:t.x - 72 * k, x1:t.x + 72 * k, y0:t.y - 236 * k, y1:t.y - 30 * k};
+    if (t.kind === 'bat') return {x0:t.x - 52 * k, x1:t.x + 52 * k, y0:t.y - 30 * k, y1:t.y + 78 * k};
+    if (t.kind === 'tin') return {x0:t.x - 50 * k, x1:t.x + 50 * k, y0:t.y - 186 * k, y1:t.y - 50 * k};
+    return {x0:t.x - 36 * k, x1:t.x + 36 * k, y0:t.y - 122 * k, y1:t.y}; }
   const s = t.slot, o = offsetOf(t), k = s.s;
   const b = t.kind === 'bottle' ? [-32, 32, -118, 0] : [-50, 50, -132, s.kind === 'door' ? 56 : 0];
   return { x0:Math.max(s.x, s.hx + o.dx + b[0] * k), x1:Math.min(s.x + s.w, s.hx + o.dx + b[1] * k),
@@ -1708,14 +1920,14 @@ function render(){
   FX.holes.forEach(h => { g.globalAlpha = Math.min(1, h.life); g.fillStyle = '#2a1608'; g.beginPath(); g.arc(h.x, h.y, 5, 0, 7); g.fill();
     g.strokeStyle = 'rgba(255,230,180,.5)'; g.lineWidth = 2; g.beginPath(); g.arc(h.x, h.y, 8, 0, 7); g.stroke(); g.globalAlpha = 1; });
   (rd ? rd.slots : sc.slots).forEach(s => drawSlot(g, s));
-  if (rd) rd.targets.forEach(t => { if (!t.fly || t.dead || t.wait > 0) return;
-    g.save(); g.translate(t.x, t.y - 50 * t.s); g.rotate(t.rot); g.translate(0, 50 * t.s); g.scale(t.s, t.s); bottleLocal(g, t); g.restore(); });
+  if (rd) rd.targets.forEach(t => { if (t.fly && !t.dead && !(t.wait > 0) && !t.front) drawMover(g, t); });
   if (rd && rd.boss && !rd.boss.slot){ const b = rd.boss;
     if (!b.dead){ g.fillStyle = 'rgba(0,0,0,.3)'; g.beginPath(); g.ellipse(b.x, b.y + 4, 46, 9, 0, 0, 7); g.fill(); }
     g.save(); g.translate(b.x, b.y); if (b.dead) g.rotate(b.rot); g.scale(b.s, b.s);
     if (b.flash > 0 && Math.floor(G.t * 30) % 2) g.globalAlpha = .45; personLocal(g, bossT(b)); g.restore(); }
   g.drawImage(sc.fg, 0, 0);
   if (sc.over) sc.over(g);
+  if (rd) rd.targets.forEach(t => { if (t.fly && !t.dead && t.front) drawMover(g, t); });
   if (rd && rd.st.throws) rd.targets.forEach(t => { if (!t.windup || t.done || t.state !== 'up') return;
     const h = headOf(t); warnMark(g, h.x, h.y - 52 * sOf(t)); });
   if (rd && rd.boss && !rd.boss.slot && rd.boss.state === 'aim' && !rd.boss.dead){ const b = rd.boss, p = 1 - b.aim / b.aimMax, cy = b.y - 80 * b.s;
@@ -1724,7 +1936,7 @@ function render(){
     warnMark(g, b.x - 92, b.y - 150 * b.s); }
 
   if (rd) rd.targets.forEach(t => { if (t.angry && t.state === 'oops'){ const h = headOf(t);
-    speech(g, h.x + 36, h.y - 6, '¡EH!'); } });
+    speech(g, h.x + 36, h.y - 6, t.kind === 'bat' ? 'EEK!' : 'HEY!'); } });
   if (!sc.indoor) FX.weeds.forEach(w => tumbleweed(g, w));
   FX.parts.forEach(p => {
     g.globalAlpha = clamp(p.life / p.max * 2, 0, 1);
@@ -1751,10 +1963,10 @@ function render(){
   g.restore();
 
   if (G.state === 'countdown'){
-    const labels = ['3', '2', '1', '¡DESENFUNDÁ!'], i = Math.min(3, Math.floor(G.cd / .7));
+    const labels = ['3', '2', '1', 'DRAW!'], i = Math.min(3, Math.floor(G.cd / .7));
     g.fillStyle = 'rgba(0,0,0,.35)'; g.fillRect(0, 0, W, H);
-    bigText(g, labels[i], W/2, H/2 - 10, i === 3 ? 76 : 150, '#ffd23f');
-    if (i === 3) bigText(g, 'DRAW!', W/2, H/2 + 70, 34, '#fff3d6');
+    bigText(g, labels[i], W/2, H/2 - 10, i === 3 ? 120 : 150, '#ffd23f');
+    if (i === 3){ g.font = '30px VT323'; g.fillStyle = '#fff3d6'; g.textAlign = 'center'; g.fillText('¡desenfundá!', W/2, H/2 + 66); }
   }
   if (G.state === 'play' || G.state === 'countdown') (rd && rd.show ? showCrosshairs(g, rd) : crosshair(g));
 }
@@ -1844,6 +2056,7 @@ function drawHUD(c, rd){
     c.fillStyle = '#d8b98a'; c.font = '8px "Press Start 2P"'; c.fillText('RIGHT-CLICK / SPACE', 1056, 666);
   }
   drawVault(c, rd, 116);
+  drawTree(c, rd, 116);
   drawBossBar(c, rd);
   if (rd.hearts != null){ plank(c, 14, 92, 34 * rd.maxHearts + 14, 36);
     for (let i = 0; i < rd.maxHearts; i++) heart(c, 38 + i * 34, 110, i < rd.hearts); }
@@ -1877,6 +2090,25 @@ function drawInter(c, rd){
   c.font = '12px "Press Start 2P"'; c.fillStyle = '#d8b98a'; c.textAlign = 'center'; c.textBaseline = 'middle';
   c.fillText('READ THE NEW POSTER!   ' + left + '...', W / 2, 418);
 }
+function drawTree(c, rd, y){
+  const g = rd.treeShow ? rd.treeShow.gang : rd.tree; if (!g) return;
+  const done = !!rd.treeShow, primeRoot = isPrime(g.n);
+  const items = done ? pf(g.n).map(v => ({v, col: g.failed ? '#f3e2b8' : '#ffd23f'}))
+    : g.leaves.map(l => ({v:l.v, col: l.st === 'caught' ? '#ffd23f' : l.st === 'lost' ? '#7a6a5a' : isPrime(l.v) ? '#f3e2b8' : '#ff8a5a'}));
+  const head = primeRoot ? 'PRIME' : done ? (g.failed ? 'FULL BREAKDOWN' : 'CAPTURED ✓') : 'FACTOR TREE';
+  c.font = '9px "Press Start 2P"'; const hw = c.measureText(head).width + 26;
+  c.font = '32px VT323';
+  const lhs = primeRoot ? `${g.n}` : `${g.n} =`, lw = c.measureText(lhs + ' ').width;
+  const ws = items.map(it => c.measureText(String(it.v)).width), xw = c.measureText(' × ').width;
+  const body = primeRoot ? 0 : ws.reduce((n, w) => n + w, 0) + xw * (items.length - 1);
+  const total = hw + lw + body + 24, x0 = W / 2 - total / 2;
+  plank(c, x0, y, total, 42);
+  c.textAlign = 'left'; c.textBaseline = 'middle';
+  c.font = '9px "Press Start 2P"'; c.fillStyle = done && !g.failed ? '#7aff9a' : '#d8b98a'; c.fillText(head, x0 + 14, y + 22);
+  c.font = '32px VT323'; let x = x0 + hw; c.fillStyle = '#fff3d6'; c.fillText(lhs, x, y + 22); x += lw;
+  if (!primeRoot) items.forEach((it, i) => { c.fillStyle = it.col; c.fillText(String(it.v), x, y + 22); x += ws[i];
+    if (i < items.length - 1){ c.fillStyle = '#d8b98a'; c.fillText(' × ', x, y + 22); x += xw; } });
+}
 function drawVault(c, rd, y){
   const v = rd.vault; if (!v) return;
   c.font = '28px VT323';
@@ -1905,6 +2137,7 @@ function drawShowHUD(c, rd){
   });
   drawPoster(c, rd.poster, rd.posterPulse);
   drawVault(c, rd, 676);
+  drawTree(c, rd, 676);
   drawBossBar(c, rd);
   drawMessages(c, 296, 720);
   drawInter(c, rd);
@@ -1973,7 +2206,7 @@ function renderPosters(){
   const play = Object.entries(STAGES).sort((a, b) => (a[1].boss ? 1 : 0) - (b[1].boss ? 1 : 0)).map(([id, s]) => {
     const best = getBest(id);
     return `<div class="poster${s.boss ? ' boss' : ''}" tabindex="0" style="--rot:${s.rot}deg" onclick="pickStage('${id}')" onkeydown="if(event.key==='Enter')pickStage('${id}')">
-      <div class="p-se">SE BUSCA</div><div class="p-w">${s.boss ? 'VIVO O MUERTO' : 'W A N T E D'}</div>
+      <div class="p-se">WANTED</div><div class="p-w">${s.boss ? 'DEAD OR ALIVE' : 's e &nbsp;b u s c a'}</div>
       <div class="p-name">${s.name}</div><div class="p-gang">${s.gang}</div><div class="p-topic">${s.topic}</div>
       <div class="p-best">${best ? 'BEST ' + money(best) : 'REWARD: UNCLAIMED'}</div></div>`;
   });
@@ -2025,7 +2258,7 @@ function endRound(){
   const shotAcc = s.shots ? Math.round(s.hits / s.shots * 100) + '%' : '—';
   document.getElementById('sumCard').innerHTML = `
     <div class="c-kick">${G.mode === 2 ? 'PLAYER ' + rd.player + ' · ' : ''}${rd.st.name} · ${G.diff ? 'SHERIFF' : 'GREENHORN'}</div>
-    <div class="c-title">${rd.busted ? 'BUSTED!' : rd.boss ? '¡EL GRAN DIVISOR HA CAÍDO!' : titles[stars]}</div>
+    <div class="c-title">${rd.busted ? 'BUSTED!' : rd.boss ? 'EL GRAN DIVISOR IS DOWN!' : titles[stars]}</div>
     <div class="c-bounty">${money(P.bounty)}</div>
     <div class="stars">${'★'.repeat(stars)}${'☆'.repeat(3 - stars)}</div>
     <div class="stats">
@@ -2041,7 +2274,7 @@ function endRound(){
 }
 function lessonsHTML(rd){
   const L = rd.lessons.slice(0, 4), N = rd.notes.slice(-3);
-  return `<div class="lessons"><h4>LESSONS FROM THE TRAIL</h4>${L.length ? L.map(l => '• ' + l).join('<br>') : 'A clean round — not a single mistake. ¡Bien ahí!'}${
+  return `<div class="lessons"><h4>LESSONS FROM THE TRAIL</h4>${L.length ? L.map(l => '• ' + l).join('<br>') : 'A clean round — not a single mistake. Fine shooting, partner!'}${
     N.length ? `<h4 style="margin-top:8px">REMEMBER</h4>${N.map(n => '★ ' + n).join('<br>')}` : ''}</div>`;
 }
 function showdownResult(rd){
