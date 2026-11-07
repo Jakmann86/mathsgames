@@ -1091,7 +1091,7 @@ function smallestFactor(v){ for (let d = 2; d * d <= v; d++) if (v % d === 0) re
 const primeItem = v => ({key:v, label:{num:v}, why:{escape: v === 2 ? '2 got away — it IS prime: the only even prime!' : `${v} was prime — its only factors are 1 and ${v}.`}});
 function secPrimes(r, hard, lo, hi, n, si, ghost){
   const ps = [], cs = []; for (let v = Math.max(1, lo); v <= hi; v++) (isPrime(v) ? ps : cs).push(v);
-  const tricky = cs.filter(v => TRICKY.includes(v));
+  const tricky = cs.filter(v => TRICKY.includes(v) || (v > 100 && v % 2 && v % 5));
   const main = lo <= 2 ? `PRIMES UP TO ${hi}` : `PRIMES ${lo} TO ${hi}`;
   return mkSection(r, {n, goods:Math.round(n * .45), first:firstGap(si), gap:gapFor(hard), kind: ghost ? 'ghost' : null,
     poster:{top: ghost ? 'ONLY THE REAL GHOSTS' : 'WANTED', main},
@@ -1159,8 +1159,8 @@ function buildRailroad(r, hard){
     .forEach(([a, b], si) => q.push(...secCommon(r, hard, a, b, 14, si))); return q;
 }
 function buildEstancia(r, hard){
-  const bases = hard ? rshuffle(r, [[3,8],[4,5],[5,7],[4,7],[5,8],[3,7]]).slice(0, 2).concat([rpick(r, [[1,2,3],[2,3,4],[2,3,5]])])
-                     : rshuffle(r, [[1,2],[1,3],[2,3],[3,4],[2,5],[3,5],[1,4]]).slice(0, 3);
+  const bases = hard ? rshuffle(r, [[7,2],[7,3],[7,4],[8,3],[9,4],[7,5],[9,5]]).slice(0, 2).concat([rpick(r, [[1,2,3],[2,3,4],[2,3,5]])])
+                     : rshuffle(r, [[2,1],[3,1],[3,2],[4,3],[5,2],[5,3],[5,4]]).slice(0, 3);
   const q = []; bases.forEach((b, si) => q.push(...secRatios(r, hard, b, 14, si)));
   q.forEach(rec => { rec.mover = 'rider'; rec.kind = 'rider'; });
   return q;
@@ -1199,14 +1199,19 @@ function buildFair(r, hard){
   q.forEach(rec => { rec.mover = 'tin'; rec.kind = 'tin'; });
   return q;
 }
+function secFDP(r, hard, [a, b], n, si){
+  return mkSection(r, {n, goods:Math.round(n * .45), first:firstGap(si), gap:gapFor(hard),
+    poster:{top:'EQUAL TO', frac:[a, b]}, banner:nb(si, 'NEW BOUNTY!', `Anything equal to ${a}/${b}`),
+    good: r => fdpGood(r, a, b, hard), bad: r => fdpBad(r, a, b, hard)});
+}
 function buildRoundup(r, hard){
   const n = 9, secs = [
-    si => secMultiples(r, hard, rpick(r, hard ? [6,7,8,9] : [3,4,5,6]), n, si),
-    si => secFactors(r, hard, rpick(r, hard ? [36,48,60] : [12,18,20,24]), si, false),
-    si => secPrimes(r, hard, 1, hard ? 80 : 40, n, si, false),
-    si => secFracPeople(r, hard, rpick(r, hard ? [[3,8],[5,6],[4,7]] : [[1,2],[2,3],[3,4]]), n, si),
-    si => secCommon(r, hard, ...rpick(r, hard ? [[4,6],[6,8],[6,9]] : [[2,3],[3,4],[2,5]]), n, si),
-    si => secRatios(r, hard, rpick(r, hard ? [[3,5],[4,7]] : [[1,3],[2,5]]), n, si)];
+    si => secMultiples(r, hard, rpick(r, hard ? [13,15,16] : [11,20,25]), n, si),
+    si => secFactors(r, hard, rpick(r, hard ? [56,80,88] : [32,45,50]), si, false),
+    si => hard ? secPrimes(r, hard, 120, 160, n, si, false) : secPrimes(r, hard, 100, 120, n, si, false),
+    si => secFDP(r, hard, rpick(r, hard ? [[5,8],[7,8],[9,20],[17,20],[3,50]] : [[9,10],[1,20],[2,25]]), n, si),
+    si => secCommon(r, hard, ...rpick(r, hard ? [[10,15],[12,18],[8,10]] : [[3,7],[2,9],[4,7]]), n, si),
+    si => secRatios(r, hard, rpick(r, hard ? [[8,5],[9,7]] : [[4,1],[6,5]]), n, si)];
   const q = []; secs.forEach((f, si) => q.push(...f(si))); return q;
 }
 function decoyMultiple(r, k, hard){
@@ -1218,7 +1223,7 @@ function decoyMultiple(r, k, hard){
 }
 
 function buildFence(r, hard){
-  const bases = rshuffle(r, hard ? [[5,6],[3,8],[5,8],[4,7],[7,10],[4,9],[3,10],[2,9]] : [[1,2],[1,3],[2,3],[1,4],[3,4],[2,5],[3,5],[1,5]]).slice(0, 3);
+  const bases = rshuffle(r, hard ? [[3,7],[4,7],[5,7],[4,9],[5,9],[7,9],[5,12],[7,12]] : [[1,3],[2,3],[1,6],[5,6],[1,7],[2,7],[1,9],[2,9]]).slice(0, 3);
   const q = [];
   bases.forEach(([a, b], si) => {
     const used = new Set();
@@ -1379,8 +1384,8 @@ function decoyFraction(r, a, b, hard){
 }
 
 function buildCanyon(r, hard){
-  const roots = rshuffle(r, hard ? [72,84,90,96,100,108,120,126,132,144,150,168,180,210,225,240,252,300,360]
-                               : [12,18,20,27,28,30,36,40,42,44,45,50,52,54,60,63,66,70,75]).slice(0, hard ? 7 : 6);
+  const roots = rshuffle(r, hard ? [84,96,100,108,120,126,132,144,150,168,180,210,225,240,252,300,360]
+                               : [27,42,44,52,60,63,66,70,75,78,98]).slice(0, hard ? 7 : 6);
   const lone = rshuffle(r, hard ? [51,57,87,91,93,53,59,61,67,71,79,89] : [7,11,13,17,19,23,29,9,15,21,25,33]).slice(0, hard ? 6 : 5);
   const q = []; let gi = 0;
   roots.forEach((n, i) => {
@@ -1490,8 +1495,8 @@ const STAGES = {
       tip:'Multiply or divide the top and bottom by the SAME number.'}},
   estancia:{name:'THE RANCH', gang:'Los Proporcionales', topic:'EQUIV. RATIOS', scene:'estancia', stay:[2.8, 2.0], max:[3, 4], build:buildEstancia, rot:1.5,
     brief:{rule:'Gauchos are galloping across the pampa! Shoot every rider holding a ratio <b>equivalent</b> to the poster — every part multiplied (or divided) by the same number.',
-      ex:`2 : 3 → ${OK('4 : 6 ✔')} ${OK('10 : 15 ✔')} &nbsp; ${NO('3 : 2 ✘')} wrong way round — order matters! &nbsp; ${NO('3 : 4 ✘')} added 1`,
-      tip:'The poster says what the ratio counts — like 2 gauchos for every 3 horses.'}},
+      ex:`3 : 2 → ${OK('6 : 4 ✔')} ${OK('15 : 10 ✔')} &nbsp; ${NO('2 : 3 ✘')} wrong way round — order matters! &nbsp; ${NO('4 : 3 ✘')} added 1`,
+      tip:'The poster says what the ratio counts — like 3 gauchos for every 2 horses.'}},
   fair:{name:'THE FAIRGROUND', gang:'The Tin Gang', topic:'DECIMALS & %', scene:'fair', stay:[3, 2.2], max:[6, 8], build:buildFair, rot:-1.5,
     brief:{rule:'Tin outlaws roll past on three rails. Knock down every one that is <b>equal</b> to the poster — it could be a fraction, a decimal or a percentage!',
       ex:`EQUAL TO 1/4: ${OK('0.25 ✔')} ${OK('25% ✔')} ${OK('3/12 ✔')} &nbsp; ${NO('0.4 ✘')} that's 4/10 &nbsp; ${NO('4% ✘')} that's 4/100 &nbsp; ${NO('0.14 ✘')}`,
@@ -1502,8 +1507,8 @@ const STAGES = {
       ex:'Phase 1: MULTIPLES &nbsp;→&nbsp; Phase 2: FACTORS &nbsp;→&nbsp; Phase 3: PRIMES<br>When the red ring closes he fires — hit him on a correct number to disarm him.',
       tip:'5 hearts on Greenhorn, 4 on Sheriff. Wait for the right number — don\'t panic-shoot!'}},
   roundup:{name:'THE LAST ROUNDUP', gang:'Every outlaw in town', topic:'MIXED REVIEW', scene:'town', stay:[2.7, 1.9], max:[3, 4], build:buildRoundup, rot:-2,
-    brief:{rule:'Every outlaw in San Divisor at once. The poster changes every few outlaws — multiples, factors, primes, fractions, common multiples and ratios.',
-      ex:'MULTIPLES → FACTORS → PRIMES → FRACTIONS → COMMON MULTIPLES → RATIOS',
+    brief:{rule:'Every outlaw in San Divisor at once. The poster changes every few outlaws — multiples, factors, primes, fractions/decimals/%, common multiples and ratios — all with numbers you haven\'t met in the other stages.',
+      ex:'MULTIPLES → FACTORS → PRIMES → FRACTIONS · DECIMALS · % → COMMON MULTIPLES → RATIOS',
       tip:'Three stars here and you\'re solid on Year 7 number.'}}
 };
 const SOON = [];
