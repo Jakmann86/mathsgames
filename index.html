@@ -569,6 +569,72 @@
         @keyframes psPourL { 0%,6%,26%,100% { transform: none; } 10%,22% { transform: rotate(35deg); } }
         @keyframes psPourR { 0%,26%,52%,100% { transform: none; } 30%,48% { transform: rotate(-35deg); } }
 
+        /* ─── QUICKDRAW ─── */
+        .cabinet-quickdraw .cabinet-glow { background: linear-gradient(135deg, #FFB000, #FF3D2E); }
+        .cabinet-quickdraw .cabinet-marquee { background: linear-gradient(90deg, #1f0c02, #3a1a06, #1f0c02); border-bottom: 2px solid #FFB000; }
+        .cabinet-quickdraw .cabinet-marquee::before {
+            content: ''; position: absolute; top: 0; left: -100%; width: 60%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,176,0,0.3), transparent);
+            animation: marqueeShine 3.6s infinite 0.4s;
+        }
+        .cabinet-quickdraw .cabinet-marquee-text { color: #FFB000; }
+        .cabinet-quickdraw .cabinet-name { color: #FFB000; }
+        .cabinet-quickdraw .play-btn { background: linear-gradient(135deg, #FFB000, #FF3D2E); color: #1f0c02; }
+        .cabinet-quickdraw .tag-a { background: rgba(255,176,0,0.15); color: #FFB000; }
+        .cabinet-quickdraw .tag-b { background: rgba(255,61,46,0.15); color: #FF6B5A; }
+        .qd-screen {
+            position: absolute; inset: 0; overflow: hidden;
+            background: linear-gradient(180deg, #2a0e3a 0%, #8a2a3a 45%, #f07a2a 75%, #f7b24a 100%);
+        }
+        .qd-sun { position: absolute; left: 50%; top: 52%; width: 70px; height: 70px; margin-left: -35px; border-radius: 50%; background: #ffd75a; box-shadow: 0 0 30px rgba(255,215,90,0.7); }
+        .qd-poster {
+            position: absolute; top: 10px; left: 50%; transform: translateX(-50%) rotate(-2deg);
+            background: #f1dca8; border: 2px solid #6b3a14; padding: 5px 12px; text-align: center;
+            font-family: 'Press Start 2P', monospace; color: #4a2008; box-shadow: 2px 3px 0 rgba(0,0,0,0.4); z-index: 3;
+        }
+        .qd-poster b { display: block; font-size: 6px; letter-spacing: 2px; margin-bottom: 4px; color: #8a2a10; }
+        .qd-poster span { font-size: 8px; }
+        .qd-town { position: absolute; left: 0; right: 0; bottom: 0; height: 58%; display: flex; align-items: flex-end; justify-content: space-around; padding: 0 8px; }
+        .qd-bld { position: relative; background: #5a2e14; border-top: 6px solid #3a1a08; width: 30%; display: flex; justify-content: center; padding-top: 12px; }
+        .qd-bld:nth-child(1) { height: 82%; } .qd-bld:nth-child(2) { height: 64%; background: #6e3a1a; } .qd-bld:nth-child(3) { height: 92%; }
+        .qd-win { width: 34px; height: 30px; background: #1a0a04; border: 2px solid #2e1406; position: relative; overflow: hidden; }
+        .qd-out { position: absolute; left: 3px; right: 3px; bottom: 0; height: 26px; background: #f1dca8; border: 2px solid #4a2008; border-bottom: none;
+            font-family: 'Press Start 2P', monospace; font-size: 8px; color: #2a1004; display: flex; align-items: center; justify-content: center; transform: translateY(100%); }
+        .qd-out.o1 { animation: qdPop 4.5s infinite 0s; } .qd-out.o2 { animation: qdPop 4.5s infinite 1.5s; } .qd-out.o3 { animation: qdPop 4.5s infinite 3s; }
+        @keyframes qdPop { 0% { transform: translateY(100%); } 6%,26% { transform: translateY(0); } 33%,100% { transform: translateY(100%); } }
+        .qd-cross { position: absolute; width: 26px; height: 26px; border: 2px solid #fff; border-radius: 50%; z-index: 4; animation: qdAim 4.5s infinite; filter: drop-shadow(0 0 3px rgba(0,0,0,0.8)); }
+        .qd-cross::before, .qd-cross::after { content: ''; position: absolute; background: #fff; }
+        .qd-cross::before { left: 50%; top: -6px; bottom: -6px; width: 2px; margin-left: -1px; }
+        .qd-cross::after { top: 50%; left: -6px; right: -6px; height: 2px; margin-top: -1px; }
+        @keyframes qdAim { 0%,22% { left: 14%; top: 58%; } 33%,55% { left: 45%; top: 70%; } 66%,88% { left: 76%; top: 52%; } 100% { left: 14%; top: 58%; } }
+
+        /* ─── BESSIE'S BAKERY ─── */
+        .cabinet-bakery .cabinet-glow { background: linear-gradient(135deg, #F5C842, #E8A0C0); }
+        .cabinet-bakery .cabinet-marquee { background: linear-gradient(90deg, #200f04, #3d2008, #200f04); border-bottom: 2px solid #F5C842; }
+        .cabinet-bakery .cabinet-marquee::before {
+            content: ''; position: absolute; top: 0; left: -100%; width: 60%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(245,200,66,0.3), transparent);
+            animation: marqueeShine 4s infinite 1.6s;
+        }
+        .cabinet-bakery .cabinet-marquee-text { color: #F5C842; }
+        .cabinet-bakery .cabinet-name { color: #F5C842; }
+        .cabinet-bakery .play-btn { background: linear-gradient(135deg, #F5C842, #E8A0C0); color: #3d2008; }
+        .cabinet-bakery .tag-a { background: rgba(245,200,66,0.15); color: #F5C842; }
+        .cabinet-bakery .tag-b { background: rgba(232,160,192,0.15); color: #E8A0C0; }
+        .bk-screen {
+            position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px;
+            background: radial-gradient(ellipse at 50% 30%, #2d4a3e 0%, #1a2e26 75%);
+        }
+        .bk-order { font-family: 'Press Start 2P', monospace; font-size: 9px; color: #f0ead6; letter-spacing: 1px; text-shadow: 0 0 6px rgba(240,234,214,0.4); }
+        .bk-trays { display: flex; gap: 8px; }
+        .bk-tray { width: 44px; height: 32px; border: 2px solid #c9922a; border-radius: 4px; background: rgba(245,200,66,0.08);
+            display: grid; grid-template-columns: repeat(3, 1fr); place-items: center; font-size: 9px; line-height: 1; opacity: 0; }
+        .bk-tray.t1 { animation: bkTray 5s infinite 0.4s; } .bk-tray.t2 { animation: bkTray 5s infinite 1s; } .bk-tray.t3 { animation: bkTray 5s infinite 1.6s; }
+        @keyframes bkTray { 0% { opacity: 0; transform: translateY(8px); } 8%,80% { opacity: 1; transform: none; } 92%,100% { opacity: 0; } }
+        .bk-sum { font-family: 'Press Start 2P', monospace; font-size: 9px; color: #F5C842; text-shadow: 0 0 8px rgba(245,200,66,0.6); opacity: 0; animation: bkSum 5s infinite; }
+        @keyframes bkSum { 0%,44% { opacity: 0; } 52%,88% { opacity: 1; } 96%,100% { opacity: 0; } }
+        .bk-sum.flour { color: #E8A0C0; text-shadow: 0 0 8px rgba(232,160,192,0.6); animation-delay: 0.5s; }
+
         .cabinet-soon .cabinet-body { opacity: 0.45; }
         .cabinet-soon .cabinet-marquee { background: linear-gradient(90deg, #1a0030, #2a0050, #1a0030); border-bottom: 2px solid rgba(123,47,190,0.5); }
         .cabinet-soon .cabinet-marquee-text { color: rgba(255,255,255,0.25); }
@@ -889,6 +955,70 @@
                 <div class="cabinet-footer">
                     <span class="play-btn">PLAY NOW</span>
                     <span class="cabinet-world">13 RECIPES</span>
+                </div>
+            </div>
+        </a>
+
+        <!-- QUICKDRAW -->
+        <a href="./quickdraw/index.html" class="cabinet cabinet-quickdraw">
+            <div class="cabinet-glow"></div>
+            <div class="cabinet-body">
+                <div class="cabinet-marquee"><div class="cabinet-marquee-text">✶ QUICKDRAW ✶</div></div>
+                <div class="cabinet-screen">
+                    <div class="qd-screen">
+                        <div class="qd-sun"></div>
+                        <div class="qd-poster"><b>WANTED</b><span>MULTIPLES OF 6</span></div>
+                        <div class="qd-town">
+                            <div class="qd-bld"><div class="qd-win"><div class="qd-out o1">24</div></div></div>
+                            <div class="qd-bld"><div class="qd-win"><div class="qd-out o2">42</div></div></div>
+                            <div class="qd-bld"><div class="qd-win"><div class="qd-out o3">54</div></div></div>
+                        </div>
+                        <div class="qd-cross"></div>
+                    </div>
+                </div>
+                <div class="cabinet-info">
+                    <div class="cabinet-name">QUICKDRAW</div>
+                    <div class="cabinet-desc">Outlaws pop up all over San Divisor. Shoot every one that fits the WANTED poster — multiples, factors, primes, fractions, decimals, % and ratios — then take on El Gran Divisor.</div>
+                    <div class="cabinet-tags">
+                        <span class="tag tag-a">1–2 PLAYERS</span>
+                        <span class="tag tag-b">YEAR 7 NUMBER</span>
+                    </div>
+                </div>
+                <div class="cabinet-footer">
+                    <span class="play-btn">PLAY NOW</span>
+                    <span class="cabinet-world">10 STAGES</span>
+                </div>
+            </div>
+        </a>
+
+        <!-- BESSIE'S BAKERY -->
+        <a href="./bessies-bakery/index.html" class="cabinet cabinet-bakery">
+            <div class="cabinet-glow"></div>
+            <div class="cabinet-body">
+                <div class="cabinet-marquee"><div class="cabinet-marquee-text">♥ BESSIE'S BAKERY ♥</div></div>
+                <div class="cabinet-screen">
+                    <div class="bk-screen">
+                        <div class="bk-order">36 COOKIES? RECIPE MAKES 12</div>
+                        <div class="bk-trays">
+                            <div class="bk-tray t1"><span>🍪</span><span>🍪</span><span>🍪</span><span>🍪</span><span>🍪</span><span>🍪</span></div>
+                            <div class="bk-tray t2"><span>🍪</span><span>🍪</span><span>🍪</span><span>🍪</span><span>🍪</span><span>🍪</span></div>
+                            <div class="bk-tray t3"><span>🍪</span><span>🍪</span><span>🍪</span><span>🍪</span><span>🍪</span><span>🍪</span></div>
+                        </div>
+                        <div class="bk-sum">36 ÷ 12 = × 3</div>
+                        <div class="bk-sum flour">FLOUR 200g → 600g</div>
+                    </div>
+                </div>
+                <div class="cabinet-info">
+                    <div class="cabinet-name">BESSIE'S BAKERY</div>
+                    <div class="cabinet-desc">Every customer wants a different amount. Work out how many batches Bessie needs, then scale every ingredient in the recipe — and remember, you can't bake half a batch!</div>
+                    <div class="cabinet-tags">
+                        <span class="tag tag-a">1 PLAYER</span>
+                        <span class="tag tag-b">SCALING RECIPES</span>
+                    </div>
+                </div>
+                <div class="cabinet-footer">
+                    <span class="play-btn">PLAY NOW</span>
+                    <span class="cabinet-world">4 WORLDS</span>
                 </div>
             </div>
         </a>

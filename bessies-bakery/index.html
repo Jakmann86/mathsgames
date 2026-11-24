@@ -1,0 +1,1655 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bessie's Bakery</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Caveat:wght@400;600;700&family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --cream: #fdf6e3;
+  --parchment: #f5e6c8;
+  --warm-brown: #6b4226;
+  --dark-brown: #3d2008;
+  --ink: #2c1810;
+  --red-check: #c0392b;
+  --chalk: #f0ead6;
+  --chalkboard: #2d4a3e;
+  --chalkboard-dark: #1a2e26;
+  --butter: #f5c842;
+  --rose: #e8a0a0;
+  --sage: #7a9e7e;
+  --sky: #b8d4e8;
+  --gold: #c9922a;
+  --shadow: rgba(61,32,8,0.15);
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  font-family: 'Lora', serif;
+  background: #e8d5b0;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+/* Paper texture via CSS */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(107,66,38,0.03) 28px, rgba(107,66,38,0.03) 29px),
+    repeating-linear-gradient(90deg, transparent, transparent 28px, rgba(107,66,38,0.02) 28px, rgba(107,66,38,0.02) 29px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Back to the arcade */
+.arcade-link {
+  position: fixed;
+  top: 14px;
+  left: 16px;
+  z-index: 1001;
+  font-family: 'Playfair Display', serif;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: var(--warm-brown);
+  text-decoration: none;
+  background: var(--cream);
+  border: 2px solid var(--warm-brown);
+  border-radius: 8px;
+  padding: 6px 12px;
+  box-shadow: 2px 2px 0 var(--warm-brown);
+  transition: all 0.2s;
+}
+.arcade-link:hover { transform: translate(-1px,-1px); box-shadow: 3px 3px 0 var(--warm-brown); }
+body.in-game .arcade-link { display: none; }
+
+/* ══════════════════════════════
+   TITLE SCREEN
+══════════════════════════════ */
+#title-screen {
+  position: fixed;
+  inset: 0;
+  background: var(--cream);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  gap: 0;
+}
+
+.title-illustration {
+  font-size: 80px;
+  margin-bottom: 8px;
+  animation: float 3s ease-in-out infinite;
+}
+@keyframes float {
+  0%,100%{transform:translateY(0) rotate(-2deg)}
+  50%{transform:translateY(-10px) rotate(2deg)}
+}
+
+.title-sign {
+  background: var(--warm-brown);
+  padding: 24px 60px;
+  border-radius: 8px;
+  position: relative;
+  margin-bottom: 6px;
+  box-shadow: 4px 4px 0 var(--dark-brown), 8px 8px 20px rgba(0,0,0,0.2);
+}
+.title-sign::before, .title-sign::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  width: 40px;
+  height: 6px;
+  background: var(--dark-brown);
+  border-radius: 3px;
+  transform: translateY(-50%);
+}
+.title-sign::before { left: -36px; }
+.title-sign::after { right: -36px; }
+
+.title-main {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(32px, 5vw, 52px);
+  font-weight: 900;
+  color: var(--butter);
+  letter-spacing: 3px;
+  text-shadow: 2px 2px 0 var(--dark-brown);
+  white-space: nowrap;
+}
+.title-sub {
+  font-family: 'Caveat', cursive;
+  font-size: 20px;
+  color: var(--parchment);
+  text-align: center;
+  margin-top: 4px;
+  letter-spacing: 2px;
+}
+
+.title-byline {
+  font-family: 'Caveat', cursive;
+  font-size: 18px;
+  color: var(--warm-brown);
+  margin: 16px 0 28px;
+  font-style: italic;
+}
+
+.world-select {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  max-width: 600px;
+  width: 90%;
+  margin-bottom: 20px;
+}
+
+.world-btn {
+  background: var(--cream);
+  border: 3px solid var(--warm-brown);
+  border-radius: 12px;
+  padding: 14px 16px;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: left;
+  position: relative;
+  box-shadow: 3px 3px 0 var(--warm-brown);
+}
+.world-btn:hover { transform: translate(-2px,-2px); box-shadow: 5px 5px 0 var(--warm-brown); }
+.world-btn:active { transform: translate(1px,1px); box-shadow: 2px 2px 0 var(--warm-brown); }
+.world-btn.locked { opacity: 0.45; cursor: not-allowed; }
+.world-btn.locked:hover { transform: none; box-shadow: 3px 3px 0 var(--warm-brown); }
+
+.world-num {
+  font-family: 'Playfair Display', serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 2px;
+}
+.world-name {
+  font-family: 'Playfair Display', serif;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--dark-brown);
+}
+.world-desc {
+  font-family: 'Caveat', cursive;
+  font-size: 14px;
+  color: var(--warm-brown);
+  margin-top: 2px;
+}
+.world-lock { position: absolute; top: 10px; right: 12px; font-size: 18px; }
+.world-star { position: absolute; top: 10px; right: 12px; font-size: 14px; letter-spacing: 1px; }
+
+/* ══════════════════════════════
+   MAIN GAME LAYOUT
+══════════════════════════════ */
+.game-wrap {
+  display: none;
+  width: 100vw;
+  height: 100vh;
+  position: relative;
+  z-index: 1;
+}
+.game-wrap.active { display: flex; flex-direction: column; }
+
+/* TOP BAR */
+.top-bar {
+  height: 52px;
+  background: var(--warm-brown);
+  display: flex;
+  align-items: center;
+  padding: 0 20px;
+  gap: 16px;
+  flex-shrink: 0;
+  box-shadow: 0 3px 0 var(--dark-brown);
+}
+.top-bar-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 18px;
+  font-weight: 900;
+  color: var(--butter);
+  flex: 1;
+}
+.top-bar-world {
+  font-family: 'Caveat', cursive;
+  font-size: 16px;
+  color: var(--parchment);
+  opacity: 0.8;
+}
+.top-bar-score {
+  font-family: 'Caveat', cursive;
+  font-size: 18px;
+  color: var(--butter);
+  font-weight: 700;
+}
+.btn-back {
+  font-family: 'Caveat', cursive;
+  font-size: 15px;
+  background: none;
+  border: 2px solid rgba(255,255,255,0.3);
+  color: var(--parchment);
+  padding: 4px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.btn-back:hover { background: rgba(255,255,255,0.1); }
+
+/* MAIN AREA */
+.game-main {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+}
+
+/* ══════════════════════════════
+   LEFT — BAKERY SCENE + QUEUE
+══════════════════════════════ */
+.bakery-col {
+  width: 280px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--parchment);
+  border-right: 4px solid var(--warm-brown);
+}
+
+/* Bakery scene — CSS illustrated */
+.bakery-scene {
+  height: 200px;
+  background: linear-gradient(180deg, var(--sky) 0%, var(--sky) 55%, #c8b896 55%, #b5a07a 100%);
+  position: relative;
+  overflow: hidden;
+  flex-shrink: 0;
+  border-bottom: 3px solid var(--warm-brown);
+}
+
+/* Bessie — CSS character */
+.bessie {
+  position: absolute;
+  bottom: 30px;
+  right: 30px;
+  width: 70px;
+  height: 110px;
+}
+.bessie-dress {
+  position: absolute;
+  bottom: 0;
+  left: 10px;
+  width: 50px;
+  height: 65px;
+  background: #e8a0c0;
+  border-radius: 8px 8px 16px 16px;
+  border: 3px solid var(--dark-brown);
+}
+.bessie-apron {
+  position: absolute;
+  bottom: 8px;
+  left: 16px;
+  width: 38px;
+  height: 50px;
+  background: var(--cream);
+  border-radius: 4px 4px 12px 12px;
+  border: 2px solid rgba(107,66,38,0.3);
+}
+.bessie-body {
+  position: absolute;
+  bottom: 58px;
+  left: 14px;
+  width: 42px;
+  height: 32px;
+  background: #e8a0c0;
+  border-radius: 6px;
+  border: 3px solid var(--dark-brown);
+}
+.bessie-head {
+  position: absolute;
+  bottom: 82px;
+  left: 16px;
+  width: 38px;
+  height: 36px;
+  background: #f5c8a0;
+  border-radius: 50% 50% 40% 40%;
+  border: 3px solid var(--dark-brown);
+}
+.bessie-hair {
+  position: absolute;
+  bottom: 110px;
+  left: 12px;
+  width: 46px;
+  height: 22px;
+  background: var(--warm-brown);
+  border-radius: 50% 50% 0 0;
+  border: 3px solid var(--dark-brown);
+}
+.bessie-hat {
+  position: absolute;
+  bottom: 114px;
+  left: 18px;
+  width: 34px;
+  height: 16px;
+  background: var(--cream);
+  border-radius: 50%;
+  border: 2px solid var(--warm-brown);
+}
+.bessie-hat::after {
+  content: '×';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%,-52%);
+  color: var(--rose);
+  font-size: 12px;
+  font-weight: bold;
+}
+.bessie-eyes {
+  position: absolute;
+  bottom: 96px;
+  left: 22px;
+  display: flex;
+  gap: 10px;
+}
+.bessie-eye {
+  width: 6px;
+  height: 6px;
+  background: var(--dark-brown);
+  border-radius: 50%;
+}
+.bessie-smile {
+  position: absolute;
+  bottom: 88px;
+  left: 27px;
+  width: 14px;
+  height: 6px;
+  border-bottom: 2.5px solid var(--dark-brown);
+  border-radius: 0 0 8px 8px;
+}
+/* Bessie's hand holding tray */
+.bessie-tray {
+  position: absolute;
+  bottom: 62px;
+  left: -8px;
+  width: 28px;
+  height: 6px;
+  background: var(--warm-brown);
+  border-radius: 3px;
+  border: 2px solid var(--dark-brown);
+}
+.bessie-tray::before {
+  content: '🍪';
+  position: absolute;
+  top: -18px;
+  left: 2px;
+  font-size: 16px;
+}
+
+/* Bakery counter */
+.bakery-counter {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 35px;
+  background: linear-gradient(180deg, #d4a96a 0%, #b8894a 100%);
+  border-top: 4px solid #6b4226;
+}
+.bakery-counter::before {
+  content: '';
+  position: absolute;
+  top: 8px;
+  left: 20px;
+  right: 20px;
+  height: 3px;
+  background: rgba(0,0,0,0.1);
+  border-radius: 2px;
+}
+
+/* Shop sign */
+.shop-sign {
+  position: absolute;
+  top: 12px;
+  left: 16px;
+  background: var(--warm-brown);
+  color: var(--butter);
+  font-family: 'Playfair Display', serif;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 5px 10px;
+  border-radius: 4px;
+  border: 2px solid var(--dark-brown);
+  box-shadow: 2px 2px 0 var(--dark-brown);
+  letter-spacing: 1px;
+}
+
+/* Window with baked goods */
+.shop-window {
+  position: absolute;
+  top: 12px;
+  right: 16px;
+  width: 55px;
+  height: 50px;
+  background: rgba(180,220,255,0.4);
+  border: 3px solid var(--warm-brown);
+  border-radius: 6px 6px 0 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+}
+
+/* CUSTOMER QUEUE */
+.queue-section {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px;
+}
+.queue-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--dark-brown);
+  margin-bottom: 10px;
+  padding-bottom: 6px;
+  border-bottom: 2px dashed var(--warm-brown);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.queue-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.queue-customer {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  background: var(--cream);
+  border: 2px solid var(--warm-brown);
+  border-radius: 10px;
+  transition: all 0.4s;
+  box-shadow: 2px 2px 0 rgba(107,66,38,0.2);
+}
+.queue-customer.current {
+  border-color: var(--gold);
+  background: #fffbf0;
+  box-shadow: 2px 2px 0 var(--gold), 0 0 12px rgba(201,146,42,0.2);
+}
+.queue-customer.served {
+  opacity: 0;
+  transform: translateX(40px);
+}
+.queue-emoji { font-size: 28px; flex-shrink: 0; }
+.queue-info { flex: 1; min-width: 0; }
+.queue-name {
+  font-family: 'Playfair Display', serif;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--dark-brown);
+}
+.queue-want {
+  font-family: 'Caveat', cursive;
+  font-size: 13px;
+  color: var(--warm-brown);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.queue-badge {
+  font-family: 'Caveat', cursive;
+  font-size: 11px;
+  padding: 2px 7px;
+  border-radius: 10px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.queue-badge.waiting { background: var(--parchment); color: var(--warm-brown); border: 1px solid var(--warm-brown); }
+.queue-badge.serving { background: var(--gold); color: white; }
+
+/* ══════════════════════════════
+   CENTRE — CHALKBOARD ORDER + RECIPE
+══════════════════════════════ */
+.centre-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 16px;
+  gap: 14px;
+  overflow-y: auto;
+  background: var(--cream);
+}
+
+/* Chalkboard */
+.chalkboard {
+  background: var(--chalkboard);
+  border-radius: 10px;
+  padding: 20px 24px;
+  position: relative;
+  box-shadow: 4px 4px 0 var(--chalkboard-dark), 0 8px 24px rgba(0,0,0,0.2);
+  border: 6px solid #5a3e2a;
+  flex-shrink: 0;
+}
+.chalkboard::before {
+  content: '';
+  position: absolute;
+  inset: 6px;
+  border: 1px dashed rgba(240,234,214,0.1);
+  border-radius: 4px;
+  pointer-events: none;
+}
+.chalk-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 14px;
+}
+.chalk-emoji { font-size: 40px; flex-shrink: 0; }
+.chalk-order-info { flex: 1; }
+.chalk-from {
+  font-family: 'Caveat', cursive;
+  font-size: 14px;
+  color: rgba(240,234,214,0.6);
+  letter-spacing: 1px;
+  margin-bottom: 2px;
+}
+.chalk-order {
+  font-family: 'Caveat', cursive;
+  font-size: clamp(18px, 2.5vw, 24px);
+  color: var(--chalk);
+  font-weight: 700;
+  line-height: 1.3;
+}
+.chalk-divider {
+  height: 2px;
+  background: repeating-linear-gradient(90deg, rgba(240,234,214,0.3) 0px, rgba(240,234,214,0.3) 12px, transparent 12px, transparent 18px);
+  margin: 10px 0;
+}
+.chalk-question {
+  font-family: 'Caveat', cursive;
+  font-size: 16px;
+  color: rgba(240,234,214,0.75);
+  margin-bottom: 6px;
+}
+.chalk-scale-hint {
+  font-family: 'Caveat', cursive;
+  font-size: 13px;
+  color: rgba(240,234,214,0.5);
+  font-style: italic;
+}
+.chalk-multiplier-display {
+  display: inline-block;
+  background: rgba(240,234,214,0.12);
+  border: 1px solid rgba(240,234,214,0.2);
+  border-radius: 6px;
+  padding: 4px 14px;
+  font-family: 'Caveat', cursive;
+  font-size: 20px;
+  color: var(--butter);
+  margin-top: 4px;
+  min-width: 120px;
+  text-align: center;
+  letter-spacing: 1px;
+}
+
+/* Recipe Book */
+.recipe-book {
+  background: var(--cream);
+  border: 3px solid var(--warm-brown);
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 3px 3px 0 var(--warm-brown);
+  flex-shrink: 0;
+}
+.recipe-tab {
+  background: var(--warm-brown);
+  padding: 8px 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.recipe-tab-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--butter);
+  letter-spacing: 1px;
+}
+.recipe-tab-sub {
+  font-family: 'Caveat', cursive;
+  font-size: 13px;
+  color: var(--parchment);
+  opacity: 0.8;
+  margin-left: auto;
+}
+.recipe-body {
+  padding: 14px 16px;
+}
+.recipe-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 15px;
+  font-weight: 700;
+  font-style: italic;
+  color: var(--dark-brown);
+  margin-bottom: 10px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid var(--parchment);
+}
+.recipe-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px 16px;
+}
+.recipe-ingredient {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 0;
+  border-bottom: 1px dashed var(--parchment);
+}
+.recipe-ing-emoji { font-size: 18px; flex-shrink: 0; }
+.recipe-ing-name {
+  font-family: 'Lora', serif;
+  font-size: 13px;
+  color: var(--dark-brown);
+  flex: 1;
+}
+.recipe-ing-amount {
+  font-family: 'Caveat', cursive;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--warm-brown);
+  white-space: nowrap;
+}
+
+/* ══════════════════════════════
+   RIGHT — ANSWER PANEL
+══════════════════════════════ */
+.answer-col {
+  width: 300px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--parchment);
+  border-left: 4px solid var(--warm-brown);
+  padding: 16px;
+  gap: 14px;
+  overflow-y: auto;
+}
+
+/* Working box */
+.working-box {
+  background: var(--cream);
+  border: 3px solid var(--warm-brown);
+  border-radius: 10px;
+  padding: 14px;
+  box-shadow: 3px 3px 0 rgba(107,66,38,0.2);
+}
+.working-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--dark-brown);
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.scale-input-area {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.scale-label {
+  font-family: 'Caveat', cursive;
+  font-size: 15px;
+  color: var(--warm-brown);
+}
+.scale-fraction {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.scale-fraction input {
+  width: 70px;
+  height: 44px;
+  text-align: center;
+  font-family: 'Caveat', cursive;
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--dark-brown);
+  background: white;
+  border: 3px solid var(--warm-brown);
+  border-radius: 8px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.scale-fraction input:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(201,146,42,0.2); }
+.fraction-divider { font-family: 'Caveat', cursive; font-size: 20px; color: var(--warm-brown); }
+.fraction-stack { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+.fraction-line { width: 60px; height: 2px; background: var(--dark-brown); }
+
+.scale-equals {
+  font-family: 'Caveat', cursive;
+  font-size: 20px;
+  color: var(--warm-brown);
+}
+
+.hint-bubble {
+  background: rgba(201,146,42,0.1);
+  border: 1px solid rgba(201,146,42,0.3);
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-family: 'Caveat', cursive;
+  font-size: 13px;
+  color: var(--warm-brown);
+  line-height: 1.5;
+}
+.hint-bubble strong { color: var(--dark-brown); }
+
+/* Ingredient answers */
+.ingredient-answers {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.ing-answer-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.ing-answer-label {
+  font-family: 'Lora', serif;
+  font-size: 12px;
+  color: var(--dark-brown);
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.ing-answer-input {
+  width: 80px;
+  height: 36px;
+  text-align: center;
+  font-family: 'Caveat', cursive;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--dark-brown);
+  background: white;
+  border: 2px solid var(--warm-brown);
+  border-radius: 6px;
+  outline: none;
+}
+.ing-answer-input:focus { border-color: var(--gold); }
+.ing-answer-input.correct { border-color: var(--sage); background: #f0f8f0; color: #3a7a3a; }
+.ing-answer-input.wrong { border-color: var(--red-check); background: #fff0f0; }
+.ing-unit {
+  font-family: 'Caveat', cursive;
+  font-size: 13px;
+  color: var(--warm-brown);
+  width: 30px;
+}
+.ing-tick { font-size: 16px; width: 20px; text-align: center; }
+
+/* Buttons */
+.btn-check {
+  width: 100%;
+  padding: 14px;
+  background: var(--warm-brown);
+  color: var(--butter);
+  border: none;
+  border-radius: 10px;
+  font-family: 'Playfair Display', serif;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 4px 4px 0 var(--dark-brown);
+  letter-spacing: 1px;
+}
+.btn-check:hover { transform: translate(-2px,-2px); box-shadow: 6px 6px 0 var(--dark-brown); }
+.btn-check:active { transform: translate(2px,2px); box-shadow: 2px 2px 0 var(--dark-brown); }
+
+.btn-next {
+  width: 100%;
+  padding: 14px;
+  background: var(--sage);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-family: 'Playfair Display', serif;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 4px 4px 0 #4a7a4e;
+  display: none;
+}
+.btn-next:hover { transform: translate(-2px,-2px); box-shadow: 6px 6px 0 #4a7a4e; }
+
+/* ══════════════════════════════
+   RESULT MODAL
+══════════════════════════════ */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(61,32,8,0.6);
+  z-index: 500;
+  align-items: center;
+  justify-content: center;
+}
+.modal-overlay.open { display: flex; }
+
+.result-modal {
+  background: var(--cream);
+  border: 5px solid var(--warm-brown);
+  border-radius: 16px;
+  padding: 32px 36px;
+  max-width: 440px;
+  width: 90%;
+  text-align: center;
+  box-shadow: 6px 6px 0 var(--dark-brown), 0 20px 60px rgba(0,0,0,0.3);
+  animation: popIn 0.3s cubic-bezier(0.34,1.56,0.64,1);
+}
+@keyframes popIn {
+  from { transform: scale(0.8); opacity: 0; }
+  to   { transform: scale(1);   opacity: 1; }
+}
+
+.result-emoji { font-size: 60px; margin-bottom: 8px; display: block; }
+.result-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 28px;
+  font-weight: 900;
+  margin-bottom: 6px;
+}
+.result-title.success { color: #3a7a3a; }
+.result-title.partial { color: var(--gold); }
+.result-title.fail { color: var(--red-check); }
+
+.result-message {
+  font-family: 'Caveat', cursive;
+  font-size: 18px;
+  color: var(--warm-brown);
+  line-height: 1.5;
+  margin-bottom: 16px;
+}
+.result-working {
+  background: var(--parchment);
+  border: 2px solid var(--warm-brown);
+  border-radius: 8px;
+  padding: 12px;
+  margin: 12px 0;
+  text-align: left;
+}
+.result-working-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--dark-brown);
+  margin-bottom: 8px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+.result-working-line {
+  font-family: 'Caveat', cursive;
+  font-size: 15px;
+  color: var(--warm-brown);
+  line-height: 1.8;
+}
+.result-stars { font-size: 28px; margin-bottom: 16px; letter-spacing: 4px; }
+
+.result-btn {
+  padding: 14px 32px;
+  background: var(--warm-brown);
+  color: var(--butter);
+  border: none;
+  border-radius: 10px;
+  font-family: 'Playfair Display', serif;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 4px 4px 0 var(--dark-brown);
+  transition: all 0.2s;
+  margin-right: 8px;
+}
+.result-btn:hover { transform: translate(-2px,-2px); box-shadow: 6px 6px 0 var(--dark-brown); }
+
+/* World complete */
+.world-modal {
+  background: var(--cream);
+  border: 5px solid var(--gold);
+  border-radius: 16px;
+  padding: 40px;
+  max-width: 460px;
+  width: 90%;
+  text-align: center;
+  box-shadow: 6px 6px 0 var(--warm-brown), 0 20px 60px rgba(0,0,0,0.3);
+  animation: popIn 0.3s cubic-bezier(0.34,1.56,0.64,1);
+}
+.world-complete-emoji { font-size: 70px; display: block; margin-bottom: 8px; }
+.world-complete-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 26px;
+  font-weight: 900;
+  color: var(--gold);
+  margin-bottom: 6px;
+}
+.world-complete-sub {
+  font-family: 'Caveat', cursive;
+  font-size: 20px;
+  color: var(--warm-brown);
+  margin-bottom: 20px;
+}
+
+/* Progress dots */
+.progress-dots {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  margin-bottom: 0;
+}
+.progress-dot {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  background: var(--parchment);
+  border: 2px solid var(--warm-brown);
+  transition: all 0.3s;
+}
+.progress-dot.done { background: var(--gold); border-color: var(--gold); }
+.progress-dot.current { background: var(--warm-brown); border-color: var(--warm-brown); transform: scale(1.3); }
+
+/* Feedback text in answer col */
+.feedback-text {
+  font-family: 'Caveat', cursive;
+  font-size: 16px;
+  padding: 10px;
+  border-radius: 8px;
+  text-align: center;
+  display: none;
+  line-height: 1.5;
+}
+.feedback-text.show { display: block; }
+.feedback-text.ok { background: #e8f5e8; color: #2a7a2a; border: 2px solid #a0d0a0; }
+.feedback-text.wrong { background: #fde8e8; color: #a02020; border: 2px solid #e0a0a0; }
+.feedback-text.roundup { background: #fff8e0; color: #8a5a00; border: 2px solid #e0c060; }
+
+/* Hidden utility */
+.hidden { display: none !important; }
+</style>
+</head>
+<body>
+
+<a class="arcade-link" href="../index.html">◀ Arcade</a>
+
+<!-- ══════════════ TITLE SCREEN ══════════════ -->
+<div id="title-screen">
+  <div class="title-illustration">🧁</div>
+  <div class="title-sign">
+    <div class="title-main">Bessie's Bakery</div>
+  </div>
+  <div class="title-sub">Recipe Scaling &amp; Ratio</div>
+  <div class="title-byline">Help Bessie fill every order — scale the recipe up or down!</div>
+
+  <div class="world-select" id="world-select">
+    <!-- Populated by JS -->
+  </div>
+
+  <div style="font-family:'Caveat',cursive;font-size:14px;color:var(--warm-brown);opacity:0.7;">
+    Complete each world to unlock the next
+  </div>
+</div>
+
+<!-- ══════════════ MAIN GAME ══════════════ -->
+<div class="game-wrap" id="game-wrap">
+
+  <div class="top-bar">
+    <button class="btn-back" onclick="goBack()">← Menu</button>
+    <div class="top-bar-title">🧁 Bessie's Bakery</div>
+    <div class="top-bar-world" id="world-label">World 1</div>
+    <div class="top-bar-score">⭐ <span id="score-display">0</span></div>
+    <div class="progress-dots" id="progress-dots"></div>
+  </div>
+
+  <div class="game-main">
+
+    <!-- LEFT: SCENE + QUEUE -->
+    <div class="bakery-col">
+      <div class="bakery-scene">
+        <div class="shop-sign">BESSIE'S</div>
+        <div class="shop-window" id="window-icon">🍰</div>
+
+        <!-- Bessie CSS character -->
+        <div class="bessie">
+          <div class="bessie-hair"></div>
+          <div class="bessie-hat"></div>
+          <div class="bessie-head">
+            <div class="bessie-eyes">
+              <div class="bessie-eye"></div>
+              <div class="bessie-eye"></div>
+            </div>
+            <div class="bessie-smile"></div>
+          </div>
+          <div class="bessie-body"></div>
+          <div class="bessie-tray"></div>
+          <div class="bessie-dress">
+            <div class="bessie-apron"></div>
+          </div>
+        </div>
+        <div class="bakery-counter"></div>
+      </div>
+
+      <div class="queue-section">
+        <div class="queue-title">👥 Customer Queue</div>
+        <div class="queue-list" id="queue-list"></div>
+      </div>
+    </div>
+
+    <!-- CENTRE: ORDER + RECIPE -->
+    <div class="centre-col">
+
+      <!-- Chalkboard order -->
+      <div class="chalkboard">
+        <div class="chalk-header">
+          <div class="chalk-emoji" id="order-emoji">👩</div>
+          <div class="chalk-order-info">
+            <div class="chalk-from" id="order-from">ORDER FROM</div>
+            <div class="chalk-order" id="order-text">Loading order...</div>
+          </div>
+        </div>
+        <div class="chalk-divider"></div>
+        <div class="chalk-question">How many batches does Bessie need to make?</div>
+        <div class="chalk-multiplier-display" id="multiplier-display">× ?</div>
+        <div class="chalk-scale-hint" id="scale-hint"></div>
+      </div>
+
+      <!-- Recipe book -->
+      <div class="recipe-book">
+        <div class="recipe-tab">
+          <div class="recipe-tab-title">📖 Bessie's Recipe Book</div>
+          <div class="recipe-tab-sub" id="recipe-makes">Makes 12 cookies</div>
+        </div>
+        <div class="recipe-body">
+          <div class="recipe-title" id="recipe-title">Classic Chocolate Chip Cookies</div>
+          <div class="recipe-grid" id="recipe-grid">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- RIGHT: ANSWER PANEL -->
+    <div class="answer-col">
+
+      <div class="working-box">
+        <div class="working-title">✏️ Your Working</div>
+
+        <div class="scale-input-area">
+          <div class="scale-label" id="scale-question-text">How many batches?</div>
+          <div class="scale-fraction">
+            <div class="fraction-stack">
+              <input type="number" id="num-input" min="1" max="99" placeholder="?" step="1">
+              <div class="fraction-line"></div>
+              <input type="number" id="den-input" min="1" max="99" placeholder="1" step="1" value="1">
+            </div>
+            <div class="scale-equals">=</div>
+            <div style="font-family:'Caveat',cursive;font-size:20px;color:var(--warm-brown)" id="decimal-preview">?</div>
+          </div>
+        </div>
+
+        <div class="hint-bubble" id="hint-bubble">
+          💡 <strong>Tip:</strong> divide the amount needed by how many the recipe makes.
+        </div>
+      </div>
+
+      <!-- Ingredient answers -->
+      <div class="working-box">
+        <div class="working-title">🧂 Scale each ingredient</div>
+        <div class="ingredient-answers" id="ingredient-answers">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+
+      <div class="feedback-text" id="feedback-text"></div>
+
+      <button class="btn-check" id="btn-check" onclick="checkAnswers()">
+        Check My Order ✓
+      </button>
+
+      <button class="btn-next" id="btn-next" onclick="nextCustomer()">
+        Next Customer →
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<!-- Result modal -->
+<div class="modal-overlay" id="result-modal">
+  <div class="result-modal">
+    <span class="result-emoji" id="result-emoji">🎉</span>
+    <div class="result-title" id="result-title">Perfect!</div>
+    <div class="result-message" id="result-message"></div>
+    <div class="result-working" id="result-working">
+      <div class="result-working-title">Correct Working</div>
+      <div class="result-working-line" id="result-working-line"></div>
+    </div>
+    <div class="result-stars" id="result-stars">⭐⭐⭐</div>
+    <button class="result-btn" id="result-btn" onclick="closeResult()">Continue</button>
+  </div>
+</div>
+
+<!-- World complete modal -->
+<div class="modal-overlay" id="world-modal">
+  <div class="world-modal">
+    <span class="world-complete-emoji" id="world-emoji">🎂</span>
+    <div class="world-complete-title" id="world-title">World 1 Complete!</div>
+    <div class="world-complete-sub" id="world-sub">The Street Stall is a success!</div>
+    <button class="result-btn" onclick="nextWorld()">Next World →</button>
+    <button class="result-btn" style="background:var(--sage);box-shadow:4px 4px 0 #4a7a4e" onclick="goBack()">Back to Menu</button>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════
+//  GAME DATA
+// ══════════════════════════════
+
+const WORLDS = [
+  {
+    id: 1,
+    name: "The Street Stall",
+    emoji: "🛒",
+    desc: "Whole number multipliers",
+    completeEmoji: "🎉",
+    completeMsg: "The street stall was a huge hit!",
+    windowIcon: "🍪",
+    levels: 5
+  },
+  {
+    id: 2,
+    name: "The Village Fête",
+    emoji: "🎪",
+    desc: "Halves & quarters",
+    completeEmoji: "🎪",
+    completeMsg: "The village fête was delicious!",
+    windowIcon: "🧁",
+    levels: 5
+  },
+  {
+    id: 3,
+    name: "The School Canteen",
+    emoji: "🏫",
+    desc: "Awkward multipliers — round up!",
+    completeEmoji: "🏫",
+    completeMsg: "Every student was fed!",
+    windowIcon: "🍰",
+    levels: 5
+  },
+  {
+    id: 4,
+    name: "The Grand Wedding",
+    emoji: "💒",
+    desc: "Mixed recipes & real scenarios",
+    completeEmoji: "💍",
+    completeMsg: "The wedding was perfect!",
+    windowIcon: "🎂",
+    levels: 5
+  }
+];
+
+// Recipes
+const RECIPES = {
+  cookies: {
+    name: "Classic Chocolate Chip Cookies",
+    makes: 12,
+    unit: "cookies",
+    icon: "🍪",
+    ingredients: [
+      { name: "Flour",           emoji: "🌾", amount: 200, unit: "g" },
+      { name: "Butter",          emoji: "🧈", amount: 100, unit: "g" },
+      { name: "Sugar",           emoji: "🍬", amount: 80,  unit: "g" },
+      { name: "Chocolate chips", emoji: "🍫", amount: 60,  unit: "g" },
+      { name: "Eggs",            emoji: "🥚", amount: 1,   unit: "egg" },
+      { name: "Milk",            emoji: "🥛", amount: 30,  unit: "ml" },
+    ]
+  },
+  cake: {
+    name: "Victoria Sponge Cake",
+    makes: 8,
+    unit: "slices",
+    icon: "🎂",
+    ingredients: [
+      { name: "Flour",   emoji: "🌾", amount: 250, unit: "g" },
+      { name: "Butter",  emoji: "🧈", amount: 250, unit: "g" },
+      { name: "Sugar",   emoji: "🍬", amount: 250, unit: "g" },
+      { name: "Eggs",    emoji: "🥚", amount: 4,   unit: "eggs" },
+      { name: "Milk",    emoji: "🥛", amount: 60,  unit: "ml" },
+      { name: "Baking powder", emoji: "⚗️", amount: 10, unit: "g" },
+    ]
+  }
+};
+
+// CUSTOMERS — real scenarios for each world
+const CUSTOMERS = {
+  1: [ // Whole number multipliers (×2, ×3, ×4, ×6)
+    { name: "Mrs Patel",  emoji: "👩🏽", recipe: "cookies", scenario: "I'd like 24 cookies for my book club, please!",            need: 24, needUnit: "cookies" },
+    { name: "Tommy",      emoji: "🧒",   recipe: "cookies", scenario: "Mum says we need 36 cookies for the bake sale!",           need: 36, needUnit: "cookies" },
+    { name: "Mr Harris",  emoji: "👨",   recipe: "cake",    scenario: "I need a cake for 16 people — it's my retirement party!",  need: 16, needUnit: "slices" },
+    { name: "The Gibsons",emoji: "👨‍👩‍👧‍👦", recipe: "cookies", scenario: "Can we have 48 cookies for our family reunion?",          need: 48, needUnit: "cookies" },
+    { name: "Mrs Chen",   emoji: "👩🏻",  recipe: "cake",    scenario: "We need cake for 24 people at the office!",               need: 24, needUnit: "slices" },
+  ],
+  2: [ // Halves & quarters (×0.5, ×1.5, ×2.5, ×0.25)
+    { name: "Little Rosie", emoji: "👧",  recipe: "cookies", scenario: "Just 6 cookies for me and my dolls' tea party, please!",  need: 6,  needUnit: "cookies" },
+    { name: "Mr Abbott",    emoji: "👴",  recipe: "cake",    scenario: "Just enough for 4 — it's only a small gathering.",        need: 4,  needUnit: "slices" },
+    { name: "The Wilsons",  emoji: "👩‍👧", recipe: "cookies", scenario: "18 cookies would be lovely for our picnic!",             need: 18, needUnit: "cookies" },
+    { name: "Chef Marco",   emoji: "👨‍🍳", recipe: "cake",    scenario: "I need 12 slices for a tasting session.",                need: 12, needUnit: "slices" },
+    { name: "Lily",         emoji: "👩",  recipe: "cookies", scenario: "Could I have 30 cookies? Half for now, half for later!",  need: 30, needUnit: "cookies" },
+  ],
+  3: [ // Awkward — round up needed (÷8×30 = 3.75, etc.)
+    { name: "Miss Davies",    emoji: "👩‍🏫", recipe: "cake",    scenario: "I'm hosting a birthday party for 30 kids! One cake serves 8.", need: 30, needUnit: "kids", perBatch: 8 },
+    { name: "Year 7 Class",   emoji: "🏫",  recipe: "cookies", scenario: "There are 25 pupils in the class — one cookie each.",          need: 25, needUnit: "cookies" },
+    { name: "The Rugby Club", emoji: "🏉",  recipe: "cake",    scenario: "22 players need a slice of cake after training!",              need: 22, needUnit: "slices" },
+    { name: "Mr Spencer",     emoji: "👨‍💼", recipe: "cookies", scenario: "I need 50 cookies for the company meeting!",                   need: 50, needUnit: "cookies" },
+    { name: "St Jude's Choir",emoji: "🎵",  recipe: "cake",    scenario: "We have 35 choir members coming to the concert tea.",          need: 35, needUnit: "slices" },
+  ],
+  4: [ // Wedding — mixed, big numbers, story arc
+    { name: "Bride & Groom",  emoji: "💒", recipe: "cake",    scenario: "The wedding has 80 guests — everyone needs a slice!",          need: 80, needUnit: "slices" },
+    { name: "The Caterer",    emoji: "🍽️", recipe: "cookies", scenario: "120 favour cookies — one for each guest's table setting.",     need: 120, needUnit: "cookies" },
+    { name: "Flower Girl",    emoji: "💐", recipe: "cake",    scenario: "The top table has 11 people — they want their own special cake.", need: 11, needUnit: "slices" },
+    { name: "Evening Guests", emoji: "🥂", recipe: "cookies", scenario: "Another 75 cookies for the evening reception!",                need: 75, needUnit: "cookies" },
+    { name: "The Chef",       emoji: "👨‍🍳", recipe: "cake",    scenario: "Final tally — 100 guests total want cake! Make enough!",     need: 100, needUnit: "slices" },
+  ]
+};
+
+// ══════════════════════════════
+//  GAME STATE
+// ══════════════════════════════
+let state = {
+  world: 1,
+  levelIndex: 0,
+  score: 0,
+  worldScores: { 1:0, 2:0, 3:0, 4:0 },
+  unlockedWorlds: [1],
+  currentOrder: null,
+  answered: false,
+  attempts: 0
+};
+
+// ══════════════════════════════
+//  TITLE SCREEN
+// ══════════════════════════════
+function renderTitleScreen() {
+  const ws = document.getElementById('world-select');
+  ws.innerHTML = '';
+  WORLDS.forEach(w => {
+    const locked = !state.unlockedWorlds.includes(w.id);
+    const score = state.worldScores[w.id] || 0;
+    const stars = '⭐'.repeat(Math.min(5, score)) + '☆'.repeat(Math.max(0,5-score));
+    const btn = document.createElement('div');
+    btn.className = 'world-btn' + (locked ? ' locked' : '');
+    btn.innerHTML = `
+      <div class="world-num">World ${w.id} ${w.emoji}</div>
+      <div class="world-name">${w.name}</div>
+      <div class="world-desc">${w.desc}</div>
+      ${locked ? '<div class="world-lock">🔒</div>' : `<div class="world-star">${stars}</div>`}
+    `;
+    if (!locked) btn.onclick = () => startWorld(w.id);
+    ws.appendChild(btn);
+  });
+}
+
+function startWorld(worldId) {
+  state.world = worldId;
+  state.levelIndex = 0;
+  state.score = 0;
+  document.body.classList.add('in-game');
+  document.getElementById('title-screen').classList.add('hidden');
+  document.getElementById('game-wrap').classList.add('active');
+  document.getElementById('world-label').textContent = `World ${worldId}: ${WORLDS[worldId-1].name}`;
+  loadLevel();
+}
+
+function goBack() {
+  document.body.classList.remove('in-game');
+  document.getElementById('game-wrap').classList.remove('active');
+  document.getElementById('title-screen').classList.remove('hidden');
+  document.getElementById('result-modal').classList.remove('open');
+  document.getElementById('world-modal').classList.remove('open');
+  renderTitleScreen();
+}
+
+// ══════════════════════════════
+//  LEVEL LOADING
+// ══════════════════════════════
+function loadLevel() {
+  const worldCustomers = CUSTOMERS[state.world];
+  if (state.levelIndex >= worldCustomers.length) {
+    showWorldComplete();
+    return;
+  }
+
+  state.currentOrder = worldCustomers[state.levelIndex];
+  state.answered = false;
+  state.attempts = 0;
+
+  const order = state.currentOrder;
+  const recipe = RECIPES[order.recipe];
+
+  // Update progress dots
+  const dots = document.getElementById('progress-dots');
+  dots.innerHTML = '';
+  for (let i = 0; i < worldCustomers.length; i++) {
+    const d = document.createElement('div');
+    d.className = 'progress-dot' + (i < state.levelIndex ? ' done' : i === state.levelIndex ? ' current' : '');
+    dots.appendChild(d);
+  }
+
+  // Update window icon
+  document.getElementById('window-icon').textContent = recipe.icon;
+
+  // Update queue
+  renderQueue();
+
+  // Update chalkboard
+  document.getElementById('order-emoji').textContent = order.emoji;
+  document.getElementById('order-from').textContent = `ORDER FROM ${order.name.toUpperCase()}`;
+  document.getElementById('order-text').textContent = order.scenario;
+  document.getElementById('multiplier-display').textContent = '× ?';
+
+  // Scale hint
+  const makes = recipe.makes;
+  const need = order.need;
+  if (order.perBatch) {
+    document.getElementById('scale-hint').textContent =
+      `${need} ÷ ${order.perBatch} = ? batches — you may need to round up!`;
+  } else {
+    document.getElementById('scale-hint').textContent =
+      `${need} ${order.needUnit} ÷ ${makes} per batch = ? batches`;
+  }
+
+  // Update recipe book
+  document.getElementById('recipe-makes').textContent = `Makes ${recipe.makes} ${recipe.unit}`;
+  document.getElementById('recipe-title').textContent = recipe.name;
+  const grid = document.getElementById('recipe-grid');
+  grid.innerHTML = '';
+  recipe.ingredients.forEach(ing => {
+    const div = document.createElement('div');
+    div.className = 'recipe-ingredient';
+    div.innerHTML = `
+      <span class="recipe-ing-emoji">${ing.emoji}</span>
+      <span class="recipe-ing-name">${ing.name}</span>
+      <span class="recipe-ing-amount">${ing.amount}${ing.unit}</span>
+    `;
+    grid.appendChild(div);
+  });
+
+  // Scale question
+  const scaleQ = order.perBatch
+    ? `${order.name} needs ${order.need} ${order.needUnit}. Each batch serves ${order.perBatch}. How many batches?`
+    : `${order.name} needs ${order.need} ${order.needUnit}. Each batch makes ${recipe.makes}. How many batches?`;
+  document.getElementById('scale-question-text').textContent = scaleQ;
+
+  // Build ingredient answer inputs
+  const ingAnswers = document.getElementById('ingredient-answers');
+  ingAnswers.innerHTML = '';
+  recipe.ingredients.forEach((ing, i) => {
+    const row = document.createElement('div');
+    row.className = 'ing-answer-row';
+    row.innerHTML = `
+      <label class="ing-answer-label">${ing.emoji} ${ing.name}</label>
+      <input type="number" class="ing-answer-input" id="ing-${i}" min="0" step="any" placeholder="?">
+      <span class="ing-unit">${ing.unit}</span>
+      <span class="ing-tick" id="tick-${i}"></span>
+    `;
+    ingAnswers.appendChild(row);
+  });
+
+  // Reset inputs
+  document.getElementById('num-input').value = '';
+  document.getElementById('den-input').value = '1';
+  document.getElementById('decimal-preview').textContent = '?';
+  document.getElementById('feedback-text').className = 'feedback-text';
+  document.getElementById('btn-check').style.display = 'block';
+  document.getElementById('btn-next').style.display = 'none';
+
+  // Hint bubble
+  updateHint();
+
+  // Score display
+  document.getElementById('score-display').textContent = state.score;
+}
+
+function renderQueue() {
+  const worldCustomers = CUSTOMERS[state.world];
+  const qList = document.getElementById('queue-list');
+  qList.innerHTML = '';
+  worldCustomers.forEach((c, i) => {
+    if (i < state.levelIndex) return; // served, don't show
+    const div = document.createElement('div');
+    div.className = 'queue-customer' + (i === state.levelIndex ? ' current' : '');
+    const badge = i === state.levelIndex
+      ? '<span class="queue-badge serving">Serving</span>'
+      : '<span class="queue-badge waiting">Waiting</span>';
+    div.innerHTML = `
+      <div class="queue-emoji">${c.emoji}</div>
+      <div class="queue-info">
+        <div class="queue-name">${c.name}</div>
+        <div class="queue-want">${c.recipe === 'cookies' ? '🍪' : '🎂'} ${c.need} ${c.needUnit}</div>
+      </div>
+      ${badge}
+    `;
+    qList.appendChild(div);
+  });
+}
+
+function updateHint() {
+  const order = state.currentOrder;
+  const recipe = RECIPES[order.recipe];
+  const exact = order.perBatch
+    ? order.need / order.perBatch
+    : order.need / recipe.makes;
+  const isWhole = Number.isInteger(exact);
+  const roundUp = Math.ceil(exact);
+
+  let hint = `Divide ${order.need} by ${order.perBatch || recipe.makes}.`;
+  if (!isWhole) {
+    hint += ` You get ${exact.toFixed(2)} — but you can't make a fraction of a batch, so round <strong>up</strong> to ${roundUp}!`;
+  } else {
+    hint += ` The answer is a nice whole number: ${exact}.`;
+  }
+  document.getElementById('hint-bubble').innerHTML = `💡 <strong>Tip:</strong> ${hint}`;
+}
+
+function updatePreview() {
+  const num = parseFloat(document.getElementById('num-input').value) || 0;
+  const den = parseFloat(document.getElementById('den-input').value) || 1;
+  if (den === 0) return;
+  const val = num / den;
+  document.getElementById('decimal-preview').textContent = Number.isInteger(val) ? val : val.toFixed(2);
+  document.getElementById('multiplier-display').textContent = `× ${Number.isInteger(val) ? val : val.toFixed(2)}`;
+}
+
+// ══════════════════════════════
+//  CHECKING ANSWERS
+// ══════════════════════════════
+function checkAnswers() {
+  const order = state.currentOrder;
+  const recipe = RECIPES[order.recipe];
+
+  // Calculate correct multiplier
+  const exactMultiplier = order.perBatch
+    ? order.need / order.perBatch
+    : order.need / recipe.makes;
+  const correctMultiplier = Math.ceil(exactMultiplier); // must round up
+  const needsRoundUp = !Number.isInteger(exactMultiplier);
+
+  // Get student's multiplier
+  const numVal = parseFloat(document.getElementById('num-input').value) || 0;
+  const denVal = parseFloat(document.getElementById('den-input').value) || 1;
+  const studentMultiplier = numVal / denVal;
+
+  // Check multiplier
+  const multiplierOk = Math.abs(studentMultiplier - correctMultiplier) < 0.01 ||
+                       (needsRoundUp && Math.abs(studentMultiplier - exactMultiplier) < 0.01);
+
+  // Check each ingredient
+  let allIngredientsOk = true;
+  let anyWrong = false;
+  recipe.ingredients.forEach((ing, i) => {
+    const input = document.getElementById(`ing-${i}`);
+    const tick = document.getElementById(`tick-${i}`);
+    const correctAmount = ing.amount * correctMultiplier;
+    const studentAmount = parseFloat(input.value) || 0;
+
+    // Accept within 5% or 1 unit tolerance
+    const tolerance = Math.max(1, correctAmount * 0.05);
+    const ok = Math.abs(studentAmount - correctAmount) <= tolerance;
+
+    input.className = 'ing-answer-input ' + (ok ? 'correct' : 'wrong');
+    tick.textContent = ok ? '✅' : '❌';
+    if (!ok) { allIngredientsOk = false; anyWrong = true; }
+  });
+
+  state.attempts++;
+
+  if (multiplierOk && allIngredientsOk) {
+    // SUCCESS
+    const stars = state.attempts === 1 ? 3 : state.attempts === 2 ? 2 : 1;
+    state.score += stars;
+    state.worldScores[state.world] = (state.worldScores[state.world] || 0) + stars;
+    document.getElementById('score-display').textContent = state.score;
+
+    // Show result
+    const roundUpNote = needsRoundUp
+      ? `\n${exactMultiplier.toFixed(3).replace(/0+$/,'')} rounds up to ${correctMultiplier} — you can't make half a batch!`
+      : '';
+
+    showResult(
+      true,
+      stars === 3 ? 'Perfect! 🎉' : stars === 2 ? 'Well done! 👍' : 'Correct! ✓',
+      `${order.name} is delighted with their order!`,
+      `${order.need} ${order.needUnit} ÷ ${order.perBatch || recipe.makes} = ${exactMultiplier.toFixed(2)}${roundUpNote}\nSo Bessie bakes ${correctMultiplier} batch${correctMultiplier>1?'es':''}!`,
+      '⭐'.repeat(stars) + '☆'.repeat(3-stars)
+    );
+
+  } else if (state.attempts >= 2) {
+    // Show correct answers after 2 attempts
+    recipe.ingredients.forEach((ing, i) => {
+      const input = document.getElementById(`ing-${i}`);
+      const tick = document.getElementById(`tick-${i}`);
+      input.value = ing.amount * correctMultiplier;
+      input.className = 'ing-answer-input correct';
+      tick.textContent = '✅';
+    });
+
+    const feedback = document.getElementById('feedback-text');
+    feedback.innerHTML = needsRoundUp
+      ? `${exactMultiplier.toFixed(2)} batches → round up to <strong>${correctMultiplier}</strong>! ↑`
+      : `You need <strong>${correctMultiplier}</strong> batch${correctMultiplier>1?'es':''}!`;
+    feedback.className = 'feedback-text show ' + (needsRoundUp ? 'roundup' : 'wrong');
+
+    document.getElementById('btn-check').style.display = 'none';
+    document.getElementById('btn-next').style.display = 'block';
+
+    showResult(
+      false,
+      "Nearly there! 📝",
+      `Here's the correct working for ${order.name}'s order.`,
+      `${order.need} ${order.needUnit} ÷ ${order.perBatch || recipe.makes} = ${exactMultiplier.toFixed(2)}${needsRoundUp ? `\nRound up → ${correctMultiplier} batches` : `\n= ${correctMultiplier} batch${correctMultiplier>1?'es':''}`}`,
+      '☆☆☆'
+    );
+
+  } else {
+    // First wrong attempt — give feedback, let them try again
+    const feedback = document.getElementById('feedback-text');
+    if (!multiplierOk) {
+      feedback.innerHTML = needsRoundUp
+        ? `Hint: ${exactMultiplier.toFixed(2)} batches — remember to round <strong>up</strong>!`
+        : `Check your multiplier — try again!`;
+      feedback.className = 'feedback-text show ' + (needsRoundUp ? 'roundup' : 'wrong');
+    } else {
+      feedback.innerHTML = `Multiplier is right! Check your ingredient amounts.`;
+      feedback.className = 'feedback-text show roundup';
+    }
+  }
+}
+
+function showResult(success, title, message, workingText, stars) {
+  document.getElementById('result-emoji').textContent = success ? (stars === '⭐⭐⭐' ? '🎉' : '👍') : '📝';
+  document.getElementById('result-title').textContent = title;
+  document.getElementById('result-title').className = `result-title ${success ? 'success' : (stars === '☆☆☆' ? 'fail' : 'partial')}`;
+  document.getElementById('result-message').textContent = message;
+  document.getElementById('result-working-line').innerHTML = workingText.replace(/\n/g, '<br>');
+  document.getElementById('result-stars').textContent = stars;
+  document.getElementById('result-btn').textContent = success ? 'Next Customer →' : 'Try Again';
+  document.getElementById('result-btn').onclick = success ? nextCustomer : closeResult;
+  document.getElementById('result-modal').classList.add('open');
+}
+
+function closeResult() {
+  document.getElementById('result-modal').classList.remove('open');
+}
+
+function nextCustomer() {
+  document.getElementById('result-modal').classList.remove('open');
+  state.levelIndex++;
+
+  // Animate queue customer out
+  const served = document.querySelector('.queue-customer.current');
+  if (served) {
+    served.classList.add('served');
+    setTimeout(loadLevel, 400);
+  } else {
+    loadLevel();
+  }
+}
+
+function showWorldComplete() {
+  const world = WORLDS[state.world - 1];
+  document.getElementById('world-emoji').textContent = world.completeEmoji;
+  document.getElementById('world-title').textContent = `World ${state.world} Complete! 🎉`;
+  document.getElementById('world-sub').textContent = world.completeMsg + ` You scored ${state.score} stars!`;
+
+  // Unlock next world
+  if (state.world < 4 && !state.unlockedWorlds.includes(state.world + 1)) {
+    state.unlockedWorlds.push(state.world + 1);
+  }
+  state.worldScores[state.world] = state.score;
+
+  document.getElementById('world-modal').classList.add('open');
+}
+
+function nextWorld() {
+  document.getElementById('world-modal').classList.remove('open');
+  if (state.world < 4) {
+    startWorld(state.world + 1);
+  } else {
+    goBack();
+  }
+}
+
+// ══════════════════════════════
+//  INIT
+// ══════════════════════════════
+document.getElementById('num-input').addEventListener('input', updatePreview);
+document.getElementById('den-input').addEventListener('input', updatePreview);
+renderTitleScreen();
+</script>
+</body>
+</html>

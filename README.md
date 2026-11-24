@@ -19,6 +19,8 @@ A place to store and share all the maths based games created for Northlands Scho
 | ✧ NUMBER BLASTER | Number properties | Number | [Play](https://jakmann86.github.io/mathsgames/number-blaster) |
 | ▧ FRACTIS | Adding fractions | Number | [Play](https://jakmann86.github.io/mathsgames/fractis) |
 | ★ JOHN'S PAINT SHOP | Ratio & proportion | Number & Algebra | [Play](https://jakmann86.github.io/mathsgames/johns-paint-shop) |
+| ✶ QUICKDRAW | Factors, multiples, primes, fractions, decimals, %, ratio | Number | [Play](https://jakmann86.github.io/mathsgames/quickdraw) |
+| ♥ BESSIE'S BAKERY | Scaling recipes (proportion) | Number & Algebra | [Play](https://jakmann86.github.io/mathsgames/bessies-bakery) |
 
 ---
 
@@ -29,6 +31,9 @@ mathsgames/
 ├── index.html              ← Landing page (arcade homepage)
 ├── README.md               ← This file
 ├── johns-paint-shop/       ← Ratio game (single index.html)
+├── quickdraw/              ← Shooting-gallery number game (single index.html)
+├── bessies-bakery/         ← Recipe-scaling game (single index.html)
+├── divisibility-connect/, fractis/, meltdown/, number-blaster/, target-zero/
 ├── transform-game/         ← Transformations game
 │   ├── index.html
 │   ├── css/
@@ -42,6 +47,14 @@ mathsgames/
 │       ├── particles.js
 │       └── sounds.js
 └── [future-game]/          ← Each new game gets its own folder
+
+### ➕ Adding a new game
+
+1. Make a new folder named after the game (lower-case, hyphens), e.g. `shipwreck/`.
+2. Put the game in it as `index.html` (plus any css/js files it needs).
+3. Add a `◀ ARCADE` link back to `../index.html`.
+4. Copy a cabinet block in the root `index.html`, change the link, name, colours and description.
+5. Add a row to the games table above.
 ```
 
 ---
