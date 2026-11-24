@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Maths Hangman</title>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Cabin+Sketch:wght@700&family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+    --bg: #0A0020;
+    --chalk: #F2EFE6;
+    --board: #1F3A33;
+    --yellow: #F2D06B;
+    --pen: #7ea8ff;
+    --muted: rgba(255,255,255,0.55);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+    min-height: 100vh;
+    background: radial-gradient(ellipse at 50% 0%, #2a0050 0%, var(--bg) 60%);
+    color: var(--chalk);
+    font-family: 'Atkinson Hyperlegible', Verdana, sans-serif;
+    display: flex; flex-direction: column; align-items: center;
+    padding: 28px 16px 48px;
+}
+.arcade-back {
+    align-self: flex-start;
+    font-family: 'Press Start 2P', monospace; font-size: 10px; letter-spacing: 1px;
+    color: var(--chalk); text-decoration: none;
+    border: 2px solid rgba(255,255,255,0.4); padding: 10px 12px;
+}
+.arcade-back:hover { background: var(--chalk); color: var(--bg); }
+h1 {
+    font-family: 'Cabin Sketch', 'Comic Sans MS', cursive; font-weight: 700;
+    font-size: clamp(44px, 9vw, 84px); line-height: 1; margin: 28px 0 8px; text-align: center;
+}
+h1 span { color: var(--yellow); }
+.sub { color: var(--muted); font-size: 18px; text-align: center; margin-bottom: 36px; }
+.choices {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 24px; width: 100%; max-width: 860px;
+}
+.choice {
+    display: flex; flex-direction: column; gap: 12px;
+    text-decoration: none; color: inherit;
+    border-radius: 12px; padding: 24px; min-height: 260px;
+    transition: transform .2s, box-shadow .2s;
+}
+.choice:hover { transform: translateY(-6px); }
+.choice .tag { font-family: 'Press Start 2P', monospace; font-size: 9px; letter-spacing: 2px; }
+.choice h2 { font-size: 30px; line-height: 1.1; }
+.choice p { font-size: 16px; line-height: 1.5; opacity: .85; }
+.choice .topics { display: flex; flex-wrap: wrap; gap: 6px; margin-top: auto; }
+.choice .topics span { font-size: 13px; font-weight: 700; padding: 4px 10px; border-radius: 999px; }
+.choice .go { font-family: 'Press Start 2P', monospace; font-size: 11px; padding: 12px; text-align: center; border-radius: 6px; }
+
+.igcse { background: var(--board); border-top: 10px solid #6B4A2E; box-shadow: 0 0 0 2px rgba(242,239,230,.15); }
+.igcse:hover { box-shadow: 0 0 0 2px var(--yellow), 0 12px 30px rgba(242,208,107,.2); }
+.igcse h2 { font-family: 'Cabin Sketch', cursive; color: var(--chalk); }
+.igcse .tag { color: var(--yellow); }
+.igcse .topics span { border: 1.5px solid rgba(242,239,230,.4); }
+.igcse .go { background: var(--chalk); color: #172C27; }
+
+.y12 {
+    background-color: #f1f5f9; color: #13233a;
+    background-image: linear-gradient(#e1e9f2 1px, transparent 1px), linear-gradient(90deg, #e1e9f2 1px, transparent 1px);
+    background-size: 20px 20px;
+}
+.y12:hover { box-shadow: 0 0 0 2px #1c56c2, 0 12px 30px rgba(126,168,255,.3); }
+.y12 h2 { font-weight: 700; }
+.y12 .tag { color: #1c56c2; }
+.y12 .topics span { background: #e3ecfb; color: #1c56c2; }
+.y12 .go { background: #1c56c2; color: #fff; }
+</style>
+</head>
+<body>
+    <a class="arcade-back" href="../index.html">◀ ARCADE</a>
+    <h1>Maths <span>Hangman</span></h1>
+    <p class="sub">Pick a word bank. Every word comes with a clue, and you can type in your own word too.</p>
+
+    <div class="choices">
+        <a class="choice igcse" href="./igcse/index.html">
+            <span class="tag">CHALKBOARD</span>
+            <h2>IGCSE Vocabulary</h2>
+            <p>Classic chalk hangman. Eight wrong guesses and the drawing is finished.</p>
+            <div class="topics"><span>Probability &amp; Sets</span><span>Number</span><span>Algebra</span><span>Geometry</span><span>Statistics</span></div>
+            <span class="go">PLAY ▶</span>
+        </a>
+        <a class="choice y12" href="./year12/index.html">
+            <span class="tag">GRAPH PAPER</span>
+            <h2>Year 12 Vocabulary</h2>
+            <p>Every miss plots the next line of the drawing as a real equation on a coordinate grid.</p>
+            <div class="topics"><span>Calculus</span><span>Functions</span><span>Sequences</span><span>Statistics</span><span>Probability</span><span>Trig</span></div>
+            <span class="go">PLAY ▶</span>
+        </a>
+    </div>
+</body>
+</html>

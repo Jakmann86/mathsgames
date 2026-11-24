@@ -1,0 +1,395 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>body{margin:0}</style></head><body>
+<title>Maths Hangman</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Cabin+Sketch:wght@400;700&display=swap">
+<style>
+/* Layout: a classroom chalkboard in a wooden frame; drawing on the left, clue + word + letter keys on the right; stacks on phones */
+:root {
+  --board: #1F3A33;
+  --board-deep: #172C27;
+  --wood: #6B4A2E;
+  --chalk: #F2EFE6;
+  --chalk-dim: #A9B8AF;
+  --yellow: #F2D06B;
+  --pink: #F29C9C;
+  --display: "Cabin Sketch", "Comic Sans MS", cursive;
+  --body: "Atkinson Hyperlegible", Verdana, Arial, sans-serif;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body { margin: 0; background: var(--board); color: var(--chalk); font-family: var(--body); font-size: 18px; line-height: 1.4;
+  background-image: radial-gradient(ellipse at 30% 20%, rgba(255,255,255,.05), transparent 60%), radial-gradient(ellipse at 80% 90%, rgba(0,0,0,.18), transparent 55%);
+  border-top: 12px solid var(--wood); min-height: 100%; }
+button, input { font: inherit; color: inherit; }
+:focus-visible { outline: 3px solid var(--yellow); outline-offset: 3px; }
+.wrap { max-width: 1180px; margin-inline: auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 22px 40px; display: flex; flex-direction: column; gap: 20px; }
+
+.back-link { display: inline-block; font-size: 15px; font-weight: 700; color: inherit; opacity: .7; text-decoration: none; margin-bottom: -8px; }
+.back-link:hover { opacity: 1; text-decoration: underline; }
+.top { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 24px; }
+h1 { margin: 0; font-family: var(--display); font-weight: 700; font-size: clamp(34px, 6vw, 54px); line-height: 1; letter-spacing: 1px; }
+h1 span { color: var(--yellow); }
+.score { font-family: var(--display); font-size: 26px; color: var(--chalk-dim); font-variant-numeric: tabular-nums; }
+.score b { color: var(--yellow); font-weight: 700; }
+
+.topics { display: flex; flex-wrap: wrap; gap: 8px; }
+.topic { background: transparent; border: 2px solid rgba(242,239,230,.35); color: var(--chalk-dim); padding: 7px 14px 6px; border-radius: 999px; cursor: pointer; font-weight: 700; font-size: 16px; }
+.topic:hover { border-color: var(--chalk); color: var(--chalk); }
+.topic[aria-pressed="true"] { background: var(--chalk); border-color: var(--chalk); color: var(--board-deep); }
+
+.game { display: grid; grid-template-columns: minmax(0, 340px) minmax(0, 1fr); gap: 28px; align-items: start; }
+@media (max-width: 820px) { .game { grid-template-columns: minmax(0, 1fr); } }
+
+.gallows { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+.gallows svg { width: 100%; max-width: 320px; height: auto; display: block; }
+.gallows path, .gallows circle { fill: none; stroke: var(--chalk); stroke-width: 6; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 1; stroke-dashoffset: 1; transition: stroke-dashoffset .5s ease-out; }
+.gallows .on { stroke-dashoffset: 0; }
+.gallows .ghost { stroke: rgba(242,239,230,.08); stroke-dasharray: none; stroke-dashoffset: 0; transition: none; }
+.lives { font-family: var(--display); font-size: 24px; color: var(--chalk-dim); }
+.lives b { color: var(--chalk); font-size: 30px; }
+
+.play { display: flex; flex-direction: column; gap: 22px; min-width: 0; }
+.clue { border: 2px dashed rgba(242,239,230,.35); padding: 14px 18px 12px; display: flex; flex-direction: column; gap: 4px; }
+.clue-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.label { font-size: 14px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: var(--yellow); }
+.clue p { margin: 0; font-size: clamp(20px, 2.6vw, 28px); line-height: 1.3; }
+.clue p.hidden-clue { color: var(--chalk-dim); font-style: italic; font-size: 20px; }
+.link { background: none; border: 0; color: var(--chalk-dim); text-decoration: underline; cursor: pointer; font-size: 15px; padding: 4px; }
+
+.word { display: flex; flex-wrap: wrap; gap: 14px 38px; min-height: 80px; align-items: flex-end; }
+.w { display: flex; gap: clamp(5px, 1vw, 10px); flex-wrap: nowrap; }
+.slot { width: clamp(24px, 4.2vw, 50px); text-align: center; font-family: var(--display); font-weight: 700; font-size: clamp(30px, 5.4vw, 60px); line-height: 1.1; border-bottom: 4px solid var(--chalk); min-height: 1.2em; }
+.slot.missed { color: var(--pink); }
+.slot.pop { animation: pop .35s ease-out; }
+@keyframes pop { 0% { transform: translateY(-8px) scale(1.25); } 100% { transform: none; } }
+
+.banner { min-height: 52px; font-family: var(--display); font-size: clamp(28px, 4.5vw, 40px); font-weight: 700; display: flex; align-items: center; flex-wrap: wrap; gap: 10px 20px; }
+.banner.win { color: var(--yellow); }
+.banner.lose { color: var(--pink); }
+.banner .sub { font-family: var(--body); font-size: 18px; font-weight: 400; color: var(--chalk-dim); }
+
+.keys { display: grid; grid-template-columns: repeat(13, minmax(0, 1fr)); gap: 7px; }
+@media (max-width: 620px) { .keys { grid-template-columns: repeat(7, minmax(0, 1fr)); } }
+.key { aspect-ratio: 1 / 1.05; max-width: 100%; background: rgba(242,239,230,.07); border: 2px solid rgba(242,239,230,.45); border-radius: 6px; font-family: var(--display); font-weight: 700; font-size: clamp(20px, 2.6vw, 30px); cursor: pointer; display: grid; place-items: center; padding: 0; }
+.key:hover:not(:disabled) { background: rgba(242,239,230,.18); border-color: var(--chalk); }
+.key:disabled { cursor: default; }
+.key.hit { border-color: var(--yellow); color: var(--yellow); background: rgba(242,208,107,.12); }
+.key.miss { opacity: .3; text-decoration: line-through; }
+
+.actions { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.btn { background: var(--chalk); color: var(--board-deep); border: 0; padding: 12px 22px 10px; border-radius: 6px; font-weight: 700; font-size: 17px; cursor: pointer; }
+.btn:hover { background: var(--yellow); }
+.btn.ghost { background: transparent; color: var(--chalk); border: 2px solid rgba(242,239,230,.45); }
+.btn.ghost:hover { border-color: var(--chalk); background: rgba(242,239,230,.08); }
+
+.own { border: 2px solid rgba(242,239,230,.35); padding: 14px 16px; display: grid; gap: 10px; }
+.own label { font-size: 15px; color: var(--chalk-dim); display: grid; gap: 4px; }
+.own input { background: var(--board-deep); border: 2px solid rgba(242,239,230,.35); border-radius: 6px; padding: 9px 12px; font-size: 18px; width: 100%; }
+.own .err { color: var(--pink); font-size: 15px; margin: 0; }
+@media (prefers-reduced-motion: reduce) { .gallows path, .gallows circle { transition: none; } .slot.pop { animation: none; } }
+</style>
+
+<div class="wrap">
+  <a class="back-link" href="../index.html">◀ Hangman menu</a>
+  <div class="top">
+    <h1>Maths <span>Hangman</span></h1>
+    <div class="score" aria-live="polite">Solved <b id="solved">0</b> of <b id="played">0</b></div>
+  </div>
+
+  <div class="topics" id="topics" role="group" aria-label="Topic"></div>
+
+  <div class="game">
+    <div class="gallows">
+      <svg viewBox="0 0 230 250" role="img" aria-label="Hangman drawing" id="drawing" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <filter id="chalk" x="-5%" y="-5%" width="110%" height="110%">
+            <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" result="n"/>
+            <feDisplacementMap in="SourceGraphic" in2="n" scale="2.5"/>
+          </filter>
+        </defs>
+        <g class="ghosts">
+          <path class="ghost" d="M18 236H150M50 236V22"/><path class="ghost" d="M50 22H160M50 62L90 22"/><path class="ghost" d="M160 22V52"/>
+          <circle class="ghost" cx="160" cy="74" r="22"/><path class="ghost" d="M160 96V162"/><path class="ghost" d="M160 114L130 144M160 114L190 144"/>
+          <path class="ghost" d="M160 162L134 208"/><path class="ghost" d="M160 162L186 208"/>
+        </g>
+        <g filter="url(#chalk)">
+          <path pathLength="1" d="M18 236H150M50 236V22"/>
+          <path pathLength="1" d="M50 22H160M50 62L90 22"/>
+          <path pathLength="1" d="M160 22V52"/>
+          <circle pathLength="1" cx="160" cy="74" r="22"/>
+          <path pathLength="1" d="M160 96V162"/>
+          <path pathLength="1" d="M160 114L130 144M160 114L190 144"/>
+          <path pathLength="1" d="M160 162L134 208"/>
+          <path pathLength="1" d="M160 162L186 208"/>
+        </g>
+      </svg>
+      <div class="lives" aria-live="polite">Wrong guesses left: <b id="lives">8</b></div>
+    </div>
+
+    <div class="play">
+      <div class="clue">
+        <div class="clue-head"><span class="label" id="clue-label">Clue</span><button class="link" id="toggle-clue">Hide clue</button></div>
+        <p id="clue"></p>
+      </div>
+      <div class="word" id="word" aria-live="polite"></div>
+      <div class="banner" id="banner" role="status"></div>
+      <div class="keys" id="keys"></div>
+      <div class="actions">
+        <button class="btn" id="next">Next word</button>
+        <button class="btn ghost" id="reveal">Reveal word</button>
+        <button class="btn ghost" id="own-toggle">Type my own word</button>
+      </div>
+      <form class="own" id="own" hidden>
+        <label>Word (hidden while you type)<input id="own-word" type="password" autocomplete="off" maxlength="30"></label>
+        <label>Clue (optional)<input id="own-clue" type="text" autocomplete="off" maxlength="120"></label>
+        <p class="err" id="own-err" hidden></p>
+        <div class="actions"><button class="btn" type="submit">Play this word</button><button class="btn ghost" type="button" id="own-cancel">Cancel</button></div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+  var BANK = {
+    "Probability & Sets": [
+      ["PROBABILITY", "How likely an event is, given as a number from 0 to 1"],
+      ["OUTCOME", "One possible result of an experiment"],
+      ["SAMPLE SPACE", "A list or grid of every possible outcome"],
+      ["INDEPENDENT", "Two events where one happening does not change the chance of the other"],
+      ["MUTUALLY EXCLUSIVE", "Two events that cannot happen at the same time"],
+      ["INTERSECTION", "The elements that are in both sets, written A ∩ B"],
+      ["UNION", "The elements in A, in B, or in both, written A ∪ B"],
+      ["COMPLEMENT", "Everything in the universal set that is not in A, written A′"],
+      ["UNIVERSAL SET", "The set that contains every element being considered"],
+      ["TREE DIAGRAM", "A diagram of branches showing the outcomes of two or more events"],
+      ["VENN DIAGRAM", "Overlapping circles inside a rectangle, used to show sets"],
+      ["RELATIVE FREQUENCY", "Number of times an event happens ÷ number of trials"],
+      ["EXPECTED FREQUENCY", "Probability × number of trials"],
+      ["SUBSET", "A set whose elements are all inside another set"],
+      ["EMPTY SET", "A set with no elements, written ∅"]
+    ],
+    "Number": [
+      ["PRIME", "A number with exactly two factors: 1 and itself"],
+      ["RECIPROCAL", "1 divided by the number"],
+      ["IRRATIONAL", "A number that cannot be written as a fraction, like π or √2"],
+      ["SURD", "A root such as √3 left in root form because it is irrational"],
+      ["STANDARD FORM", "Writing a number as A × 10ⁿ, where 1 ≤ A < 10"],
+      ["HIGHEST COMMON FACTOR", "The biggest number that divides into two numbers exactly"],
+      ["LOWEST COMMON MULTIPLE", "The smallest number that is in both times tables"],
+      ["SIGNIFICANT FIGURES", "Rounding counted from the first non-zero digit"],
+      ["RECURRING DECIMAL", "A decimal whose digits repeat forever, like 0.333…"],
+      ["RATIO", "Compares two quantities, written like 3 : 2"],
+      ["ESTIMATE", "Round each number first to get a rough answer"],
+      ["INTEGER", "A whole number, which can be positive, negative or zero"]
+    ],
+    "Algebra": [
+      ["COEFFICIENT", "The number in front of a letter, like the 5 in 5x"],
+      ["QUADRATIC", "An expression or equation where the highest power of x is 2"],
+      ["SIMULTANEOUS", "Equations that are solved together to find two unknowns"],
+      ["INEQUALITY", "A statement using <, >, ≤ or ≥"],
+      ["FACTORISE", "Write an expression as a product, usually with brackets"],
+      ["GRADIENT", "The steepness of a line: change in y ÷ change in x"],
+      ["INTERCEPT", "Where a line or curve crosses an axis"],
+      ["SEQUENCE", "An ordered list of numbers that follows a rule"],
+      ["SUBSTITUTE", "Replace a letter with a number"],
+      ["INDICES", "Powers, like the 3 in 2³"],
+      ["FUNCTION", "A rule that gives exactly one output for each input"],
+      ["EXPAND", "Multiply out the brackets"]
+    ],
+    "Geometry": [
+      ["HYPOTENUSE", "The longest side of a right-angled triangle"],
+      ["CIRCUMFERENCE", "The distance all the way round a circle"],
+      ["PERPENDICULAR", "Meeting at a right angle"],
+      ["PARALLELOGRAM", "A quadrilateral with two pairs of parallel sides"],
+      ["TRAPEZIUM", "A quadrilateral with exactly one pair of parallel sides"],
+      ["CONGRUENT", "Exactly the same shape and size"],
+      ["SIMILAR", "The same shape, with sides in the same ratio"],
+      ["TANGENT", "A straight line that touches a circle at exactly one point"],
+      ["CHORD", "A straight line joining two points on a circle"],
+      ["SECTOR", "The slice of a circle between two radii"],
+      ["BEARING", "An angle measured clockwise from north, with three figures"],
+      ["CYCLIC QUADRILATERAL", "A four-sided shape with every corner on a circle"],
+      ["ENLARGEMENT", "A transformation that changes size using a scale factor"]
+    ],
+    "Statistics": [
+      ["MEDIAN", "The middle value when the data is in order"],
+      ["MODE", "The value that appears most often"],
+      ["RANGE", "Largest value minus smallest value"],
+      ["CORRELATION", "How strongly two variables are related on a scatter graph"],
+      ["HISTOGRAM", "A bar chart where the area of each bar shows the frequency"],
+      ["QUARTILE", "A value that splits ordered data into quarters"],
+      ["INTERQUARTILE RANGE", "Upper quartile minus lower quartile"],
+      ["CUMULATIVE FREQUENCY", "A running total of the frequencies"],
+      ["FREQUENCY DENSITY", "Frequency ÷ class width"],
+      ["OUTLIER", "A value much bigger or smaller than the rest of the data"],
+      ["LINE OF BEST FIT", "A straight line drawn through the middle of the points on a scatter graph"]
+    ]
+  };
+  var TOPICS = ["All topics"].concat(Object.keys(BANK));
+  var MAX_WRONG = 8;
+  var ALPHA = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+
+  function el(id) { return document.getElementById(id); }
+  function randInt(n) { try { var a = new Uint32Array(1); crypto.getRandomValues(a); return a[0] % n; } catch (e) { return Math.floor(Math.random() * n); } }
+  function shuffle(arr) { var a = arr.slice(); for (var i = a.length - 1; i > 0; i--) { var j = randInt(i + 1); var t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
+  function load(k, d) { try { var v = localStorage.getItem(k); return v === null ? d : JSON.parse(v); } catch (e) { return d; } }
+  function save(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+
+  var topic = load("hm-igcse-topic", "Probability & Sets");
+  if (TOPICS.indexOf(topic) < 0) topic = "Probability & Sets";
+  var showClue = load("hm-igcse-clue", true);
+  var pools = {};
+  var cur = null, guessed = {}, wrong = 0, over = false, counted = false;
+  var solved = 0, played = 0;
+  var parts = Array.prototype.slice.call(document.querySelectorAll("#drawing > g[filter] > *"));
+
+  function poolFor(t) {
+    if (!pools[t] || !pools[t].length) {
+      var list = t === "All topics" ? Object.keys(BANK).reduce(function (acc, k) { return acc.concat(BANK[k].map(function (w) { return w.concat(k); })); }, [])
+                                    : BANK[t].map(function (w) { return w.concat(t); });
+      pools[t] = shuffle(list);
+    }
+    return pools[t];
+  }
+
+  /* topics */
+  var topicBox = el("topics");
+  TOPICS.forEach(function (t, i) {
+    var b = document.createElement("button");
+    b.className = "topic"; b.id = "topic-" + i; b.textContent = t;
+    b.setAttribute("aria-pressed", String(t === topic));
+    b.addEventListener("click", function () {
+      topic = t; save("hm-igcse-topic", t);
+      topicBox.querySelectorAll(".topic").forEach(function (x) { x.setAttribute("aria-pressed", String(x.textContent === t)); });
+      newWord();
+    });
+    topicBox.appendChild(b);
+  });
+
+  /* keys */
+  var keyBox = el("keys");
+  ALPHA.forEach(function (L) {
+    var k = document.createElement("button");
+    k.className = "key"; k.id = "key-" + L; k.textContent = L; k.setAttribute("aria-label", "Guess " + L);
+    k.addEventListener("click", function () { guess(L); });
+    keyBox.appendChild(k);
+  });
+
+  function lettersNeeded() { var s = {}; cur.word.split("").forEach(function (c) { if (/[A-Z]/.test(c)) s[c] = 1; }); return Object.keys(s); }
+
+  function start(word, clue, label) {
+    cur = { word: word, clue: clue, label: label };
+    guessed = {}; wrong = 0; over = false; counted = false;
+    ALPHA.forEach(function (L) { var k = el("key-" + L); k.disabled = false; k.className = "key"; });
+    parts.forEach(function (p) { p.classList.remove("on"); });
+    el("banner").className = "banner"; el("banner").textContent = "";
+    el("reveal").hidden = false;
+    renderWord(null); renderClue(); renderLives();
+  }
+
+  function newWord() {
+    var pool = poolFor(topic);
+    var w = pool.pop();
+    start(w[0], w[1], w[2]);
+  }
+
+  function renderClue() {
+    el("clue-label").textContent = "Clue · " + (cur.label || "Your word");
+    var c = el("clue");
+    if (!cur.clue) { c.textContent = "No clue for this one."; c.className = "hidden-clue"; }
+    else if (showClue) { c.textContent = cur.clue; c.className = ""; }
+    else { c.textContent = "Clue hidden. Tap Show clue for help."; c.className = "hidden-clue"; }
+    el("toggle-clue").textContent = showClue ? "Hide clue" : "Show clue";
+  }
+
+  function renderWord(justGuessed) {
+    var box = el("word"); box.innerHTML = "";
+    cur.word.split(" ").forEach(function (part) {
+      var w = document.createElement("div"); w.className = "w";
+      part.split("").forEach(function (ch) {
+        var s = document.createElement("span"); s.className = "slot";
+        if (guessed[ch]) { s.textContent = ch; if (ch === justGuessed) s.classList.add("pop"); }
+        else if (over) { s.textContent = ch; s.classList.add("missed"); }
+        w.appendChild(s);
+      });
+      box.appendChild(w);
+    });
+    var hidden = cur.word.replace(/[A-Z]/g, function (c) { return guessed[c] || over ? c : "_"; });
+    box.setAttribute("aria-label", "Word: " + hidden.split("").join(" "));
+  }
+
+  function renderLives() {
+    el("lives").textContent = MAX_WRONG - wrong;
+    parts.forEach(function (p, i) { p.classList.toggle("on", i < wrong); });
+  }
+
+  function renderScore() { el("solved").textContent = solved; el("played").textContent = played; }
+
+  function finish(win) {
+    over = true;
+    if (!counted) { counted = true; played++; if (win) solved++; renderScore(); }
+    ALPHA.forEach(function (L) { el("key-" + L).disabled = true; });
+    el("reveal").hidden = true;
+    var b = el("banner");
+    b.className = "banner " + (win ? "win" : "lose");
+    b.innerHTML = "";
+    b.appendChild(document.createTextNode(win ? "Solved!" : "Out of guesses"));
+    var sub = document.createElement("span"); sub.className = "sub";
+    sub.textContent = win ? (wrong === 0 ? "No wrong guesses at all." : "With " + (MAX_WRONG - wrong) + " guesses to spare.") : "The word was " + cur.word + ".";
+    b.appendChild(sub);
+    renderWord(null);
+  }
+
+  function guess(L) {
+    if (over || guessed[L] !== undefined && guessed[L] !== false) return;
+    var k = el("key-" + L);
+    if (k.disabled) return;
+    k.disabled = true;
+    if (cur.word.indexOf(L) > -1) {
+      guessed[L] = true; k.classList.add("hit");
+      renderWord(L);
+      if (lettersNeeded().every(function (c) { return guessed[c]; })) finish(true);
+    } else {
+      k.classList.add("miss"); wrong++;
+      renderLives();
+      if (wrong >= MAX_WRONG) finish(false);
+    }
+  }
+
+  document.addEventListener("keydown", function (e) {
+    var t = e.target && e.target.tagName;
+    if (t === "INPUT" || e.ctrlKey || e.metaKey || e.altKey) return;
+    var L = (e.key || "").toUpperCase();
+    if (L.length === 1 && L >= "A" && L <= "Z") { e.preventDefault(); guess(L); }
+  });
+
+  el("next").addEventListener("click", newWord);
+  el("reveal").addEventListener("click", function () { if (!over) finish(false); });
+  el("toggle-clue").addEventListener("click", function () { showClue = !showClue; save("hm-igcse-clue", showClue); renderClue(); });
+
+  var own = el("own");
+  el("own-toggle").addEventListener("click", function () { own.hidden = !own.hidden; if (!own.hidden) el("own-word").focus(); });
+  el("own-cancel").addEventListener("click", function () { own.hidden = true; el("own-err").hidden = true; });
+  own.addEventListener("submit", function (e) {
+    e.preventDefault();
+    var w = el("own-word").value.toUpperCase().replace(/\s+/g, " ").trim();
+    var err = el("own-err");
+    if (!/^[A-Z ]{2,30}$/.test(w)) { err.textContent = "Use letters and spaces only, 2 to 30 characters."; err.hidden = false; return; }
+    err.hidden = true;
+    start(w, el("own-clue").value.trim(), "");
+    el("own-word").value = ""; el("own-clue").value = "";
+    own.hidden = true;
+  });
+
+  renderScore();
+  newWord();
+})();
+</script>
+
+</body></html>

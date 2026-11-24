@@ -1,0 +1,1608 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Functifornia Games</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+<style>
+/* Layout idea: an 8-bit boardwalk at sunset. Hub = event board under a striped sun;
+   game = the machine on the left, its control panel and receipt tape on the right. */
+:root{
+  color-scheme: dark;
+  --night:#1d0f3a; --dusk:#5b1f6e; --flame:#ff5a3c; --sun:#ffc531;
+  --sea:#16c2b8; --sand:#fff1d6; --ink:#12081f; --good:#7dff9b; --bad:#ff7a8a;
+  --display:'Press Start 2P', 'Courier New', monospace;
+  --body:'VT323', 'Courier New', monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{background:var(--night);color:var(--sand);font-family:var(--body);font-size:22px;line-height:1.25}
+button{font-family:inherit;color:inherit;cursor:pointer;border:0;background:none}
+button:focus-visible,.card:focus-visible{outline:3px solid var(--sun);outline-offset:3px}
+.screen{display:none;min-height:100%}
+.screen.on{display:block}
+h1,h2,h3{font-family:var(--display);font-weight:400;text-wrap:balance}
+
+/* ---------- HUB ---------- */
+#hub{background:linear-gradient(180deg,var(--night) 0%,var(--dusk) 34%,var(--flame) 62%,var(--sun) 78%,var(--sea) 78%,#0b6f7a 100%);position:relative;overflow:hidden}
+.sunwrap{position:absolute;left:50%;top:150px;transform:translateX(-50%);width:420px;height:210px;overflow:hidden;pointer-events:none}
+.sunball{width:420px;height:420px;border-radius:50%;
+  background:repeating-linear-gradient(180deg,var(--sun) 0 22px,transparent 22px 30px),linear-gradient(180deg,#fff3a8,var(--flame));
+  -webkit-mask:linear-gradient(#000,#000);opacity:.92}
+.palm{position:absolute;bottom:20%;width:190px;pointer-events:none}
+.palm.l{left:-20px}.palm.r{right:-20px;transform:scaleX(-1)}
+.hubin{position:relative;max-width:980px;margin:0 auto;padding:56px 20px 60px}
+.arcade-back{position:absolute;top:16px;left:16px;z-index:2;font-family:var(--display);font-size:10px;letter-spacing:1px;padding:10px 12px;border:2px solid var(--sand);color:var(--sand);text-decoration:none;background:rgba(18,8,31,.55)}
+.arcade-back:hover{background:var(--sand);color:var(--ink)}
+.kicker{font-family:var(--display);font-size:10px;letter-spacing:3px;color:var(--sun);text-align:center}
+.logo{font-size:clamp(26px,6.4vw,62px);text-align:center;line-height:1.15;margin:16px 0 6px;color:var(--sand);
+  text-shadow:4px 4px 0 var(--flame),8px 8px 0 var(--ink)}
+.logo span{display:block;font-size:.42em;letter-spacing:.5em;margin-top:.5em;color:var(--sun);text-shadow:3px 3px 0 var(--ink)}
+.tag{text-align:center;font-size:26px;margin:22px auto 0;max-width:30em;color:var(--sand);text-shadow:2px 2px 0 var(--ink)}
+.events{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:20px;margin-top:150px}
+.card{background:var(--ink);border:4px solid var(--sand);box-shadow:8px 8px 0 rgba(18,8,31,.55);padding:18px;text-align:left;display:flex;flex-direction:column;gap:10px}
+.card .no{font-family:var(--display);font-size:10px;color:var(--sea)}
+.card h3{font-size:15px;line-height:1.5;color:var(--sun)}
+.card p{color:var(--sand);opacity:.88}
+.card .go{margin-top:auto;font-family:var(--display);font-size:11px;padding:12px;background:var(--flame);color:var(--ink);text-align:center}
+.card.live:hover{transform:translate(-2px,-2px);box-shadow:10px 10px 0 rgba(18,8,31,.7)}
+.card.soon{border-style:dashed;opacity:.8;cursor:default}
+.card.soon .go{background:transparent;border:2px dashed var(--sand);color:var(--sand)}
+.mini{font-size:54px;line-height:1;letter-spacing:6px}
+
+/* ---------- LEVEL SELECT ---------- */
+#levels,#game{background:linear-gradient(180deg,var(--night),#2a1352)}
+.wrap{max-width:1040px;margin:0 auto;padding:22px 18px 40px}
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:20px}
+.back{font-family:var(--display);font-size:10px;padding:10px 12px;border:2px solid var(--sand)}
+.back:hover{background:var(--sand);color:var(--ink)}
+.top h2{font-size:16px;color:var(--sun);line-height:1.5}
+.lvgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:14px}
+.lv{border:3px solid var(--sea);background:var(--ink);padding:14px;text-align:left;display:flex;flex-direction:column;gap:8px;min-height:120px}
+.lv .n{font-family:var(--display);font-size:10px;color:var(--sea)}
+.lv .t{font-family:var(--display);font-size:11px;line-height:1.6}
+.lv .s{margin-top:auto;font-size:24px;color:var(--sun);letter-spacing:3px}
+.d{font-family:var(--display);font-size:8px;letter-spacing:1px;padding:4px 6px;align-self:flex-start;color:var(--ink)}
+.dE{background:var(--good)}.dM{background:var(--sun)}.dH{background:var(--bad)}
+.lv.locked .d{opacity:.45}
+.lv.locked{border-color:#6a5a86;color:#8f82a8;cursor:not-allowed}
+.lv.locked .n{color:#8f82a8}
+.lv:not(.locked):hover{background:var(--dusk)}
+.tiny{margin-top:22px;font-size:20px;opacity:.75}
+.tiny button{text-decoration:underline}
+
+/* ---------- GAME ---------- */
+.stage{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:22px;align-items:start}
+@media (max-width:760px){.stage{grid-template-columns:1fr}}
+.machine{background:var(--sea);border:5px solid var(--ink);box-shadow:inset 0 0 0 4px #8ff0e6,10px 10px 0 rgba(0,0,0,.35);padding:16px}
+.plate{background:var(--sand);color:var(--ink);border:4px solid var(--ink);padding:12px 8px;text-align:center}
+.plate small{display:block;font-family:var(--display);font-size:8px;letter-spacing:2px;color:var(--dusk);margin-bottom:8px}
+.plate b{font-family:var(--display);font-weight:400;font-size:clamp(13px,2.6vw,19px);line-height:1.5}
+.glass{margin-top:14px;background:linear-gradient(135deg,#150a2b,#2b1650);border:4px solid var(--ink);padding:10px;display:grid;grid-template-columns:repeat(3,1fr);gap:8px;overflow:hidden}
+.slot{background:rgba(255,255,255,.06);border-bottom:6px solid #8ff0e6;padding:8px 4px 0;text-align:center;position:relative}
+.slot .it{font-size:44px;line-height:1.1;display:block}
+.slot .code{display:block;background:var(--ink);font-family:var(--display);font-size:12px;padding:6px 2px;margin:6px -4px 0;color:var(--sun)}
+.slot.want{background:rgba(255,197,49,.22);outline:3px solid var(--sun)}
+.slot.drop .it{animation:drop .7s ease-in forwards}
+.slot.shake .it{animation:shake .4s}
+@keyframes drop{to{transform:translateY(340px) rotate(40deg);opacity:0}}
+@keyframes shake{25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+.tray{margin-top:14px;height:74px;background:var(--ink);border:4px solid #0a4f57;display:flex;align-items:center;justify-content:center;font-size:46px}
+.tray span{animation:land .35s ease-out}
+@keyframes land{from{transform:translateY(-30px)}60%{transform:translateY(4px)}}
+
+.panel{display:flex;flex-direction:column;gap:14px}
+.box{background:var(--ink);border:3px solid var(--sand);padding:12px}
+.box h4{font-family:var(--display);font-weight:400;font-size:9px;letter-spacing:2px;color:var(--sea);margin-bottom:8px}
+.order{display:flex;align-items:center;gap:14px}
+.order .big{font-size:52px;line-height:1}
+.order .num{font-family:var(--display);font-size:22px;color:var(--sun)}
+.pips{display:flex;gap:6px;margin-top:8px}
+.pips i{width:16px;height:16px;border:2px solid var(--sand)}
+.pips i.done{background:var(--good);border-color:var(--good)}
+.lcd{background:#06210f;border:3px solid #0e3a1c;color:var(--good);font-family:var(--display);font-size:clamp(12px,2.4vw,16px);padding:14px 10px;min-height:56px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.lcd .x{background:#0e3a1c;padding:6px 10px;min-width:54px;text-align:center}
+.msg{min-height:2.5em;font-size:23px}
+.msg.good{color:var(--good)}.msg.bad{color:var(--bad)}
+.keys{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.keys button{font-family:var(--display);font-size:15px;padding:14px 0;background:var(--sand);color:var(--ink);box-shadow:0 5px 0 #b9a47c}
+.keys button:active{transform:translateY(4px);box-shadow:0 1px 0 #b9a47c}
+.keys .vend{grid-column:span 2;background:var(--flame);box-shadow:0 5px 0 #a8321d}
+.keys .alt{background:var(--sun);box-shadow:0 5px 0 #b3861a}
+.tape{max-height:190px;overflow-y:auto;background:var(--sand);color:var(--ink);padding:10px 12px;border:3px solid var(--ink)}
+.tape table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+.tape th{font-family:var(--display);font-weight:400;font-size:9px;text-align:left;border-bottom:2px dashed var(--ink);padding-bottom:6px}
+.tape td{padding:2px 0;font-size:24px}
+.tape .empty{opacity:.6}
+
+.courtbox{background:var(--ink);border:5px solid var(--sand);box-shadow:10px 10px 0 rgba(0,0,0,.35);padding:6px}
+#court,#pipecv,#gcv,#scv,#fcv{display:block;width:100%;height:auto;cursor:pointer}
+.hkeys{display:grid;grid-template-columns:1fr 1fr 2fr;gap:8px}
+.hkeys button{font-family:var(--display);font-size:14px;padding:16px 0;background:var(--sand);color:var(--ink);box-shadow:0 5px 0 #b9a47c}
+.hkeys button:active{transform:translateY(4px);box-shadow:0 1px 0 #b9a47c}
+.hkeys .vend{background:var(--flame);box-shadow:0 5px 0 #a8321d}
+.hint{font-size:20px;opacity:.75}
+.slots{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px;font-size:24px}
+.slot2{min-width:66px;min-height:46px;border:3px dashed var(--sea);font-family:var(--display);font-size:13px;padding:10px;color:var(--sun)}
+.tray2{display:flex;gap:8px;flex-wrap:wrap}
+.tile{font-family:var(--display);font-size:13px;padding:12px 10px;background:var(--sand);color:var(--ink);box-shadow:0 4px 0 #b9a47c}
+.tile:disabled{opacity:.3;cursor:default}
+.tile.sel{background:var(--sun)}
+.fkeys{display:grid;grid-template-columns:1fr 2fr;gap:8px}
+.fkeys button{font-family:var(--display);font-size:12px;padding:16px 0;background:var(--sand);color:var(--ink);box-shadow:0 5px 0 #b9a47c}
+.fkeys .vend{background:var(--flame);box-shadow:0 5px 0 #a8321d}
+.job{font-size:26px;line-height:1.15}
+/* overlay */
+.over{position:fixed;inset:0;background:rgba(18,8,31,.86);display:none;align-items:center;justify-content:center;padding:18px;z-index:9}
+.over.on{display:flex}
+.dlg{background:var(--ink);border:4px solid var(--sun);max-width:520px;width:100%;padding:24px;text-align:center;display:flex;flex-direction:column;gap:16px}
+.dlg h3{font-size:16px;color:var(--sun);line-height:1.5}
+.dlg .stars{font-size:46px;letter-spacing:8px;color:var(--sun)}
+.dlg .row{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.btn{font-family:var(--display);font-size:11px;padding:13px 14px;background:var(--flame);color:var(--ink)}
+.btn.ghost{background:none;border:2px solid var(--sand);color:var(--sand)}
+.btn.opt{background:var(--sand);font-size:13px;width:100%}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+
+<!-- ================= HUB ================= -->
+<section id="hub" class="screen on">
+  <a class="arcade-back" href="../index.html">◀ ARCADE</a>
+  <div class="sunwrap"><div class="sunball"></div></div>
+  <svg class="palm l" viewBox="0 0 190 300" aria-hidden="true"><path d="M92 300 C84 220 96 150 118 96" stroke="#12081f" stroke-width="14" fill="none"/><g fill="#12081f"><path d="M118 96 C80 60 40 62 8 86 C46 78 82 86 118 96Z"/><path d="M118 96 C96 44 62 22 26 22 C64 38 96 62 118 96Z"/><path d="M118 96 C120 44 146 14 180 6 C152 34 134 62 118 96Z"/><path d="M118 96 C150 70 176 72 190 92 C164 86 142 88 118 96Z"/><path d="M118 96 C140 110 152 136 150 164 C140 136 130 114 118 96Z"/></g></svg>
+  <svg class="palm r" viewBox="0 0 190 300" aria-hidden="true"><path d="M92 300 C84 220 96 150 118 96" stroke="#12081f" stroke-width="14" fill="none"/><g fill="#12081f"><path d="M118 96 C80 60 40 62 8 86 C46 78 82 86 118 96Z"/><path d="M118 96 C96 44 62 22 26 22 C64 38 96 62 118 96Z"/><path d="M118 96 C120 44 146 14 180 6 C152 34 134 62 118 96Z"/><path d="M118 96 C150 70 176 72 190 92 C164 86 142 88 118 96Z"/><path d="M118 96 C140 110 152 136 150 164 C140 136 130 114 118 96Z"/></g></svg>
+  <div class="hubin">
+    <p class="kicker">MATHS ARCADE PRESENTS</p>
+    <h1 class="logo">FUNCTIFORNIA<span>GAMES</span></h1>
+    <p class="tag">One number goes in. One number comes out. Work out what happens in between.</p>
+    <div class="events">
+      <button class="card live" id="playVend">
+        <span class="no">EVENT 01</span>
+        <span class="mini">🥤🧸🍫</span>
+        <h3>THE VENDING MACHINE</h3>
+        <p>Every snack has a code. The machine changes whatever you type. Type the number that makes it land on the right snack.</p>
+        <span class="go">PLAY · 10 MACHINES</span>
+      </button>
+      <button class="card live" id="playHoops">
+        <span class="no">EVENT 02</span>
+        <span class="mini">🏀</span>
+        <h3>BOARDWALK HOOPS</h3>
+        <p>The ball flies along the function, and its path fades after every shot. Work out the x where the ball is at hoop height, then slide the hoop there.</p>
+        <span class="go">PLAY · 8 COURTS</span>
+      </button>
+      <button class="card live" id="playPipe">
+        <span class="no">EVENT 03</span>
+        <span class="mini">🛹</span>
+        <h3>NIGHT HALF PIPE</h3>
+        <p>A skatepark with the lights out. The pipe is a parabola that only shows while you ride it. Land heights, roots and the lowest point to build a combo.</p>
+        <span class="go">PLAY · 11 PIPES</span>
+      </button>
+      <button class="card live" id="playGulls">
+        <span class="no">EVENT 04</span>
+        <span class="mini">🍟🐦</span>
+        <h3>SEAGULL PIER</h3>
+        <p>Someone dropped a chip. The flock multiplies every minute. Wait exactly long enough to get the number of gulls the job needs.</p>
+        <span class="go">PLAY · 8 PIERS</span>
+      </button>
+      <button class="card live" id="playBell">
+        <span class="no">EVENT 05</span>
+        <span class="mini">🔨🔔</span>
+        <h3>RING THE BELL</h3>
+        <p>A fairground strength tower that measures in logarithms. Type the hammer power that sends the puck exactly to the bell.</p>
+        <span class="go">PLAY · 7 TOWERS</span>
+      </button>
+      <button class="card live" id="playFris">
+        <span class="no">EVENT 06</span>
+        <span class="mini">🥏</span>
+        <h3>BEACH FRISBEE</h3>
+        <p>Inverse functions. Watch the throw, then build the return throw that sends the frisbee back to exactly where it came from.</p>
+        <span class="go">PLAY · 10 BEACHES</span>
+      </button>
+      <div class="card soon">
+        <span class="no">EVENT 07 +</span>
+        <span class="mini">? ? ?</span>
+        <h3>MORE EVENTS</h3>
+        <p>Composite functions and transformations are still waiting for a sport.</p>
+        <span class="go">IN TRAINING</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= LEVEL SELECT ================= -->
+<section id="levels" class="screen">
+  <div class="wrap">
+    <div class="top"><button class="back" data-go="hub">◀ EVENTS</button><h2>THE VENDING MACHINE</h2><span id="total"></span></div>
+    <div class="lvgrid" id="lvgrid"></div>
+    <p class="tiny">Teacher: <button id="unlock">unlock every machine</button> · <button id="reset">reset stars</button></p>
+  </div>
+</section>
+
+<!-- ================= GAME ================= -->
+<section id="game" class="screen">
+  <div class="wrap">
+    <div class="top"><button class="back" data-go="levels">◀ MACHINES</button><h2 id="gname"></h2><span id="gvends"></span></div>
+    <div class="stage">
+      <div class="machine">
+        <div class="plate"><small>WHAT THIS MACHINE DOES</small><b id="plate"></b></div>
+        <div class="glass" id="glass"></div>
+        <div class="tray" id="tray" aria-live="polite"></div>
+      </div>
+      <div class="panel">
+        <div class="box">
+          <h4>CUSTOMER ORDER</h4>
+          <div class="order"><span class="big" id="oit"></span><div>Get me snack<br><span class="num" id="onum"></span></div></div>
+          <div class="pips" id="pips"></div>
+        </div>
+        <div class="lcd" id="lcd"></div>
+        <p class="msg" id="msg" aria-live="polite"></p>
+        <div class="keys" id="keys"></div>
+        <div class="box" style="padding:0;border:0">
+          <div class="tape"><table><thead><tr><th>YOU TYPED (x)</th><th>MACHINE MADE</th></tr></thead><tbody id="tape"></tbody></table></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= HOOPS ================= -->
+<section id="hlevels" class="screen">
+  <div class="wrap">
+    <div class="top"><button class="back" data-go="hub">◀ EVENTS</button><h2>BOARDWALK HOOPS</h2><span id="htotal"></span></div>
+    <div class="lvgrid" id="hgrid"></div>
+    <p class="tiny">Teacher: <button id="hunlock">unlock every court</button> · <button id="hreset">reset stars</button></p>
+  </div>
+</section>
+<section id="hoops" class="screen">
+  <div class="wrap">
+    <div class="top"><button class="back" data-go="hlevels">◀ COURTS</button><h2 id="hname"></h2><span id="hshots"></span></div>
+    <div class="stage">
+      <div class="courtbox"><canvas id="court" width="1280" height="880" aria-label="Court grid showing the hoop and the path of the ball"></canvas></div>
+      <div class="panel">
+        <div class="plate"><small>THE BALL FLIES ALONG</small><b id="hplate"></b></div>
+        <div class="box">
+          <h4>THIS HOOP</h4>
+          <div class="order"><span class="big">🏀</span><div>Hoop height<br><span class="num" id="hh"></span></div></div>
+          <div class="pips" id="hpips"></div>
+        </div>
+        <div class="lcd" id="hlcd"></div>
+        <p class="msg" id="hmsg" aria-live="polite"></p>
+        <div class="hkeys"><button id="hl" aria-label="move hoop left">◀</button><button id="hr" aria-label="move hoop right">▶</button><button class="vend" id="hshoot">SHOOT</button></div>
+        <p class="hint">Click the court or use the arrow keys to slide the hoop. Enter shoots.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= HALF PIPE ================= -->
+<section id="plevels" class="screen">
+  <div class="wrap">
+    <div class="top"><button class="back" data-go="hub">◀ EVENTS</button><h2>NIGHT HALF PIPE</h2><span id="ptotal"></span></div>
+    <div class="lvgrid" id="pgrid"></div>
+    <p class="tiny">Teacher: <button id="punlock">unlock every pipe</button> · <button id="preset">reset stars</button></p>
+  </div>
+</section>
+<section id="pipe" class="screen">
+  <div class="wrap">
+    <div class="top"><button class="back" data-go="plevels">◀ PIPES</button><h2 id="pname"></h2><span id="pdrops"></span></div>
+    <div class="stage">
+      <div class="courtbox"><canvas id="pipecv" width="1280" height="880" aria-label="Dark half pipe on a grid with the marker for the current trick"></canvas></div>
+      <div class="panel">
+        <div class="plate"><small>THE PIPE IS THE CURVE</small><b id="pplate"></b></div>
+        <div class="box">
+          <h4 id="ptitle">THIS TRICK</h4>
+          <p class="job" id="pjob"></p>
+          <div class="pips" id="ppips"></div>
+        </div>
+        <div class="lcd" id="plcd"></div>
+        <p class="msg" id="pmsg" aria-live="polite"></p>
+        <div class="hkeys"><button id="pl" aria-label="move drop-in left">◀</button><button id="pr" aria-label="move drop-in right">▶</button><button class="vend" id="pgo">DROP IN</button></div>
+        <p class="hint">The pipe is dark and only lights up while you ride it. Arrow keys or a click move the marker. Enter drops in. Land tricks in a row to build your combo.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= SEAGULL PIER ================= -->
+<section id="glevels" class="screen">
+  <div class="wrap">
+    <div class="top"><button class="back" data-go="hub">◀ EVENTS</button><h2>SEAGULL PIER</h2><span id="gtotal"></span></div>
+    <div class="lvgrid" id="ggrid"></div>
+    <p class="tiny">Teacher: <button id="gunlock">unlock every pier</button> · <button id="greset">reset stars</button></p>
+  </div>
+</section>
+<section id="gulls" class="screen">
+  <div class="wrap">
+    <div class="top"><button class="back" data-go="glevels">◀ PIERS</button><h2 id="qname"></h2><span id="qwaits"></span></div>
+    <div class="stage">
+      <div class="courtbox"><canvas id="gcv" width="1280" height="880" aria-label="Pier at sunset with the flock of gulls"></canvas></div>
+      <div class="panel">
+        <div class="plate"><small>GULLS AFTER t MINUTES</small><b id="qplate"></b></div>
+        <div class="box"><h4>THE JOB NEEDS</h4><p class="job" id="qjob"></p><div class="pips" id="qpips"></div></div>
+        <div class="lcd" id="qlcd"></div>
+        <p class="msg" id="qmsg" aria-live="polite"></p>
+        <div class="hkeys"><button id="ql" aria-label="one minute less">◀</button><button id="qr" aria-label="one minute more">▶</button><button class="vend" id="qgo">WAIT</button></div>
+        <div class="tape"><table><thead><tr><th>MINUTE (t)</th><th>GULLS</th></tr></thead><tbody id="qtape"></tbody></table></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= RING THE BELL ================= -->
+<section id="slevels" class="screen">
+  <div class="wrap">
+    <div class="top"><button class="back" data-go="hub">◀ EVENTS</button><h2>RING THE BELL</h2><span id="stotal"></span></div>
+    <div class="lvgrid" id="sgrid"></div>
+    <p class="tiny">Teacher: <button id="sunlock">unlock every tower</button> · <button id="sreset">reset stars</button></p>
+  </div>
+</section>
+<section id="bell" class="screen">
+  <div class="wrap">
+    <div class="top"><button class="back" data-go="slevels">◀ TOWERS</button><h2 id="sname"></h2><span id="shits"></span></div>
+    <div class="stage">
+      <div class="courtbox"><canvas id="scv" width="1280" height="880" aria-label="Fairground strength tower with the bell and the puck"></canvas></div>
+      <div class="panel">
+        <div class="plate"><small>PUCK HEIGHT FOR HAMMER POWER p</small><b id="splate"></b></div>
+        <div class="box"><h4>THIS BELL</h4><div class="order"><span class="big">🔔</span><div>Bell at height<br><span class="num" id="sbell"></span></div></div><div class="pips" id="spips"></div></div>
+        <div class="lcd" id="slcd"></div>
+        <p class="msg" id="smsg" aria-live="polite"></p>
+        <div class="keys" id="skeys"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= BEACH FRISBEE ================= -->
+<section id="flevels" class="screen">
+  <div class="wrap">
+    <div class="top"><button class="back" data-go="hub">◀ EVENTS</button><h2>BEACH FRISBEE</h2><span id="ftotal"></span></div>
+    <div class="lvgrid" id="fgrid"></div>
+    <p class="tiny">Teacher: <button id="funlock">unlock every beach</button> · <button id="freset">reset stars</button></p>
+  </div>
+</section>
+<section id="fris" class="screen">
+  <div class="wrap">
+    <div class="top"><button class="back" data-go="flevels">◀ BEACHES</button><h2 id="fname"></h2><span id="ftries"></span></div>
+    <div class="stage">
+      <div class="courtbox"><canvas id="fcv" width="1280" height="880" aria-label="Beach with a number line, the thrower, the catcher and the path of the frisbee"></canvas></div>
+      <div class="panel">
+        <div class="plate"><small>THE THROW</small><b id="fplate"></b></div>
+        <div class="box"><h4 id="fhead">YOUR RETURN THROW</h4><div class="slots" id="fslots"></div><div class="tray2" id="ftray"></div><div class="pips" id="fpips" style="margin-top:12px"></div></div>
+        <div id="fscout" hidden>
+          <div class="lcd" id="flcd" style="margin-bottom:10px"></div>
+          <div class="hkeys"><button id="fsl" aria-label="move thrower left">◀</button><button id="fsr" aria-label="move thrower right">▶</button><button class="vend" id="fsgo">SCOUT THROW</button></div>
+          <div class="tape" style="margin-top:10px;max-height:150px"><table><thead><tr><th>STOOD AT (x)</th><th>LANDED AT</th></tr></thead><tbody id="fstape"></tbody></table></div>
+        </div>
+        <p class="msg" id="fmsg" aria-live="polite"></p>
+        <div class="fkeys"><button id="fclear">CLEAR</button><button class="vend" id="fgo">THROW BACK</button></div>
+        <p class="hint" id="fhint">Tap a tile to add it to your return throw. Tap a filled step to take it out.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="over" id="over"><div class="dlg" id="dlg"></div></div>
+
+<script>
+const $ = id => document.getElementById(id);
+const range = (a,b,s=1) => { const r=[]; for(let i=a;i<=b;i+=s) r.push(i); return r; };
+const shuffle = a => { a=[...a]; for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]];} return a; };
+const SNACKS = ['🥤','🧃','🍫','🍿','🧸','🍪','🍬','🥨','🍩','🧋','🍭','🥜','🍎','🦆','⚽','🍦'];
+
+const LEVELS = [
+  {name:'THE DOUBLER',   plate:'IN → ×2 → OUT',   f:x=>2*x,   pool:range(2,12),
+   intro:'This machine doubles whatever you type. Snack 18 needs the number that doubles to 18.'},
+  {name:'PLUS SEVEN',    plate:'IN → +7 → OUT',   f:x=>x+7,   pool:range(1,15),
+   intro:'New machine, new rule. It adds 7 to whatever you type.'},
+  {name:'THE TRIPLER',   plate:'IN → ×3 → OUT',   f:x=>3*x,   pool:range(2,12),
+   intro:'This one triples. If the number you want is not in the 3 times table, no snack will ever sit there.'},
+  {name:'TWO-STEP',      plate:'f(x) = 2x + 1',   f:x=>2*x+1, pool:range(1,12),
+   intro:'The label looks different now. f(x) = 2x + 1 says: take your number x, double it, then add 1.'},
+  {name:'TRIPLE MINUS',  plate:'f(x) = 3x − 4',   f:x=>3*x-4, pool:range(2,12),
+   intro:'Two steps again: multiply by 3, then take away 4. To find what to type, undo the steps backwards.'},
+  {name:'COUNTDOWN',     plate:'f(x) = 20 − x',   f:x=>20-x,  pool:range(1,19),
+   intro:'On this machine a bigger number in gives a smaller number out.'},
+  {name:'THE HALVER',    plate:'f(x) = x ÷ 2',    f:x=>x/2,   pool:range(4,40,2),
+   intro:'This machine halves. Odd numbers will send it looking for a slot that does not exist.'},
+  {name:'THE SQUARER',   plate:'f(x) = x²',       f:x=>x*x,   pool:range(2,12),
+   intro:'This machine multiplies your number by itself. Try a negative number too, with the ± key.'},
+  {name:'MYSTERY BOX A', plate:'f(x) = ? ? ?',    f:x=>2*x+3, pool:range(1,10), mystery:true,
+   opts:['2x + 3','3x + 2','x + 5'],
+   intro:'Someone peeled the label off. Type test numbers and read the receipt until you can see the rule.'},
+  {name:'MYSTERY BOX B', plate:'f(x) = ? ? ?',    f:x=>x*x-1, pool:range(1,9),  mystery:true,
+   opts:['x² − 1','2x − 1','x² + 1'],
+   intro:'No label again, and this rule is nastier. Small test numbers tell you the most.'},
+];
+const ORDERS = 5;
+
+const COURTS = [
+  {name:'WARM-UP',        label:'f(x) = x + 3',     f:x=>x+3,       x0:0,  x1:10, y1:14, xs:range(1,10),
+   intro:'The ball starts on the left and flies along f(x) = x + 3. Put the hoop at the x where the ball is at hoop height.'},
+  {name:'DOUBLE DRIBBLE', label:'f(x) = 2x',        f:x=>2*x,       x0:0,  x1:10, y1:20, xs:range(1,10),
+   intro:'This ball climbs twice as fast. Its height is always double its x.'},
+  {name:'STEP BACK',      label:'f(x) = 2x + 1',    f:x=>2*x+1,     x0:0,  x1:10, y1:22, xs:range(1,10),
+   intro:'Double the x, then add 1. Work backwards from the hoop height.'},
+  {name:'DOWNHILL',       label:'f(x) = 12 − x',    f:x=>12-x,      x0:0,  x1:12, y1:13, xs:range(1,11),
+   intro:'This ball starts high and comes down as x grows.'},
+  {name:'SLOW RISE',      label:'f(x) = ½x + 2',    f:x=>x/2+2,     x0:0,  x1:16, y1:11, xs:range(2,16,2),
+   intro:'Half of x, plus 2. The ball needs a long run to gain any height.'},
+  {name:'THE BOWL',       label:'f(x) = x²',        f:x=>x*x,       x0:-5, x1:5,  y1:26, xs:range(1,5),
+   intro:'The court now runs from −5 to 5. Every hoop on this court has two spots that work.'},
+  {name:'RAINBOW SHOT',   label:'f(x) = −x² + 10x', f:x=>-x*x+10*x, x0:0,  x1:10, y1:26, xs:range(1,5),
+   intro:'A proper arc. The ball goes up, peaks, and comes back down.'},
+  {name:'ROCKET',         label:'f(x) = 2ˣ',        f:x=>2**x,      x0:0,  x1:6,  y1:36, xs:range(1,5),
+   intro:'2 multiplied by itself x times. Watch how late the height arrives, and how fast.'},
+];
+
+const PIPES = [
+  {name:'THE CLASSIC',   label:'f(x) = x²',            f:x=>x*x,             v:0,  x0:-5, x1:5,  y1:26, offs:range(1,5),
+   intro:'The park lights are out. The pipe only lights up while you ride it, so use the equation. You always swing up to the same height you dropped from.'},
+  {name:'SHIFTED',       label:'f(x) = (x − 5)²',      f:x=>(x-5)**2,        v:5,  x0:0,  x1:10, y1:26, offs:range(1,5),
+   intro:'Same pipe, moved along the ground. Find where the bottom is first.'},
+  {name:'RAISED',        label:'f(x) = (x − 4)² + 2',  f:x=>(x-4)**2+2,      v:4,  x0:-1, x1:9,  y1:28, offs:range(1,5),
+   intro:'This pipe sits on a platform, so its lowest point is above the ground.'},
+  {name:'WRONG WAY',     label:'f(x) = (x + 3)²',      f:x=>(x+3)**2,        v:-3, x0:-8, x1:2,  y1:26, offs:range(1,5),
+   intro:'Careful with the plus sign. Check which x makes the bracket zero.'},
+  {name:'WIDE BOWL',     label:'f(x) = ½(x − 6)²',     f:x=>(x-6)**2/2,      v:6,  x0:0,  x1:12, y1:19, offs:range(1,6),
+   intro:'The ½ flattens the pipe. You need to start further out to gain the same height.'},
+  {name:'STEEP WALLS',   label:'f(x) = 2(x − 3)²',     f:x=>2*(x-3)**2,      v:3,  x0:-1, x1:7,  y1:34, offs:range(1,4),
+   intro:'The 2 makes the walls steep. One step sideways is a big change in height.'},
+  {name:'UNPACKED',      label:'f(x) = x² − 8x + 16',  f:x=>x*x-8*x+16,      v:4,  x0:-1, x1:9,  y1:26, offs:range(1,5),
+   intro:'The equation has been multiplied out, so the lowest point is no longer written in it. Two x values with the same height sit either side of it.'},
+  {name:'UNPACKED PLUS', label:'f(x) = x² − 6x + 11',  f:x=>x*x-6*x+11,      v:3,  x0:-2, x1:8,  y1:28, offs:range(1,5),
+   intro:'Multiplied out and raised off the ground. A test ride or two will show you where the bottom is.'},
+  {name:'THE POOL',      label:'f(x) = x² − 9',        f:x=>x*x-9,           v:0,  x0:-5, x1:5,  y0:-10, y1:17, offs:range(1,5), must:3,
+   intro:'This pipe is dug into the ground, so some heights are negative. Height 0 is ground level. The x where the pipe meets the ground is called a root.'},
+  {name:'TWO ROOTS',     label:'f(x) = (x − 2)(x − 8)', f:x=>(x-2)*(x-8),    v:5,  x0:-1, x1:11, y0:-10, y1:17, offs:range(1,5), must:3,
+   intro:'Written this way, the equation tells you where the pipe meets the ground. What makes each bracket zero?'},
+  {name:'BURIED ROOTS',  label:'f(x) = x² − 2x − 8',   f:x=>x*x-2*x-8,       v:1,  x0:-5, x1:7,  y0:-10, y1:17, offs:range(1,5), must:3,
+   intro:'Dug in and multiplied out. You will need both roots and the lowest point.'},
+];
+
+const PIERS = [
+  {name:'FIRST CHIP',     label:'g(t) = 2ᵗ',      a:1, b:2, ts:range(1,7),
+   intro:'One gull spots the chip. Every minute, each gull calls a friend, so the flock doubles. Choose how many minutes to wait.'},
+  {name:'TRIPLE TROUBLE', label:'g(t) = 3ᵗ',      a:1, b:3, ts:range(1,5),
+   intro:'These gulls each call two friends, so the flock triples every minute.'},
+  {name:'HEAD START',     label:'g(t) = 3 × 2ᵗ',  a:3, b:2, ts:range(1,6),
+   intro:'Three gulls are already here at minute 0. The flock still doubles every minute.'},
+  {name:'BIG FLOCK',      label:'g(t) = 5 × 2ᵗ',  a:5, b:2, ts:range(1,6),
+   intro:'Five gulls at the start, doubling every minute.'},
+  {name:'FEEDING FRENZY', label:'g(t) = 4ᵗ',      a:1, b:4, ts:range(1,5),
+   intro:'The flock multiplies by 4 every minute. It gets out of hand quickly.'},
+  {name:'HALF FULL',      label:'g(t) = 2ᵗ',      a:1, b:2, fr:[[10,'completely full'],[9,'half full'],[8,'a quarter full'],[7,'an eighth full'],[6,'one sixteenth full']],
+   intro:'This pier is completely full at minute 10. Think about what the flock looked like one minute earlier.'},
+  {name:'AT LEAST',       label:'g(t) = 2ᵗ',      a:1, b:2, least:[20,50,100,500,1000],
+   intro:'These numbers are not powers of 2, so you cannot hit them exactly. Find the first minute with enough gulls.'},
+  {name:'AT LEAST AGAIN', label:'g(t) = 3ᵗ',      a:1, b:3, least:[20,50,100,500,2000],
+   intro:'Same idea with a tripling flock. Find the first minute with enough gulls.'},
+];
+const TOWERS = [
+  {name:'DOUBLE POWER',  label:'h(p) = log₂ p',  lg:'log₂',  b:2,  bells:range(1,6),
+   intro:'The puck climbs one mark each time the power doubles. log₂ p asks: 2 to the power of what makes p?'},
+  {name:'TRIPLE POWER',  label:'h(p) = log₃ p',  lg:'log₃',  b:3,  bells:range(1,5),
+   intro:'On this tower the puck climbs one mark each time the power triples.'},
+  {name:'POWERS OF TEN', label:'h(p) = log₁₀ p', lg:'log₁₀', b:10, bells:range(1,5),
+   intro:'One mark for every time the power is multiplied by 10. The top needs a very big swing.'},
+  {name:'GROUND FLOOR',  label:'h(p) = log₂ p',  lg:'log₂',  b:2,  bells:[0,3,5,7,8],
+   intro:'One of these bells sits at height 0. What power leaves the puck exactly where it started?'},
+  {name:'HIGH FIVE',     label:'h(p) = log₅ p',  lg:'log₅',  b:5,  bells:range(0,4),
+   intro:'One mark for every time the power is multiplied by 5.'},
+  {name:'HALF MARKS',    label:'h(p) = log₄ p',  lg:'log₄',  b:4,  bells:[.5,1,1.5,2,2.5],
+   intro:'Some bells are halfway between marks. What do you multiply by twice to multiply by 4?'},
+  {name:'NINE LIVES',    label:'h(p) = log₉ p',  lg:'log₉',  b:9,  bells:[.5,1,1.5,2,2.5],
+   intro:'Half marks again, on a tower that counts in nines.'},
+];
+
+const BEACHES = [
+  {name:'ONE HOP', intro:'Watch where the frisbee starts and what the throw does to it. Build a return throw that sends it back to the thrower.',
+   fns:[{ops:[['+',5]],xs:[3,8]},{ops:[['×',3]],xs:[4,2]},{ops:[['−',4]],xs:[9,6]},{ops:[['÷',2]],xs:[10,6]}]},
+  {name:'TWO HOPS', intro:'This throw does two things in a row. Think about which one you have to undo first.',
+   fns:[{ops:[['×',2],['+',3]],xs:[4,6]},{ops:[['+',4],['×',3]],xs:[2,5]},{ops:[['×',5],['−',2]],xs:[3,1]}]},
+  {name:'MIXED BAG', intro:'Dividing and subtracting throws. Each step still has an opposite.',
+   fns:[{ops:[['÷',2],['+',6]],xs:[8,4]},{ops:[['−',3],['×',4]],xs:[5,8]},{ops:[['÷',3],['−',1]],xs:[12,6]}]},
+  {name:'THREE HOPS', intro:'Three steps out, so three steps back.',
+   fns:[{ops:[['×',2],['+',1],['×',3]],xs:[2,4]},{ops:[['+',2],['×',2],['−',5]],xs:[3,6]},{ops:[['×',3],['−',6],['÷',3]],xs:[4,7]}]},
+  {name:'STEPS TO ALGEBRA', intro:'Same throws, with a second way of writing them. Start at x, times 3, plus 4 is written 3x + 4.',
+   fns:[{steps:true,show:'3x + 4',ops:[['×',3],['+',4]],xs:[2,5]},{steps:true,show:'2x − 5',ops:[['×',2],['−',5]],xs:[6,9]},{steps:true,show:'4(x + 1)',ops:[['+',1],['×',4]],xs:[2,4]},{steps:true,show:'x ÷ 2 + 7',ops:[['÷',2],['+',7]],xs:[6,10]}]},
+  {name:'NOW IN ALGEBRA', intro:'The throw is now written as a function. f(x) = 2x + 5 is the same throw as ×2 then +5.',
+   fns:[{show:'f(x) = 2x + 5',ops:[['×',2],['+',5]],xs:[3,6]},{show:'f(x) = 3x − 4',ops:[['×',3],['−',4]],xs:[4,2]},{show:'f(x) = 5x + 1',ops:[['×',5],['+',1]],xs:[2,4]}]},
+  {name:'BRACKETS', intro:'Read the function carefully to see which step happens first. Brackets go first.',
+   fns:[{show:'f(x) = 3(x + 2)',ops:[['+',2],['×',3]],xs:[2,5]},{show:'f(x) = x ÷ 2 + 3',ops:[['÷',2],['+',3]],xs:[8,4]},{show:'f(x) = (x − 1) ÷ 4',ops:[['−',1],['÷',4]],xs:[9,17]}]},
+  {name:'MYSTERY THROWER', hide:true, intro:'You know what the throw does and where the frisbee landed, but the thrower is out of sight. Send it back to find out where they are standing.',
+   fns:[{show:'f(x) = 3x + 4',ops:[['×',3],['+',4]],xs:[5,2]},{show:'f(x) = 2x − 7',ops:[['×',2],['−',7]],xs:[8,6]},{show:'f(x) = 5(x − 2)',ops:[['−',2],['×',5]],xs:[4,6]},{show:'f(x) = x ÷ 2 + 9',ops:[['÷',2],['+',9]],xs:[6,14]}]},
+  {name:'NAME THE RETURN', intro:'No tiles this time. Pick the function that is the return throw. It is written f⁻¹(x) and called the inverse of f.',
+   fns:[{show:'f(x) = 2x + 3',ops:[['×',2],['+',3]],xs:[4,7],opts:[['(x − 3) ÷ 2',[['−',3],['÷',2]]],['x ÷ 2 − 3',[['÷',2],['−',3]]],['(x + 3) ÷ 2',[['+',3],['÷',2]]]]},
+        {show:'f(x) = 4x − 8',ops:[['×',4],['−',8]],xs:[3,5],opts:[['(x + 8) ÷ 4',[['+',8],['÷',4]]],['x ÷ 4 + 8',[['÷',4],['+',8]]],['(x − 8) ÷ 4',[['−',8],['÷',4]]]]},
+        {show:'f(x) = x ÷ 3 + 2',ops:[['÷',3],['+',2]],xs:[6,12],opts:[['3(x − 2)',[['−',2],['×',3]]],['3x − 2',[['×',3],['−',2]]],['(x − 2) ÷ 3',[['−',2],['÷',3]]]]},
+        {show:'f(x) = 5(x − 1)',ops:[['−',1],['×',5]],xs:[3,4],opts:[['x ÷ 5 + 1',[['÷',5],['+',1]]],['(x + 1) ÷ 5',[['+',1],['÷',5]]],['x ÷ 5 − 1',[['÷',5],['−',1]]]]}]},
+  {name:'MYSTERY THROW', scout:true, intro:'Nobody will tell you what this throw does. Choose where the thrower stands, watch where the frisbee lands, and work out the rule. Then build it and test it.',
+   fns:[{show:'f(x) = 2x + 1',   ops:[['×',2],['+',1]], xs:[6,9], tiles:[['×',2],['×',3],['+',1],['+',2],['−',1],['+',3]]},
+        {show:'f(x) = 3x + 4',   ops:[['×',3],['+',4]], xs:[5,8], tiles:[['×',3],['×',4],['+',4],['+',3],['−',4],['+',7]]},
+        {show:'f(x) = 4x − 3',   ops:[['×',4],['−',3]], xs:[4,7], tiles:[['×',4],['×',3],['−',3],['+',3],['−',4],['−',1]]},
+        {show:'f(x) = 3(x + 2), which is the same as 3x + 6', ops:[['+',2],['×',3]], xs:[3,7], tiles:[['+',2],['×',3],['+',6],['×',2],['+',3],['−',2]]}]},
+];
+
+let save = {stars:LEVELS.map(()=>0), h:COURTS.map(()=>0), p:PIPES.map(()=>0), g:PIERS.map(()=>0), s:TOWERS.map(()=>0), f:BEACHES.map(()=>0), all:false};
+try { const s = JSON.parse(localStorage.getItem('functifornia-vend')); if (s && s.stars) save = Object.assign(save, s); } catch(e){}
+const persist = () => { try { localStorage.setItem('functifornia-vend', JSON.stringify(save)); } catch(e){} };
+
+let G = null;        // current game state
+let entry = '';      // what is typed on the keypad
+
+function show(id){ document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on', s.id===id)); window.scrollTo(0,0); if(id==='levels') drawLevels(); if(id==='hlevels') drawHLevels(); if(id==='plevels') drawPLevels(); if(id==='glevels') drawGList(); if(id==='slevels') drawSList(); if(id==='flevels') drawFList(); }
+document.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>show(b.dataset.go));
+$('playVend').onclick = () => show('levels');
+$('unlock').onclick = () => { save.all = true; persist(); drawLevels(); };
+$('reset').onclick = () => { save.stars = LEVELS.map(()=>0); save.all = false; persist(); drawLevels(); };
+
+const DIFF = {stars:'EEEMMMMMHH', h:'EEEMMMHH', p:'EEMMMMHHMHH', g:'EEMMMHHH', s:'EEMMMHH', f:'EEEMMMMHHH'};
+const dtag = (k,i) => { const d = DIFF[k][i] || 'M'; return `<span class="d d${d}">${{E:'EASY',M:'MEDIUM',H:'DIFFICULT'}[d]}</span>`; };
+const starStr = n => '★'.repeat(n) + '☆'.repeat(3-n);
+function drawLevels(){
+  const g = $('lvgrid'); g.innerHTML = '';
+  LEVELS.forEach((L,i)=>{
+    const open = save.all || i===0 || save.stars[i-1]>0;
+    const b = document.createElement('button');
+    b.className = 'lv' + (open?'':' locked'); b.disabled = !open;
+    b.innerHTML = `<span class="n">MACHINE ${String(i+1).padStart(2,'0')}</span><span class="t">${L.name}</span>${dtag('stars',i)}<span class="s">${open?starStr(save.stars[i]):'LOCKED'}</span>`;
+    b.onclick = () => startLevel(i);
+    g.appendChild(b);
+  });
+  $('total').textContent = save.stars.reduce((a,b)=>a+b,0) + ' / ' + LEVELS.length*3 + ' ★';
+}
+
+function startLevel(i){
+  const L = LEVELS[i];
+  const xs = shuffle(L.pool).slice(0,9);
+  const icons = shuffle(SNACKS).slice(0,9);
+  const slots = shuffle(xs.map((x,k)=>({code:L.f(x), icon:icons[k]})));
+  G = {i, L, slots, queue:shuffle(range(0,8)).slice(0,ORDERS), done:0, vends:0, log:[], busy:false};
+  entry = '';
+  $('gname').textContent = L.name;
+  $('plate').textContent = L.plate;
+  $('tray').innerHTML = '';
+  $('glass').innerHTML = slots.map((s,k)=>`<div class="slot" id="slot${k}"><span class="it">${s.icon}</span><span class="code">${s.code}</span></div>`).join('');
+  show('game'); drawOrder(); drawTape(); drawLcd();
+  say(L.intro, '');
+}
+
+function drawOrder(){
+  const cur = Math.min(G.done, ORDERS-1), want = G.slots[G.queue[cur]];
+  $('oit').textContent = want.icon; $('onum').textContent = want.code;
+  $('pips').innerHTML = range(1,ORDERS).map(n=>`<i class="${n<=G.done?'done':''}"></i>`).join('');
+  document.querySelectorAll('.slot').forEach((el,k)=>el.classList.toggle('want', G.done<ORDERS && k===G.queue[cur]));
+  $('gvends').textContent = 'VENDS: ' + G.vends;
+}
+function drawLcd(out){
+  const mid = G.L.mystery ? '???' : G.L.plate.replace('IN → ','').replace(' → OUT','').replace('f(x) = ','');
+  $('lcd').innerHTML = `<span class="x">${entry===''?'_':entry}</span>→ [ ${mid} ] →<span class="x">${out===undefined?'?':out}</span>`;
+}
+function drawTape(){
+  $('tape').innerHTML = G.log.length
+    ? G.log.map(r=>`<tr><td>${r.x}</td><td>${r.y}</td></tr>`).join('')
+    : '<tr><td colspan="2" class="empty">Your receipt prints here.</td></tr>';
+}
+function say(t, cls){ const m=$('msg'); m.textContent=t; m.className='msg '+cls; }
+
+/* keypad */
+const KEYS = ['7','8','9','⌫','4','5','6','±','1','2','3','0'];
+$('keys').innerHTML = KEYS.map(k=>`<button data-k="${k}" class="${/[⌫±]/.test(k)?'alt':''}" aria-label="${k==='⌫'?'delete':k==='±'?'plus or minus':k}">${k}</button>`).join('') + '<button class="vend" data-k="V" style="grid-column:span 4">VEND</button>';
+$('keys').onclick = e => { const k = e.target.dataset.k; if(k) press(k); };
+document.addEventListener('keydown', e => {
+  if(!$('game').classList.contains('on') || $('over').classList.contains('on')) return;
+  if(/^[0-9]$/.test(e.key)) press(e.key);
+  else if(e.key==='-') press('±');
+  else if(e.key==='Backspace') press('⌫');
+  else if(e.key==='Enter'){ e.preventDefault(); press('V'); }
+});
+function press(k){
+  if(!G || G.busy) return;
+  if(k==='V') return vend();
+  if(k==='⌫') entry = entry.slice(0,-1);
+  else if(k==='±') entry = entry.startsWith('-') ? entry.slice(1) : '-' + entry;
+  else if(entry.replace('-','').length < 3) entry += k;
+  if(entry==='-0') entry='-';
+  drawLcd();
+}
+
+function vend(){
+  if(entry==='' || entry==='-'){ say('Type a number first.', 'bad'); return; }
+  const x = Number(entry), y = G.L.f(x);
+  G.vends++; G.log.unshift({x,y}); drawTape(); drawLcd(y);
+  const hit = G.slots.findIndex(s=>s.code===y);
+  const wantIdx = G.queue[G.done], want = G.slots[wantIdx];
+  entry = '';
+  if(hit === wantIdx){
+    G.busy = true;
+    dropFrom(hit, () => {
+      G.done++; G.busy = false;
+      if(G.done >= ORDERS) return finish();
+      say(`${x} went in, ${y} came out. Order filled.`, 'good');
+      drawOrder(); drawLcd();
+    });
+  } else if(hit >= 0){
+    G.busy = true;
+    dropFrom(hit, () => { G.busy=false; say(`${x} went in and ${y} came out, so you got the ${G.slots[hit].icon}. The customer wanted ${want.code}.`, 'bad'); drawOrder(); });
+  } else {
+    $('slot'+wantIdx).classList.add('shake'); setTimeout(()=>$('slot'+wantIdx).classList.remove('shake'), 450);
+    say(Number.isInteger(y) ? `${x} went in and ${y} came out. There is no snack at ${y}.` : `${x} went in and ${y} came out. Slots only have whole numbers.`, 'bad');
+    drawOrder();
+  }
+}
+function dropFrom(k, then){
+  const el = $('slot'+k); el.classList.add('drop');
+  setTimeout(()=>{ el.classList.remove('drop'); $('tray').innerHTML = `<span>${G.slots[k].icon}</span>`; then(); }, 720);
+}
+
+function finish(){
+  drawOrder();
+  if(G.L.mystery) return askRule();
+  const par = ORDERS;
+  award(G.vends<=par ? 3 : G.vends<=par+2 ? 2 : 1);
+}
+function askRule(){
+  const right = G.L.opts[0];
+  $('dlg').innerHTML = `<h3>ALL ORDERS FILLED</h3><p>One last thing. Check your receipt. What was this machine doing?</p>` +
+    shuffle(G.L.opts).map(o=>`<button class="btn opt" data-o="${o}">f(x) = ${o}</button>`).join('') + `<p class="msg" id="qmsg"></p>`;
+  $('over').classList.add('on');
+  let misses = 0;
+  $('dlg').onclick = e => {
+    const o = e.target.dataset.o; if(!o) return;
+    if(o === right){ $('dlg').onclick = null; award((G.vends<=9 ? 3 : G.vends<=12 ? 2 : 1) - (misses?1:0) || 1); }
+    else { misses++; e.target.disabled = true; e.target.style.opacity=.4; $('qmsg').textContent = 'Test it against a row on your receipt.'; $('qmsg').className='msg bad'; }
+  };
+}
+function award(stars){
+  save.stars[G.i] = Math.max(save.stars[G.i], stars); persist();
+  const last = G.i === LEVELS.length-1;
+  const rule = G.L.mystery ? `<p>The hidden rule was f(x) = ${G.L.opts[0]}.</p>` : '';
+  $('dlg').innerHTML = `<h3>${G.L.name} CLEARED</h3><div class="stars">${starStr(stars)}</div>
+    <p>${ORDERS} orders in ${G.vends} vends.${stars<3?' Fewer vends earns more stars.':''}</p>${rule}
+    <div class="row">${last?'':'<button class="btn" data-a="next">NEXT MACHINE ▶</button>'}<button class="btn ghost" data-a="again">PLAY AGAIN</button><button class="btn ghost" data-a="list">MACHINES</button></div>`;
+  $('over').classList.add('on');
+  $('dlg').onclick = e => {
+    const a = e.target.dataset.a; if(!a) return;
+    $('over').classList.remove('on'); $('dlg').onclick = null;
+    if(a==='next') startLevel(G.i+1); else if(a==='again') startLevel(G.i); else show('levels');
+  };
+}
+
+/* ================= EVENT 02: BOARDWALK HOOPS ================= */
+const cv = $('court'), cx = cv.getContext('2d');
+const W = 640, HH = 440, ML = 44, MR = 30, MT = 20, MB = 36, SHOTS = 5;
+const HML = 88;   // room on the left of the court for the player
+let H = null;
+const hsx = x => HML + (x - H.C.x0) / (H.C.x1 - H.C.x0) * (W - HML - MR);
+const hsy = y => HH - MB - (y / H.C.y1) * (HH - MT - MB);
+const line = (a,b,c,d) => { cx.beginPath(); cx.moveTo(a,b); cx.lineTo(c,d); cx.stroke(); };
+
+$('playHoops').onclick = () => show('hlevels');
+$('hunlock').onclick = () => { save.all = true; persist(); drawHLevels(); };
+$('hreset').onclick = () => { save.h = COURTS.map(()=>0); save.all = false; persist(); drawHLevels(); };
+function drawHLevels(){
+  const g = $('hgrid'); g.innerHTML = '';
+  COURTS.forEach((C,i)=>{
+    const open = save.all || i===0 || save.h[i-1]>0;
+    const b = document.createElement('button');
+    b.className = 'lv' + (open?'':' locked'); b.disabled = !open;
+    b.innerHTML = `<span class="n">COURT ${String(i+1).padStart(2,'0')}</span><span class="t">${C.name}</span>${dtag('h',i)}<span class="s">${open?starStr(save.h[i]):'LOCKED'}</span>`;
+    b.onclick = () => startCourt(i);
+    g.appendChild(b);
+  });
+  $('htotal').textContent = save.h.reduce((a,b)=>a+b,0) + ' / ' + COURTS.length*3 + ' ★';
+}
+
+function startCourt(i){
+  const C = COURTS[i];
+  H = {i, C, heights:shuffle(C.xs).slice(0,SHOTS).map(C.f), done:0, shots:0, hx:0, seen:C.x0, busy:false, ball:null, mark:null};
+  $('hname').textContent = C.name; $('hplate').textContent = C.label;
+  show('hoops'); hUI(); drawCourt(); hsay(C.intro, '');
+}
+function hsay(t, cls){ const m=$('hmsg'); m.textContent=t; m.className='msg '+cls; }
+function hUI(){
+  $('hh').textContent = H.heights[Math.min(H.done, SHOTS-1)];
+  $('hpips').innerHTML = range(1,SHOTS).map(n=>`<i class="${n<=H.done?'done':''}"></i>`).join('');
+  $('hlcd').innerHTML = `HOOP AT x =<span class="x">${H.hx}</span>`;
+  $('hshots').textContent = 'SHOTS: ' + H.shots;
+}
+function moveHoop(x){
+  if(!H || H.busy) return;
+  H.hx = Math.max(H.C.x0, Math.min(H.C.x1, Math.round(x)));
+  hUI(); drawCourt();
+}
+$('hl').onclick = () => moveHoop(H.hx-1);
+$('hr').onclick = () => moveHoop(H.hx+1);
+$('hshoot').onclick = () => shoot();
+cv.onclick = e => {
+  const r = cv.getBoundingClientRect(), px = (e.clientX - r.left) / r.width * W;
+  moveHoop(H.C.x0 + (px - HML) / (W - HML - MR) * (H.C.x1 - H.C.x0));
+};
+document.addEventListener('keydown', e => {
+  if(!$('hoops').classList.contains('on') || $('over').classList.contains('on')) return;
+  if(e.key==='ArrowLeft'){ e.preventDefault(); moveHoop(H.hx-1); }
+  else if(e.key==='ArrowRight'){ e.preventDefault(); moveHoop(H.hx+1); }
+  else if(e.key==='Enter' || e.key===' '){ e.preventDefault(); shoot(); }
+});
+
+function drawCourt(){
+  const C = H.C, h = H.heights[Math.min(H.done, SHOTS-1)];
+  cx.setTransform(2,0,0,2,0,0);
+  const g = cx.createLinearGradient(0,0,0,HH); g.addColorStop(0,'#1d0f3a'); g.addColorStop(1,'#5b1f6e');
+  cx.fillStyle = g; cx.fillRect(0,0,W,HH);
+  // grid and numbers
+  const ys = C.y1<=14 ? 1 : C.y1<=26 ? 2 : 4;
+  cx.font = '17px VT323, monospace'; cx.fillStyle = '#fff1d6'; cx.strokeStyle = 'rgba(255,241,214,.13)'; cx.lineWidth = 1;
+  cx.textAlign = 'center'; cx.textBaseline = 'top';
+  for(let x=C.x0; x<=C.x1; x++){ line(hsx(x),MT,hsx(x),HH-MB); cx.fillText(x, hsx(x), HH-MB+8); }
+  cx.textAlign = 'right'; cx.textBaseline = 'middle';
+  for(let y=0; y<=C.y1; y+=ys){ line(HML,hsy(y),W-MR,hsy(y)); cx.fillText(y, HML-8, hsy(y)); }
+  cx.strokeStyle = '#fff1d6'; cx.lineWidth = 3; line(HML,hsy(0),W-MR,hsy(0));
+  // hoop height line
+  cx.setLineDash([6,7]); cx.strokeStyle = 'rgba(255,197,49,.8)'; cx.lineWidth = 2; line(HML,hsy(h),W-MR,hsy(h)); cx.setLineDash([]);
+  // the part of the curve the ball has already flown
+  cx.globalAlpha = H.alpha === undefined ? 1 : H.alpha;
+  cx.strokeStyle = '#16c2b8'; cx.lineWidth = 4; cx.lineJoin = 'round'; cx.beginPath();
+  let pen = false; const dx = (C.x1-C.x0)/240;
+  for(let x=C.x0; x<=H.seen+1e-9; x+=dx){
+    const y = C.f(x);
+    if(y<0 || y>C.y1){ pen=false; continue; }
+    pen ? cx.lineTo(hsx(x),hsy(y)) : cx.moveTo(hsx(x),hsy(y)); pen = true;
+  }
+  cx.stroke();
+  cx.globalAlpha = 1;
+  // hoop: pole, backboard, net, rim
+  const px = hsx(H.hx), py = hsy(h), drop = H.ball && H.ball.drop || 0, net = 20 + Math.sin(drop*Math.PI)*10;
+  cx.strokeStyle = '#fff1d6'; cx.lineWidth = 4; line(px+24, hsy(0), px+24, py-24);
+  cx.fillStyle = '#fff1d6'; cx.fillRect(px+19, py-30, 9, 36);
+  cx.strokeStyle = 'rgba(255,241,214,.75)'; cx.lineWidth = 1.5;
+  for(let k=-2; k<=2; k++) line(px+k*8, py, px+k*5, py+net);
+  line(px-10, py+net, px+10, py+net);
+  cx.strokeStyle = '#ff5a3c'; cx.lineWidth = 4; cx.beginPath(); cx.ellipse(px, py, 17, 5, 0, 0, Math.PI*2); cx.stroke();
+  // where the last miss passed the hoop
+  if(H.mark && H.mark.y>=0 && H.mark.y<=C.y1){
+    const mx = hsx(H.mark.x), my = hsy(H.mark.y);
+    cx.fillStyle = '#ffc531'; cx.beginPath(); cx.arc(mx,my,6,0,Math.PI*2); cx.fill();
+    cx.font = '20px VT323, monospace'; cx.textAlign = mx > W-120 ? 'right' : 'left'; cx.textBaseline = 'bottom';
+    cx.fillText(`(${H.mark.x}, ${H.mark.y})`, mx + (mx > W-120 ? -10 : 10), my - 6);
+  }
+  drawPlayer();
+  // ball
+  if(H.ball && H.ball.y>=0 && H.ball.y<=C.y1*1.03){
+    const bx = hsx(H.ball.x), by = hsy(H.ball.y) + drop*44;
+    cx.globalAlpha = 1 - drop*.5;
+    cx.fillStyle = '#ff8a3c'; cx.strokeStyle = '#12081f'; cx.lineWidth = 2;
+    cx.beginPath(); cx.arc(bx,by,10,0,Math.PI*2); cx.fill(); cx.stroke();
+    cx.beginPath(); cx.arc(bx,by,10,-.9+H.ball.x*2, .9+H.ball.x*2); cx.lineTo(bx,by); cx.stroke();
+    cx.globalAlpha = 1;
+  }
+}
+
+function drawPlayer(){
+  const C = H.C, bx = hsx(C.x0), by = hsy(C.f(C.x0)), floor = hsy(0), px = 30;
+  const fy = Math.min(floor, by + 50);                       // feet: on a scaffold if the ball starts high
+  const flying = !!H.ball, p = flying ? (H.ball.x - C.x0) / (C.x1 - C.x0) : 0;
+  const jump = flying && p < .12 ? Math.sin(p/.12*Math.PI)*12 : 0, y = fy - jump;
+  if(fy < floor - 2){
+    cx.strokeStyle = 'rgba(255,241,214,.7)'; cx.lineWidth = 3;
+    line(px-16,fy+2,px+16,fy+2); line(px-11,fy+2,px-11,floor); line(px+11,fy+2,px+11,floor);
+    cx.lineWidth = 1.5; for(let yy=fy+2; yy<floor-20; yy+=28){ line(px-11,yy,px+11,yy+28); line(px+11,yy,px-11,yy+28); }
+  }
+  cx.strokeStyle = '#fff1d6'; cx.lineWidth = 4; cx.lineCap = 'round';
+  line(px-6,y,px-2,y-18); line(px+6,y,px+2,y-18);                    // legs
+  cx.fillStyle = '#16c2b8'; cx.fillRect(px-7,y-38,14,21);            // jersey
+  cx.fillStyle = '#12081f'; cx.font = '8px "Press Start 2P", monospace'; cx.textAlign = 'center'; cx.textBaseline = 'middle'; cx.fillText('f', px, y-27);
+  cx.fillStyle = '#ffc531'; cx.beginPath(); cx.arc(px,y-46,7,0,Math.PI*2); cx.fill();   // head
+  cx.strokeStyle = '#fff1d6'; cx.lineWidth = 4;
+  if(flying){ line(px+5,y-35,px+26,y-56); line(px+3,y-35,px+20,y-60); }   // follow-through
+  else {
+    line(px+5,y-35,bx-9,by+3); line(px+3,y-35,bx-11,by-3);               // holding the ball at the start of the curve
+    cx.fillStyle = '#ff8a3c'; cx.strokeStyle = '#12081f'; cx.lineWidth = 2;
+    cx.beginPath(); cx.arc(bx,by,10,0,Math.PI*2); cx.fill(); cx.stroke();
+    cx.beginPath(); cx.arc(bx,by,10,-.9,.9); cx.lineTo(bx,by); cx.stroke();
+  }
+  cx.lineCap = 'butt';
+}
+
+function shoot(){
+  if(!H || H.busy) return;
+  const C = H.C, h = H.heights[H.done], x = H.hx, y = C.f(x), hit = y === h;
+  const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  H.busy = true; H.shots++; H.mark = null; H.alpha = 1; H.seen = C.x0; hUI();
+  // the path is only drawn while the ball is in the air, then it fades, so the next x has to be worked out
+  function fade(then){ const f0 = performance.now(); (function go(now){ H.alpha = still ? 0 : Math.max(0, 1 - (now - f0)/900); drawCourt();
+    if(H.alpha > 0) return requestAnimationFrame(go); H.seen = C.x0; H.alpha = 1; then(); })(f0); }
+  const end = hit ? x : C.x1, t0 = performance.now(), dur = 500 + 1100*(end-C.x0)/(C.x1-C.x0);
+  function fly(now){
+    const p = still ? 1 : Math.min(1, (now-t0)/dur), bx = C.x0 + (end-C.x0)*p;
+    H.ball = {x:bx, y:C.f(bx), drop:0}; H.seen = Math.max(H.seen, bx); drawCourt();
+    if(p < 1) return requestAnimationFrame(fly);
+    hit ? swish(performance.now()) : miss();
+  }
+  function miss(){
+    H.ball = null; H.mark = {x, y};
+    hsay(`f(${x}) = ${y}. The ball passed the hoop at height ${y}, and the rim is at ${h}.`, 'bad');
+    hUI(); fade(() => { H.busy = false; drawCourt(); });
+  }
+  function swish(s0){
+    (function fall(now){
+      const q = still ? 1 : Math.min(1, (now-s0)/480);
+      H.ball = {x, y:h, drop:q}; drawCourt();
+      if(q < 1) return requestAnimationFrame(fall);
+      H.ball = null;
+      fade(() => {
+        H.done++; H.busy = false;
+        if(H.done >= SHOTS){ hUI(); drawCourt(); return hFinish(); }
+        hsay(`Swish. f(${x}) = ${h}.`, 'good'); hUI(); drawCourt();
+      });
+    })(s0);
+  }
+  requestAnimationFrame(fly);
+}
+
+function hFinish(){
+  const stars = H.shots<=SHOTS ? 3 : H.shots<=SHOTS+2 ? 2 : 1;
+  save.h[H.i] = Math.max(save.h[H.i], stars); persist();
+  const last = H.i === COURTS.length-1;
+  $('dlg').innerHTML = `<h3>${H.C.name} CLEARED</h3><div class="stars">${starStr(stars)}</div>
+    <p>${SHOTS} hoops in ${H.shots} shots.${stars<3?' Fewer shots earns more stars.':''}</p>
+    <div class="row">${last?'':'<button class="btn" data-a="next">NEXT COURT ▶</button>'}<button class="btn ghost" data-a="again">PLAY AGAIN</button><button class="btn ghost" data-a="list">COURTS</button></div>`;
+  $('over').classList.add('on');
+  $('dlg').onclick = e => {
+    const a = e.target.dataset.a; if(!a) return;
+    $('over').classList.remove('on'); $('dlg').onclick = null;
+    if(a==='next') startCourt(H.i+1); else if(a==='again') startCourt(H.i); else show('hlevels');
+  };
+}
+
+/* ================= EVENT 03: NIGHT HALF PIPE ================= */
+const pv = $('pipecv'), pc = pv.getContext('2d');
+let P = null;
+const psx = x => ML + (x - P.C.x0) / (P.C.x1 - P.C.x0) * (W - ML - MR);
+const psy = y => HH - MB - ((y - P.y0) / (P.C.y1 - P.y0)) * (HH - MT - MB);
+const pline = (a,b,c,d) => { pc.beginPath(); pc.moveTo(a,b); pc.lineTo(c,d); pc.stroke(); };
+
+$('playPipe').onclick = () => show('plevels');
+$('punlock').onclick = () => { save.all = true; persist(); drawPLevels(); };
+$('preset').onclick = () => { save.p = PIPES.map(()=>0); save.all = false; persist(); drawPLevels(); };
+function drawPLevels(){
+  const g = $('pgrid'); g.innerHTML = '';
+  PIPES.forEach((C,i)=>{
+    const open = save.all || i===0 || save.p[i-1]>0;
+    const b = document.createElement('button');
+    b.className = 'lv' + (open?'':' locked'); b.disabled = !open;
+    b.innerHTML = `<span class="n">PIPE ${String(i+1).padStart(2,'0')}</span><span class="t">${C.name}</span>${dtag('p',i)}<span class="s">${open?starStr(save.p[i]):'LOCKED'}</span>`;
+    b.onclick = () => startPipe(i);
+    g.appendChild(b);
+  });
+  $('ptotal').textContent = save.p.reduce((a,b)=>a+b,0) + ' / ' + PIPES.length*3 + ' ★';
+}
+
+const MOVES = [['360 SPIN',1],['BACKSIDE 360',-1],['720 SPIN',2],['BACKSIDE 720',-2],['1080 SPIN',3]];
+function startPipe(i){
+  const C = PIPES[i], y0 = C.y0 || 0, k = C.f(C.v);
+  let lo = C.x0; while(C.f(lo) > C.y1) lo++;
+  let hi = C.x1; while(C.f(hi) > C.y1) hi--;
+  const o = shuffle(C.offs.filter(d => C.f(C.v+d) !== 0)), side = () => Math.random() < .5 ? 1 : -1;
+  const height = n => ({type:'height', h:C.f(C.v + o[n])}), mirror = n => ({type:'mirror', a:C.v + side()*o[n]});
+  let list = y0 < 0 ? [{type:'root'}, {type:'vx'}, {type:'k'}, height(0), mirror(1)]
+                    : [height(0), height(1), height(2), {type:'vx'}, {type:'k'}, mirror(3)];
+  list = shuffle(list).flatMap(t => t.type === 'root' ? [t, {type:'root2', not:null}] : [t]);
+  P = {i, C, y0, k, lo, hi, list, done:0, bails:0, score:0, streak:0, hx:lo, hy:Math.round((y0 + C.y1)/2), busy:false,
+       sk:null, mark:null, trick:null, bail:null, glow:0, span:1, move:MOVES[0], pts:0};
+  $('pname').textContent = C.name; $('pplate').textContent = C.label;
+  show('pipe'); pUI(); drawPipe(); psay(C.intro, '');
+}
+const pCur = () => P.list[Math.min(P.done, P.list.length-1)];
+function psay(t, cls){ const m=$('pmsg'); m.textContent=t; m.className='msg '+cls; }
+function pUI(){
+  const t = pCur();
+  const txt = {
+    height: ['HIT THE HEIGHT', `Drop in so that you top out at exactly height ${t.h}.`, 'DROP IN AT x ='],
+    root:   ['GROUND GRIND', 'Drop in exactly where the pipe meets the ground. That x is called a root.', 'DROP IN AT x ='],
+    root2:  ['THE OTHER ROOT', `The pipe meets the ground in two places. You used x = ${t.not}. Now drop in at the other one.`, 'DROP IN AT x ='],
+    vx:     ['MANUAL', 'Balance at the very bottom of the pipe. Which x is the lowest point?', 'STAND AT x ='],
+    k:      ['LIMBO BAR', 'Set the bar at the height of the lowest point of the pipe.', 'BAR AT HEIGHT'],
+    mirror: ['CALL YOUR LANDING', `You drop in at x = ${t.a}. Plant the flag at the x where you will top out on the other side.`, 'FLAG AT x ='],
+  }[t.type];
+  $('ptitle').textContent = `TRICK ${Math.min(P.done+1, P.list.length)} OF ${P.list.length}: ${txt[0]}`;
+  $('pjob').textContent = txt[1];
+  $('ppips').innerHTML = P.list.map((_,n)=>`<i class="${n<P.done?'done':''}"></i>`).join('');
+  $('plcd').innerHTML = `${txt[2]}<span class="x">${t.type==='k' ? P.hy : P.hx}</span>`;
+  $('pgo').textContent = t.type === 'k' ? 'RIDE' : 'DROP IN';
+  $('pdrops').textContent = `SCORE ${P.score} · COMBO x${Math.min(P.streak+1, 5)}`;
+}
+function moveMark(d, abs){
+  if(!P || P.busy) return;
+  if(pCur().type === 'k') P.hy = Math.max(Math.ceil(P.y0), Math.min(P.C.y1, Math.round(abs !== undefined ? abs.y : P.hy + d)));
+  else P.hx = Math.max(P.lo, Math.min(P.hi, Math.round(abs !== undefined ? abs.x : P.hx + d)));
+  P.mark = null; pUI(); drawPipe();
+}
+$('pl').onclick = () => moveMark(-1);
+$('pr').onclick = () => moveMark(1);
+$('pgo').onclick = () => dropIn();
+pv.onclick = e => {
+  const r = pv.getBoundingClientRect(), px = (e.clientX - r.left) / r.width * W, py = (e.clientY - r.top) / r.height * HH;
+  moveMark(0, {x:P.C.x0 + (px - ML) / (W - ML - MR) * (P.C.x1 - P.C.x0), y:P.y0 + (HH - MB - py) / (HH - MT - MB) * (P.C.y1 - P.y0)});
+};
+document.addEventListener('keydown', e => {
+  if(!$('pipe').classList.contains('on') || $('over').classList.contains('on')) return;
+  const k = pCur().type === 'k';
+  if(e.key==='ArrowLeft' || (k && e.key==='ArrowDown')){ e.preventDefault(); moveMark(-1); }
+  else if(e.key==='ArrowRight' || (k && e.key==='ArrowUp')){ e.preventDefault(); moveMark(1); }
+  else if(e.key==='Enter' || e.key===' '){ e.preventDefault(); dropIn(); }
+});
+
+function pCurve(a, b){
+  const C = P.C, dx = (C.x1-C.x0)/260; let pen = false;
+  pc.beginPath();
+  for(let x=a; x<=b+1e-9; x+=dx){
+    const y = C.f(x);
+    if(y > C.y1){ pen = false; continue; }
+    pen ? pc.lineTo(psx(x),psy(y)) : pc.moveTo(psx(x),psy(y)); pen = true;
+  }
+  pc.stroke();
+}
+const TAGS = [{t:'f(x)',x:118,y:318,c:'#ff5a3c',r:-.12,s:34},{t:'DROP IN',x:318,y:352,c:'#16c2b8',r:.06,s:20},
+  {t:'x²',x:520,y:322,c:'#ffc531',r:-.2,s:38},{t:'ROOTS',x:214,y:386,c:'#ff4fa3',r:.1,s:16},{t:'y = ?',x:452,y:388,c:'#7dff9b',r:-.05,s:15}];
+function pBackdrop(){
+  const g = pc.createLinearGradient(0,0,0,HH); g.addColorStop(0,'#0b0620'); g.addColorStop(.7,'#2a1150'); g.addColorStop(1,'#1a0c33');
+  pc.fillStyle = g; pc.fillRect(0,0,W,HH);
+  pc.fillStyle = 'rgba(255,241,214,.9)'; pc.beginPath(); pc.arc(96,66,24,0,Math.PI*2); pc.fill();
+  pc.fillStyle = '#0b0620'; pc.beginPath(); pc.arc(106,60,21,0,Math.PI*2); pc.fill();
+  for(let k=0; k<40; k++){ pc.fillStyle = 'rgba(255,241,214,.5)'; pc.fillRect((k*97)%W, (k*53)%150, 2, 2); }
+  // skyline
+  for(let k=0; k<14; k++){
+    const bh = 50 + (k*73)%95, bx = k*48 - 8;
+    pc.fillStyle = '#140a29'; pc.fillRect(bx, 285-bh, 44, bh);
+    for(let r=0; r<bh/14-1; r++) for(let c=0; c<4; c++) if((k*7+r*3+c*5)%5===0){ pc.fillStyle = 'rgba(255,197,49,.45)'; pc.fillRect(bx+6+c*9, 292-bh+r*14, 4, 6); }
+  }
+  // park wall with graffiti
+  pc.fillStyle = '#26133f'; pc.fillRect(0,285,W,HH-285);
+  pc.strokeStyle = 'rgba(255,241,214,.05)'; pc.lineWidth = 1;
+  for(let y=299; y<HH; y+=14) pline(0,y,W,y);
+  pc.textAlign = 'center'; pc.textBaseline = 'middle';
+  TAGS.forEach(t => { pc.save(); pc.translate(t.x,t.y); pc.rotate(t.r); pc.font = t.s+'px "Press Start 2P", monospace';
+    pc.globalAlpha = .38; pc.lineWidth = 5; pc.strokeStyle = '#0b0620'; pc.strokeText(t.t,0,0); pc.fillStyle = t.c; pc.fillText(t.t,0,0); pc.restore(); });
+  // the floodlight is switched off
+  pc.strokeStyle = '#0b0620'; pc.lineWidth = 5; pline(W-10,HH-MB,W-10,34); pline(W-10,34,W-30,34);
+  pc.fillStyle = '#3a2a55'; pc.fillRect(W-36,34,14,6);
+}
+function drawPipe(){
+  const C = P.C, t = pCur(), y0 = P.y0;
+  pc.setTransform(2,0,0,2,0,0);
+  pBackdrop();
+  if(y0 < 0){ pc.fillStyle = 'rgba(8,3,18,.55)'; pc.fillRect(ML, psy(0), W-ML-MR, psy(y0)-psy(0)); }
+  const span = C.y1 - y0, ys = span<=14 ? 1 : span<=28 ? 2 : 4;
+  pc.font = '17px VT323, monospace'; pc.fillStyle = '#fff1d6'; pc.strokeStyle = 'rgba(255,241,214,.1)'; pc.lineWidth = 1;
+  pc.textAlign = 'center'; pc.textBaseline = 'top';
+  for(let x=C.x0; x<=C.x1; x++){ pline(psx(x),MT,psx(x),HH-MB); pc.fillText(x, psx(x), HH-MB+8); }
+  pc.textAlign = 'right'; pc.textBaseline = 'middle';
+  for(let y=Math.ceil(y0/ys)*ys; y<=C.y1; y+=ys){ pline(ML,psy(y),W-MR,psy(y)); pc.fillText(y, ML-8, psy(y)); }
+  pc.strokeStyle = '#fff1d6'; pc.lineWidth = 3; pline(ML,psy(0),W-MR,psy(0));
+  const tag = (txt, x, y, col, align) => { pc.font = '9px "Press Start 2P", monospace'; pc.textAlign = align || 'left'; pc.textBaseline = 'bottom'; pc.fillStyle = col; pc.fillText(txt, x, y); };
+  if(y0 < 0) tag('GROUND', ML+6, psy(0)-5, 'rgba(255,241,214,.7)');
+  const neon = (y, col) => { pc.save(); pc.shadowColor = col; pc.shadowBlur = 12; pc.strokeStyle = col; pc.lineWidth = 3; pc.setLineDash([10,7]); pline(ML,psy(y),W-MR,psy(y)); pc.restore(); };
+  const post = (x, col, txt) => { pc.setLineDash([3,6]); pc.strokeStyle = col; pc.lineWidth = 3; pline(psx(x),MT+16,psx(x),HH-MB); pc.setLineDash([]);
+    pc.fillStyle = col; pc.font = '10px "Press Start 2P", monospace'; pc.textAlign = 'center'; pc.textBaseline = 'top'; pc.fillText(txt, psx(x), MT); };
+  // marker for the current trick
+  if(t.type === 'height'){ neon(t.h, '#ff4fa3'); tag('TRICK HEIGHT ' + t.h, ML+6, psy(t.h)-6, '#ff4fa3'); }
+  if(t.type === 'root' || t.type === 'root2'){ neon(0, '#ff4fa3'); tag('GRIND HERE', W-MR-6, psy(0)-6, '#ff4fa3', 'right'); }
+  if(t.type === 'k'){ neon(P.hy, '#16c2b8'); tag('LIMBO BAR AT ' + P.hy, ML+6, psy(P.hy)-6, '#16c2b8'); }
+  if(t.type === 'mirror'){ post(t.a, '#ffc531', 'START'); post(P.hx, '#ff5a3c', 'FLAG'); }
+  else if(t.type !== 'k') post(P.hx, '#ff5a3c', t.type === 'vx' ? 'STAND' : 'DROP');
+  // the pipe only shows where the skater is riding, and fades afterwards
+  if(P.glow > 0){
+    pc.globalAlpha = P.glow; pc.lineJoin = 'round'; pc.lineCap = 'round'; pc.strokeStyle = '#16c2b8'; pc.lineWidth = 6;
+    pCurve(Math.max(C.x0, C.v - P.span), Math.min(C.x1, C.v + P.span)); pc.globalAlpha = 1;
+  }
+  // where the last run topped out
+  if(P.mark){
+    const mx = psx(P.mark.x), my = psy(P.mark.y);
+    pc.fillStyle = '#fff1d6'; pc.beginPath(); pc.arc(mx,my,6,0,Math.PI*2); pc.fill();
+    pc.font = '20px VT323, monospace'; pc.textAlign = mx < 140 ? 'left' : 'right'; pc.textBaseline = 'bottom';
+    pc.fillText('height ' + P.mark.y, mx + (mx < 140 ? 10 : -10), my - 6);
+  }
+  // skater: board and rider are drawn separately so the rider can come off
+  if(P.sk !== null){
+    const q = P.trick, bail = P.bail;
+    const frame = (x, fn) => { const e = .01, ang = Math.atan2(psy(C.f(x+e)) - psy(C.f(x-e)), psx(x+e) - psx(x-e));
+      pc.save(); pc.translate(psx(x), psy(C.f(x))); pc.rotate(ang); fn(); pc.restore(); };
+    const spin = () => { if(q !== null){ pc.translate(0, -Math.sin(q*Math.PI)*34); pc.translate(0,-24); pc.rotate(-q*Math.PI*2*P.move[1]); pc.translate(0,24); } };
+    const board = () => { pc.fillStyle = '#fff1d6'; pc.beginPath(); pc.arc(-9,-5,3,0,Math.PI*2); pc.arc(9,-5,3,0,Math.PI*2); pc.fill();
+      pc.fillStyle = P.streak >= 3 ? '#ffc531' : '#ff5a3c'; pc.fillRect(-16,-12,32,4); };
+    const rider = () => { pc.strokeStyle = '#fff1d6'; pc.lineWidth = 3;
+      pline(-7,-12,0,-25); pline(7,-12,0,-25); pline(0,-25,0,-39); pline(-10,-33,10,-35);
+      pc.fillStyle = '#ffc531'; pc.beginPath(); pc.arc(0,-45,6,0,Math.PI*2); pc.fill(); };
+    const banner = (txt, col, x, y) => { pc.font = '13px "Press Start 2P", monospace'; pc.textAlign = 'center'; pc.textBaseline = 'bottom';
+      const bx = Math.max(110, Math.min(W-110, x)), by = Math.max(40, y);
+      pc.lineWidth = 5; pc.strokeStyle = '#0b0620'; pc.strokeText(txt, bx, by); pc.fillStyle = col; pc.fillText(txt, bx, by); };
+    if(bail === null){ frame(P.sk, () => { spin(); board(); rider(); }); }
+    else {
+      frame(P.sk, board);
+      frame(bail.x, () => { pc.translate(0, -Math.sin(Math.min(1,bail.q*2.2)*Math.PI)*22 + 10*bail.q);
+        pc.translate(0,-24); pc.rotate(bail.q*Math.PI*2.5); pc.translate(0,24); rider(); });
+      banner('BAIL', '#ff7a8a', psx(bail.x0), psy(C.f(bail.x0)) - 70);
+    }
+    if(q !== null) banner(`${P.move[0]}  +${P.pts}`, '#ffc531', psx(P.sk), psy(C.f(P.sk)) - 96);
+  }
+}
+
+function dropIn(){
+  if(!P || P.busy) return;
+  const C = P.C, t = pCur(), v = C.v, x = P.hx, T = 1100;
+  let A, hit, good, bad, mark = true;
+  if(t.type === 'height' || t.type === 'root' || t.type === 'root2'){
+    const y = C.f(x), want = t.type === 'height' ? t.h : 0, same = t.type === 'root2' && x === t.not;
+    A = v - x; hit = y === want && !same;
+    good = want === 0 ? `f(${x}) = 0, so x = ${x} is a root.` : `f(${x}) = ${y}.`;
+    bad = same ? `x = ${x} is the root you already found. The other one is the same distance away on the opposite side of the lowest point.` : `f(${x}) = ${y}, so you topped out at height ${y}, not ${want}.`;
+  } else if(t.type === 'vx'){
+    A = v - x; hit = x === v;
+    good = `The lowest point is at x = ${v}. That point, (${v}, ${P.k}), is called the vertex.`;
+    bad = `f(${x}) = ${C.f(x)}. That is not the lowest point, so you rolled away.`;
+  } else if(t.type === 'k'){
+    A = Math.min(3, v - P.lo); hit = P.hy === P.k; mark = false;
+    good = `The lowest height is ${P.k}, so the vertex is (${v}, ${P.k}).`;
+    bad = P.hy > P.k ? `You passed under the bar with room to spare. The bottom of the pipe is lower than ${P.hy}.` : `The bar is below the pipe. The bottom of the pipe is higher than ${P.hy}.`;
+  } else {
+    A = v - t.a; hit = x === 2*v - t.a;
+    good = `Dropped in at ${t.a}, topped out at ${x}. Both are ${Math.abs(A)} away from the lowest point at x = ${v}.`;
+    bad = `You did not top out at x = ${x}. Both sides are the same distance from the lowest point.`;
+  }
+  const still = STILL(), D = hit ? 850 : 0, B = 1500, ease = u => u*u*(3-2*u);
+  P.busy = true; P.mark = null; P.trick = null; P.bail = null; P.glow = 1; P.span = Math.max(Math.abs(A), 1) + .3;
+  if(hit){ P.streak++; P.pts = 100 * Math.min(P.streak, 5); P.score += P.pts; P.move = MOVES[Math.floor(Math.random()*MOVES.length)]; }
+  else { P.streak = 0; P.bails++; }
+  pUI();
+  const t0 = performance.now(), top = {x:v + A, y:C.f(v - A)};
+  function ride(now){
+    const el = now - t0;
+    if(still || el >= (hit ? 3.6*T + D : T + B)) return settle();
+    if(!hit && el >= T){
+      const u = (el - T)/B;
+      if(mark) P.mark = top;
+      P.sk = v + A*(1 - ease(Math.min(1, u*1.5)));
+      P.bail = {q:Math.min(1, u*1.25), x:v + A*(1 - ease(Math.min(1, u*1.25))*.82), x0:v + A};
+      drawPipe(); return requestAnimationFrame(ride);
+    }
+    const pe = el < T ? el : el < T + D ? T : el - D;
+    const amp = A * Math.exp(-0.9 * Math.max(0, (pe - T)/T));
+    P.sk = v - amp * Math.cos(Math.PI * pe / T);
+    P.trick = (hit && el >= T && el < T + D) ? (el - T)/D : null;
+    drawPipe(); requestAnimationFrame(ride);
+  }
+  function settle(){
+    P.sk = null; P.trick = null; P.bail = null;
+    if(!hit && mark) P.mark = top;
+    psay(hit ? `${P.move[0]} for ${P.pts}. ${good}` : bad, hit ? 'good' : 'bad');
+    const f0 = performance.now();
+    (function fade(now){
+      P.glow = still ? 0 : Math.max(0, 1 - (now - f0)/900); drawPipe();
+      if(P.glow > 0) return requestAnimationFrame(fade);
+      P.busy = false;
+      if(hit){
+        const next = P.list[P.done+1]; if(t.type === 'root' && next && next.type === 'root2') next.not = x;
+        P.done++; P.mark = null;
+        if(P.done >= P.list.length){ pUI(); return pFinish(); }
+      }
+      pUI(); drawPipe();
+    })(f0);
+  }
+  requestAnimationFrame(ride);
+}
+
+function pFinish(){
+  const stars = P.bails === 0 ? 3 : P.bails <= 2 ? 2 : 1;
+  save.p[P.i] = Math.max(save.p[P.i], stars);
+  save.pb = save.pb || []; const best = Math.max(save.pb[P.i] || 0, P.score), fresh = P.score > (save.pb[P.i] || 0); save.pb[P.i] = best; persist();
+  clearDialog(P.C.name, stars, `Score ${P.score}${fresh ? ', a new best' : `. Your best is ${best}`}. ${P.bails === 0 ? 'No bails: a perfect run.' : P.bails + (P.bails === 1 ? ' bail.' : ' bails.') + ' A clean run keeps the combo climbing.'}`,
+    'PIPE', P.i === PIPES.length-1, () => startPipe(P.i+1), () => startPipe(P.i), () => show('plevels'));
+}
+
+/* ================= shared by events 04 and 05 ================= */
+function listScreen(gridId, totalId, list, key, word, start){
+  const g = $(gridId); g.innerHTML = '';
+  list.forEach((C,i)=>{
+    const open = save.all || i===0 || save[key][i-1]>0;
+    const b = document.createElement('button');
+    b.className = 'lv' + (open?'':' locked'); b.disabled = !open;
+    b.innerHTML = `<span class="n">${word} ${String(i+1).padStart(2,'0')}</span><span class="t">${C.name}</span>${dtag(key,i)}<span class="s">${open?starStr(save[key][i]):'LOCKED'}</span>`;
+    b.onclick = () => start(i);
+    g.appendChild(b);
+  });
+  $(totalId).textContent = save[key].reduce((a,b)=>a+b,0) + ' / ' + list.length*3 + ' ★';
+}
+function clearDialog(name, stars, text, word, last, next, again, list){
+  $('dlg').innerHTML = `<h3>${name} CLEARED</h3><div class="stars">${starStr(stars)}</div><p>${text}</p>
+    <div class="row">${last?'':`<button class="btn" data-a="next">NEXT ${word} ▶</button>`}<button class="btn ghost" data-a="again">PLAY AGAIN</button><button class="btn ghost" data-a="list">${word}S</button></div>`;
+  $('over').classList.add('on');
+  $('dlg').onclick = e => {
+    const a = e.target.dataset.a; if(!a) return;
+    $('over').classList.remove('on'); $('dlg').onclick = null;
+    a==='next' ? next() : a==='again' ? again() : list();
+  };
+}
+const STILL = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
+const fmt = n => n.toLocaleString('en');
+
+/* ================= EVENT 04: SEAGULL PIER ================= */
+const gv = $('gcv'), gc = gv.getContext('2d'), TICK = 430, MAXT = 10;
+let Q = null;
+const drawGList = () => listScreen('ggrid','gtotal',PIERS,'g','PIER',startPier);
+$('playGulls').onclick = () => show('glevels');
+$('gunlock').onclick = () => { save.all = true; persist(); drawGList(); };
+$('greset').onclick = () => { save.g = PIERS.map(()=>0); save.all = false; persist(); drawGList(); };
+
+function startPier(i){
+  const C = PIERS[i], g = t => C.a * C.b**t;
+  let tasks;
+  if(C.ts) tasks = shuffle(C.ts).slice(0,5).map(t => ({text:`exactly ${fmt(g(t))} gulls`, n:g(t), ok:x => x===t}));
+  else if(C.fr) tasks = shuffle(C.fr).map(([t,w]) => ({text:`the pier ${w}`, n:g(t), ok:x => x===t}));
+  else tasks = shuffle(C.least).map(n => ({text:`at least ${fmt(n)} gulls, as early as possible`, n, least:true, ok:x => g(x)>=n && (x===0 || g(x-1)<n)}));
+  Q = {i, C, g, tasks, done:0, waits:0, t:1, busy:false, minute:0, count:C.a, lift:0, verdict:null, log:[[0,C.a]]};
+  $('qname').textContent = C.name; $('qplate').textContent = C.label;
+  show('gulls'); qUI(); qTape(); drawPier(); qsay(C.intro, '');
+}
+function qsay(t, cls){ const m=$('qmsg'); m.textContent=t; m.className='msg '+cls; }
+function qUI(){
+  $('qjob').textContent = Q.tasks[Math.min(Q.done, Q.tasks.length-1)].text;
+  $('qpips').innerHTML = Q.tasks.map((_,n)=>`<i class="${n<Q.done?'done':''}"></i>`).join('');
+  $('qlcd').innerHTML = `WAIT<span class="x">${Q.t}</span>MINUTE${Q.t===1?'':'S'}`;
+  $('qwaits').textContent = 'TRIES: ' + Q.waits;
+}
+function qTape(){ $('qtape').innerHTML = [...Q.log].reverse().map(r=>`<tr><td>${r[0]}</td><td>${fmt(r[1])}</td></tr>`).join(''); }
+function setT(t){ if(!Q || Q.busy) return; Q.t = Math.max(0, Math.min(MAXT, t)); qUI(); }
+$('ql').onclick = () => setT(Q.t-1);
+$('qr').onclick = () => setT(Q.t+1);
+$('qgo').onclick = () => waitGulls();
+document.addEventListener('keydown', e => {
+  if(!$('gulls').classList.contains('on') || $('over').classList.contains('on')) return;
+  if(e.key==='ArrowLeft'){ e.preventDefault(); setT(Q.t-1); }
+  else if(e.key==='ArrowRight'){ e.preventDefault(); setT(Q.t+1); }
+  else if(e.key==='Enter' || e.key===' '){ e.preventDefault(); waitGulls(); }
+});
+
+function drawPier(){
+  const c = gc; c.setTransform(2,0,0,2,0,0);
+  const g = c.createLinearGradient(0,0,0,300); g.addColorStop(0,'#2b1055'); g.addColorStop(.6,'#ff5a3c'); g.addColorStop(1,'#ffc531');
+  c.fillStyle = g; c.fillRect(0,0,W,300);
+  c.fillStyle = '#fff3a8'; c.beginPath(); c.arc(W-130,300,58,Math.PI,0); c.fill();
+  c.fillStyle = '#0b6f7a'; c.fillRect(0,300,W,HH-300);
+  c.strokeStyle = 'rgba(255,241,214,.25)'; c.lineWidth = 2;
+  for(let k=0; k<9; k++){ const y = 312 + k*15, x = (k*83)%W; c.beginPath(); c.moveTo(x,y); c.lineTo(x+70,y); c.stroke(); }
+  c.fillStyle = '#2a170d'; for(let x=30; x<W; x+=86) c.fillRect(x,350,12,HH-350);
+  c.fillStyle = '#4a2c18'; c.fillRect(0,338,W,14);
+  c.fillStyle = '#2a170d'; for(let x=0; x<W; x+=32) c.fillRect(x,338,2,14);
+  // the thing the gulls are after
+  const by = 328 - Q.lift*380;
+  c.fillStyle = '#ff4fa3'; c.strokeStyle = '#12081f'; c.lineWidth = 2; c.beginPath(); c.ellipse(W/2, by, 52, 8, 0, 0, Math.PI*2); c.fill(); c.stroke();
+  c.strokeStyle = '#fff1d6'; c.beginPath(); c.moveTo(W/2-40,by); c.lineTo(W/2+40,by); c.stroke();
+  // gulls
+  const n = Math.min(Q.count, 280);
+  c.strokeStyle = '#fff1d6'; c.fillStyle = '#fff1d6'; c.lineWidth = 2; c.lineCap = 'round';
+  for(let k=0; k<n; k++){
+    const perch = k < 26, x = perch ? 22 + k*23.6 : 20 + (k*137.5)%600;
+    const y = (perch ? 330 : 64 + (k*89.3)%236) - Q.lift*(380 + (k%7)*12);
+    c.beginPath(); c.moveTo(x-7,y-4); c.quadraticCurveTo(x-3,y-7,x,y-2); c.quadraticCurveTo(x+3,y-7,x+7,y-4); c.stroke();
+    c.beginPath(); c.arc(x,y,2.2,0,Math.PI*2); c.fill();
+  }
+  c.lineCap = 'butt';
+  // counters
+  c.font = '12px "Press Start 2P", monospace'; c.textAlign = 'left'; c.textBaseline = 'top';
+  c.lineWidth = 5; c.strokeStyle = '#12081f'; c.fillStyle = '#fff1d6';
+  c.strokeText('MINUTE ' + Q.minute, 16, 16); c.fillText('MINUTE ' + Q.minute, 16, 16);
+  c.fillStyle = '#ffc531'; c.strokeText('GULLS ' + fmt(Q.count), 16, 38); c.fillText('GULLS ' + fmt(Q.count), 16, 38);
+  if(Q.verdict){ c.font = '18px "Press Start 2P", monospace'; c.textAlign = 'center'; c.textBaseline = 'middle';
+    c.lineWidth = 6; c.strokeText(Q.verdict.t, W/2, 190); c.fillStyle = Q.verdict.c; c.fillText(Q.verdict.t, W/2, 190); }
+}
+
+function waitGulls(){
+  if(!Q || Q.busy) return;
+  const C = Q.C, t = Q.t, task = Q.tasks[Q.done], still = STILL();
+  Q.busy = true; Q.waits++; Q.verdict = null; Q.lift = 0; Q.minute = 0; Q.count = C.a; Q.log = [[0,C.a]]; qUI(); qTape();
+  const t0 = performance.now();
+  function tick(now){
+    const el = now - t0, k = still ? t : Math.min(t, Math.floor(el / TICK));
+    if(k !== Q.minute){ for(let m=Q.minute+1; m<=k; m++) Q.log.push([m, Q.g(m)]); Q.minute = k; Q.count = Q.g(k); qTape(); }
+    drawPier();
+    if(!still && el < t*TICK + 350) return requestAnimationFrame(tick);
+    judge();
+  }
+  function judge(){
+    const got = Q.g(t);
+    if(task.ok(t)){
+      Q.verdict = {t:'CARRIED OFF', c:'#7dff9b'};
+      const l0 = performance.now();
+      (function lift(now){
+        Q.lift = still ? 1 : Math.min(1, (now - l0)/1100); drawPier();
+        if(Q.lift < 1) return requestAnimationFrame(lift);
+        Q.done++; Q.busy = false;
+        if(Q.done >= Q.tasks.length){ qUI(); return qFinish(); }
+        qsay(`g(${t}) = ${fmt(got)}. Job done.`, 'good');
+        Q.verdict = null; Q.lift = 0; Q.minute = 0; Q.count = C.a; qUI(); drawPier();
+      })(l0);
+    } else {
+      const few = got < task.n;
+      Q.verdict = few ? {t:'TOO FEW', c:'#ff7a8a'} : {t: task.least ? 'TOO LATE' : 'TOO MANY', c:'#ff7a8a'};
+      qsay(few ? `g(${t}) = ${fmt(got)}. That is not enough gulls. They squawk and give up.`
+         : task.least ? `g(${t}) = ${fmt(got)}. That is enough, but there were already enough a minute earlier.`
+         : `g(${t}) = ${fmt(got)}. Too many gulls. They fight over it and nothing gets carried.`, 'bad');
+      Q.busy = false; qUI(); drawPier();
+    }
+  }
+  requestAnimationFrame(tick);
+}
+function qFinish(){
+  const n = Q.tasks.length, stars = Q.waits<=n ? 3 : Q.waits<=n+2 ? 2 : 1;
+  save.g[Q.i] = Math.max(save.g[Q.i], stars); persist();
+  clearDialog(Q.C.name, stars, `${n} jobs in ${Q.waits} tries.${stars<3?' Fewer tries earns more stars.':''}`, 'PIER', Q.i===PIERS.length-1,
+    () => startPier(Q.i+1), () => startPier(Q.i), () => show('glevels'));
+}
+
+/* ================= EVENT 05: RING THE BELL ================= */
+const sv = $('scv'), sc = sv.getContext('2d'), TX = 400, BASE = 388, TOP = 56;
+let S = null;
+const SUP = {'0':'⁰','1':'¹','2':'²','3':'³','4':'⁴','5':'⁵','6':'⁶','7':'⁷','8':'⁸','9':'⁹'};
+const sup = n => Number.isInteger(n) ? String(n).split('').map(ch=>SUP[ch]).join('') : '^' + n;
+const drawSList = () => listScreen('sgrid','stotal',TOWERS,'s','TOWER',startTower);
+$('playBell').onclick = () => show('slevels');
+$('sunlock').onclick = () => { save.all = true; persist(); drawSList(); };
+$('sreset').onclick = () => { save.s = TOWERS.map(()=>0); save.all = false; persist(); drawSList(); };
+const sY = h => BASE - h / S.top * (BASE - TOP);
+
+function startTower(i){
+  const C = TOWERS[i];
+  S = {i, C, bells:shuffle(C.bells).slice(0,5), top:Math.max(...C.bells)+1, half:C.bells.some(b=>b%1), done:0, hits:0, entry:'', busy:false,
+       ang:0, puck:0, ding:null, off:null, peak:null};
+  $('sname').textContent = C.name; $('splate').textContent = C.label;
+  show('bell'); sUI(); drawTower(); ssay(C.intro, '');
+}
+function ssay(t, cls){ const m=$('smsg'); m.textContent=t; m.className='msg '+cls; }
+function sUI(){
+  $('sbell').textContent = S.bells[Math.min(S.done, S.bells.length-1)];
+  $('spips').innerHTML = S.bells.map((_,n)=>`<i class="${n<S.done?'done':''}"></i>`).join('');
+  $('slcd').innerHTML = `POWER p =<span class="x">${S.entry===''?'_':fmt(Number(S.entry))}</span>`;
+  $('shits').textContent = 'SWINGS: ' + S.hits;
+}
+$('skeys').innerHTML = ['7','8','9','⌫','4','5','6','0','1','2','3'].map(k=>`<button data-k="${k}" class="${k==='⌫'?'alt':''}" aria-label="${k==='⌫'?'delete':k}">${k}</button>`).join('') + '<button class="vend" data-k="H" style="grid-column:span 1">HIT</button>';
+$('skeys').onclick = e => { const k = e.target.dataset.k; if(k) sPress(k); };
+document.addEventListener('keydown', e => {
+  if(!$('bell').classList.contains('on') || $('over').classList.contains('on')) return;
+  if(/^[0-9]$/.test(e.key)) sPress(e.key);
+  else if(e.key==='Backspace') sPress('⌫');
+  else if(e.key==='Enter'){ e.preventDefault(); sPress('H'); }
+});
+function sPress(k){
+  if(!S || S.busy) return;
+  if(k==='H') return swing();
+  if(k==='⌫') S.entry = S.entry.slice(0,-1);
+  else if(S.entry.length < 6 && !(S.entry==='' && k==='0')) S.entry += k;
+  sUI();
+}
+
+function drawTower(){
+  const c = sc, C = S.C, target = S.bells[Math.min(S.done, S.bells.length-1)];
+  c.setTransform(2,0,0,2,0,0);
+  const g = c.createLinearGradient(0,0,0,HH); g.addColorStop(0,'#12081f'); g.addColorStop(.75,'#5b1f6e'); g.addColorStop(1,'#ff5a3c');
+  c.fillStyle = g; c.fillRect(0,0,W,HH);
+  // ferris wheel and tent
+  c.strokeStyle = 'rgba(18,8,31,.75)'; c.lineWidth = 4; c.beginPath(); c.arc(130,250,105,0,Math.PI*2); c.stroke();
+  for(let k=0; k<8; k++){ const a = k*Math.PI/4; c.beginPath(); c.moveTo(130,250); c.lineTo(130+105*Math.cos(a),250+105*Math.sin(a)); c.stroke();
+    c.fillStyle = ['#ffc531','#16c2b8','#ff4fa3','#fff1d6'][k%4]; c.fillRect(130+105*Math.cos(a)-7,250+105*Math.sin(a)-2,14,11); }
+  c.beginPath(); c.moveTo(130,250); c.lineTo(95,BASE); c.moveTo(130,250); c.lineTo(165,BASE); c.stroke();
+  for(let k=0; k<6; k++){ c.fillStyle = k%2 ? '#fff1d6' : '#ff5a3c'; c.beginPath(); c.moveTo(560,250); c.lineTo(500+k*20,BASE); c.lineTo(520+k*20,BASE); c.closePath(); c.fill(); }
+  // string lights
+  for(let k=0; k<=24; k++){ const x = k*W/24, y = 22 + 16*Math.sin(k/24*Math.PI); c.fillStyle = ['#ffc531','#ff4fa3','#16c2b8'][k%3];
+    c.globalAlpha = S.ding !== null && (k + Math.floor(S.ding*8))%2 ? .25 : 1; c.beginPath(); c.arc(x,y,4,0,Math.PI*2); c.fill(); }
+  c.globalAlpha = 1;
+  c.fillStyle = '#12081f'; c.fillRect(0,BASE,W,HH-BASE);
+  // tower
+  c.fillStyle = '#12081f'; c.fillRect(TX-30, TOP-26, 60, BASE-TOP+26);
+  c.fillStyle = '#b3261e'; c.fillRect(TX-24, TOP-20, 48, BASE-TOP+20);
+  c.fillStyle = '#12081f'; c.fillRect(TX-4, TOP-12, 8, BASE-TOP+12);
+  c.font = '18px VT323, monospace'; c.textAlign = 'right'; c.textBaseline = 'middle';
+  for(let m=0; m<=S.top; m += S.half ? .5 : 1){
+    const y = sY(m), whole = Number.isInteger(m);
+    c.strokeStyle = '#fff1d6'; c.lineWidth = whole ? 3 : 1.5; c.beginPath(); c.moveTo(TX-24,y); c.lineTo(TX-(whole?8:14),y); c.stroke();
+    if(whole){ c.fillStyle = '#fff1d6'; c.fillText(m, TX-36, y); }
+  }
+  // bell
+  const ty = sY(target), off = S.off || 0, wig = S.ding !== null ? Math.sin(S.ding*Math.PI*8)*.35*(1-S.ding) : 0;
+  c.save(); c.translate(TX + off*150, ty - 4 - off*220); c.rotate(wig + off*5);
+  c.fillStyle = '#ffc531'; c.strokeStyle = '#12081f'; c.lineWidth = 2;
+  c.beginPath(); c.arc(0,-14,14,Math.PI,0); c.lineTo(17,0); c.lineTo(-17,0); c.closePath(); c.fill(); c.stroke();
+  c.fillStyle = '#12081f'; c.beginPath(); c.arc(0,-1,3,0,Math.PI*2); c.fill();
+  c.restore();
+  c.font = '9px "Press Start 2P", monospace'; c.textAlign = 'left'; c.textBaseline = 'middle'; c.fillStyle = '#ffc531';
+  c.fillText('BELL AT ' + target, TX+40, ty-10);
+  // puck
+  const py = sY(S.puck);
+  c.fillStyle = '#16c2b8'; c.strokeStyle = '#12081f'; c.lineWidth = 2; c.fillRect(TX-11, py+1, 22, 9); c.strokeRect(TX-11, py+1, 22, 9);
+  if(S.peak){ c.font = '20px VT323, monospace'; c.textAlign = 'left'; c.fillStyle = '#fff1d6'; c.fillText(S.peak, TX+40, py+8); }
+  if(S.ding !== null){ c.font = '18px "Press Start 2P", monospace'; c.textAlign = 'center'; c.lineWidth = 6; c.strokeStyle = '#12081f';
+    c.strokeText('DING', TX, ty-52); c.fillStyle = '#ffc531'; c.fillText('DING', TX, ty-52); }
+  // pad, strongman and hammer
+  c.fillStyle = '#fff1d6'; c.fillRect(TX-70, BASE-8, 44, 8);
+  const mx = TX-112, my = BASE;
+  c.strokeStyle = '#fff1d6'; c.lineWidth = 5; c.lineCap = 'round';
+  c.beginPath(); c.moveTo(mx-9,my); c.lineTo(mx-3,my-26); c.moveTo(mx+9,my); c.lineTo(mx+3,my-26); c.stroke();
+  c.fillStyle = '#ff4fa3'; c.fillRect(mx-11,my-56,22,31);
+  c.fillStyle = '#ffc531'; c.beginPath(); c.arc(mx,my-66,9,0,Math.PI*2); c.fill();
+  c.save(); c.translate(mx+6,my-50); c.rotate(-2.3 + S.ang*2.75);        // raised behind the head -> down on the pad
+  c.strokeStyle = '#fff1d6'; c.lineWidth = 5; c.beginPath(); c.moveTo(0,0); c.lineTo(26,0); c.stroke();
+  c.strokeStyle = '#8a5a2b'; c.lineWidth = 4; c.beginPath(); c.moveTo(22,0); c.lineTo(62,0); c.stroke();
+  c.fillStyle = '#12081f'; c.fillRect(58,-12,16,24);
+  c.restore(); c.lineCap = 'butt';
+}
+
+function swing(){
+  if(S.entry === ''){ ssay('Type a hammer power first.', 'bad'); return; }
+  const C = S.C, p = Number(S.entry), target = S.bells[S.done], h = Math.log(p)/Math.log(C.b);
+  const hit = p === Math.round(C.b ** target), over = !hit && h > target, reach = hit || over ? target : h;
+  const shown = hit ? String(target) : (Math.round(h*100)/100).toFixed(2);
+  S.busy = true; S.hits++; S.peak = null; S.ding = null; S.off = null; sUI();
+  const t0 = performance.now(), still = STILL();
+  function frame(now){
+    const el = still ? 99999 : now - t0;
+    S.ang = Math.min(1, el/230);
+    const up = Math.max(0, Math.min(1, (el-230)/650)), down = Math.max(0, Math.min(1, (el-2000)/450));
+    S.puck = reach * (1 - (1-up)**3) * (1 - down*down);
+    const hold = Math.max(0, Math.min(1, (el-880)/1100));
+    if(el >= 880){ S.peak = down > 0 ? null : (over ? 'too hard' : 'height ' + shown); if(hit) S.ding = hold; if(over) S.off = hold; }
+    drawTower();
+    if(el < 2450) return requestAnimationFrame(frame);
+    S.ang = 0; S.puck = 0; S.peak = null; S.ding = null; S.off = null; S.busy = false; S.entry = '';
+    if(hit){
+      S.done++;
+      if(S.done >= S.bells.length){ sUI(); drawTower(); return sFinish(); }
+      ssay(`Ding. ${C.lg} ${fmt(p)} = ${target}, because ${C.b}${sup(target)} = ${fmt(p)}.`, 'good');
+    } else if(over) ssay(`${C.lg} ${fmt(p)} ≈ ${shown}. Too much power for a bell at ${target}, and you knocked it off.`, 'bad');
+    else ssay(`${C.lg} ${fmt(p)} ≈ ${shown}. The puck stopped short of the bell at ${target}.`, 'bad');
+    sUI(); drawTower();
+  }
+  requestAnimationFrame(frame);
+}
+function sFinish(){
+  const n = S.bells.length, stars = S.hits<=n ? 3 : S.hits<=n+2 ? 2 : 1;
+  save.s[S.i] = Math.max(save.s[S.i], stars); persist();
+  clearDialog(S.C.name, stars, `${n} bells in ${S.hits} swings.${stars<3?' Fewer swings earns more stars.':''}`, 'TOWER', S.i===TOWERS.length-1,
+    () => startTower(S.i+1), () => startTower(S.i), () => show('slevels'));
+}
+
+/* ================= EVENT 06: BEACH FRISBEE ================= */
+const fv = $('fcv'), fc = fv.getContext('2d'), HAND = 316, SAND = 366;
+const OPF = {'+':(v,n)=>v+n, '−':(v,n)=>v-n, '×':(v,n)=>v*n, '÷':(v,n)=>v/n}, INV = {'+':'−','−':'+','×':'÷','÷':'×'};
+const opl = o => o[0] + o[1], runOps = (v,ops) => ops.reduce((a,o)=>OPF[o[0]](a,o[1]), v);
+const fmtv = v => Number.isInteger(v) ? String(v) : String(Math.round(v*100)/100);
+const sleep = ms => new Promise(r => setTimeout(r, STILL() ? 0 : ms));
+let F = null;
+const drawFList = () => listScreen('fgrid','ftotal',BEACHES,'f','BEACH',startBeach);
+$('playFris').onclick = () => show('flevels');
+$('funlock').onclick = () => { save.all = true; persist(); drawFList(); };
+$('freset').onclick = () => { save.f = BEACHES.map(()=>0); save.all = false; persist(); drawFList(); };
+const fx = v => 44 + (v - 0) / F.hi * (W - 88);
+const fxc = v => Math.max(-40, Math.min(W+40, fx(v)));
+
+function startBeach(i){
+  const L = BEACHES[i];
+  F = {i, L, k:0, done:0, tries:0, busy:true, slots:[], tiles:[], pick:null, pred:null, sx:1, log:[], scene:0, start:0, land:0, hi:20, inHops:[], outHops:[], fr:null, verdict:null};
+  $('fname').textContent = L.name;
+  show('fris'); fsay(L.intro, '');
+  F.ready = loadFn(0);
+}
+async function loadFn(k){
+  const me = F, fn = F.L.fns[k];
+  F.k = k; F.fn = fn; F.pick = null; F.slots = fn.ops.map(()=>null); F.pred = null;
+  const inv = fn.ops.map(o => [INV[o[0]], o[1]]), extra = [];
+  if(fn.ops.length === 1){ const o = fn.ops[0]; extra.push(...('+−'.includes(o[0]) ? [['÷',o[1]],['×',o[1]]] : [['−',o[1]],['+',o[1]]])); }
+  const seen = new Set();
+  F.tiles = shuffle([...inv, ...fn.ops, ...extra].filter(o => !seen.has(opl(o)) && seen.add(opl(o)))).map(op => ({op, used:false}));
+  const all = fn.xs.flatMap(x => { const vs = [x]; fn.ops.forEach(o => vs.push(OPF[o[0]](vs[vs.length-1], o[1]))); return vs; });
+  F.hi = Math.max(10, Math.ceil((Math.max(...all) + 2) / 5) * 5);
+  $('fplate').textContent = fn.steps ? `x  ${fn.ops.map(opl).join('  ')}  is  ${fn.show}` : (fn.show || fn.ops.map(opl).join('  then  '));
+  $('fhead').textContent = fn.opts ? 'PICK THE RETURN THROW' : 'YOUR RETURN THROW';
+  const sc = !!F.L.scout;
+  $('fscout').hidden = !sc; $('fgo').textContent = sc ? 'TEST MY RULE' : 'THROW BACK';
+  $('fhint').textContent = sc ? 'Scout as many throws as you need, then build the rule from tiles and test it. Fewer scout throws earns more stars.' : 'Tap a tile to add it to your return throw. Tap a filled step to take it out.';
+  if(sc){
+    F.tiles = shuffle(fn.tiles).map(op => ({op, used:false}));
+    F.hi = Math.ceil((Math.max(...range(0,10).concat(fn.xs).map(x => runOps(x, fn.ops))) + 2) / 5) * 5;
+    $('fplate').textContent = 'f(x) = ? ? ?'; $('fhead').textContent = 'BUILD THE THROW';
+    F.sx = 1; F.start = 1; F.land = null; F.log = []; F.inHops = []; F.outHops = []; F.verdict = null; F.fr = null;
+    fUI(); drawBeach(); if(F === me) F.busy = false; return;
+  }
+  fUI();
+  await setScene(0);
+  if(F === me){ F.busy = false; }
+}
+function fsay(t, cls){ const m=$('fmsg'); m.textContent=t; m.className='msg '+cls; }
+function fUI(){
+  const fn = F.fn;
+  if(fn.opts){
+    $('fslots').innerHTML = '';
+    $('ftray').innerHTML = fn.opts.map((o,n)=>`<button class="tile${F.pick===n?' sel':''}" data-p="${n}">f⁻¹(x) = ${o[0]}</button>`).join('');
+  } else {
+    $('fslots').innerHTML = (F.L.scout ? 'x' : 'catch') + F.slots.map((t,n)=>` → <button class="slot2" data-s="${n}" aria-label="step ${n+1}">${t===null?'':opl(F.tiles[t].op)}</button>`).join('') + (F.L.scout ? ' → lands' : ' → thrower');
+    $('ftray').innerHTML = F.tiles.map((t,n)=>`<button class="tile" data-t="${n}" ${t.used?'disabled':''}>${opl(t.op)}</button>`).join('');
+  }
+  $('fpips').innerHTML = F.L.fns.map((_,n)=>`<i class="${n<F.done?'done':''}"></i>`).join('');
+  $('ftries').textContent = (F.L.scout ? 'SCOUT THROWS: ' : 'THROWS: ') + F.tries;
+  if(F.L.scout){ $('flcd').innerHTML = `THROWER STANDS AT x =<span class="x">${F.sx}</span>`;
+    $('fstape').innerHTML = F.log.length ? [...F.log].reverse().map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td></tr>`).join('') : '<tr><td colspan="2" class="empty">Scout throws print here.</td></tr>'; }
+}
+$('ftray').onclick = e => {
+  if(!F || F.busy) return; const d = e.target.dataset;
+  if(d.p !== undefined){ F.pick = Number(d.p); fUI(); }
+  else if(d.t !== undefined){ const n = F.slots.indexOf(null); if(n < 0) return; F.slots[n] = Number(d.t); F.tiles[d.t].used = true; fUI(); }
+};
+$('fslots').onclick = e => {
+  if(!F || F.busy) return; const n = e.target.dataset.s; if(n === undefined || F.slots[n] === null) return;
+  F.tiles[F.slots[n]].used = false; F.slots[n] = null; fUI();
+};
+$('fclear').onclick = () => { if(!F || F.busy) return; F.slots = F.slots.map(()=>null); F.tiles.forEach(t=>t.used=false); F.pick = null; fUI(); };
+$('fgo').onclick = () => F && F.L.scout ? testRule() : throwBack();
+document.addEventListener('keydown', e => {
+  if(!$('fris').classList.contains('on') || $('over').classList.contains('on')) return;
+  if(e.key==='Enter'){ e.preventDefault(); F.L.scout ? testRule() : throwBack(); }
+});
+
+function animHops(hops, store){
+  return new Promise(res => {
+    if(STILL() || !hops.length){ store.push(...hops); F.fr = null; drawBeach(); return res(); }
+    const me = F; let i = 0, t0 = performance.now();
+    (function step(now){
+      if(F !== me) return res();
+      const p = Math.min(1, (now - t0)/640);
+      F.fr = {h:hops[i], p}; drawBeach();
+      if(p < 1) return requestAnimationFrame(step);
+      store.push(hops[i]); i++; t0 = now;
+      if(i < hops.length) return requestAnimationFrame(step);
+      F.fr = null; drawBeach(); res();
+    })(t0);
+  });
+}
+async function setScene(j){
+  const fn = F.fn;
+  F.scene = j; F.start = fn.xs[j]; F.land = runOps(F.start, fn.ops); F.inHops = []; F.outHops = []; F.verdict = null; F.fr = null;
+  drawBeach();
+  let v = F.start; const hops = F.L.hide ? [] : fn.show && !fn.steps ? [{a:F.start, b:F.land, l:'f', c:0}] : fn.ops.map(o => { const a = v; v = OPF[o[0]](v,o[1]); return {a, b:v, l:opl(o), c:0}; });
+  await sleep(350); await animHops(hops, F.inHops);
+}
+async function throwBack(){
+  if(!F || F.busy) return;
+  const me = F, fn = F.fn;
+  const ops = fn.opts ? (F.pick === null ? null : fn.opts[F.pick][1]) : (F.slots.includes(null) ? null : F.slots.map(t => F.tiles[t].op));
+  if(!ops){ fsay(fn.opts ? 'Pick a return throw first.' : 'Fill every step of your return throw first.', 'bad'); return; }
+  F.busy = true; F.tries++; fUI();
+  for(let j=0; j<2; j++){
+    if(j > 0 || F.scene !== 0 || F.outHops.length){ await sleep(j ? 700 : 0); if(F !== me) return; await setScene(j); if(F !== me) return; }
+    let v = F.land; const hops = ops.map(o => { const a = v; v = OPF[o[0]](v,o[1]); return {a, b:v, l:opl(o), c:1}; });
+    await animHops(hops, F.outHops); if(F !== me) return;
+    if(Math.abs(v - F.start) > 1e-9){
+      F.verdict = {t: v < 0 || v > F.hi ? 'OUT OF BOUNDS' : F.L.hide ? 'NOBODY THERE' : 'MISSED', c:'#ff7a8a'}; drawBeach();
+      fsay(F.L.hide ? `Your return throw landed at ${fmtv(v)}, and nobody is standing there.${j ? ' It found the first thrower, but a real return throw finds every thrower.' : ''}` : j === 0 ? `Your return throw landed at ${fmtv(v)}, not back at ${F.start}.${ops.length>1?' The last thing the throw did is the first thing to undo.':''}`
+                   : `That worked from ${fn.xs[0]} but not from ${fn.xs[1]}: it landed at ${fmtv(v)}. A real return throw works from anywhere.`, 'bad');
+      F.busy = false; fUI(); return;
+    }
+    F.verdict = {t:'CAUGHT', c:'#7dff9b'}; drawBeach();
+    if(F.L.hide){ fsay(`Found. The thrower was at ${F.start}, and f(${F.start}) = ${F.land}.`, 'good'); await sleep(900); if(F !== me) return; }
+  }
+  F.done++; fUI();
+  if(F.done >= F.L.fns.length){ F.busy = false; return fFinish(); }
+  fsay(F.L.hide ? `Both throwers found, at ${fn.xs[0]} and ${fn.xs[1]}. The return throw tells you where any throw started.` : `Caught from ${fn.xs[0]} and from ${fn.xs[1]}. Your return throw undoes this throw from anywhere.`, 'good');
+  await sleep(1100); if(F !== me) return;
+  await loadFn(F.k + 1);
+}
+function moveThrower(x){
+  if(!F || F.busy || !F.L.scout) return;
+  F.sx = Math.max(0, Math.min(10, x)); F.start = F.sx; F.land = null; F.pred = null; F.inHops = []; F.verdict = null; fUI(); drawBeach();
+}
+$('fsl').onclick = () => moveThrower(F.sx-1);
+$('fsr').onclick = () => moveThrower(F.sx+1);
+$('fsgo').onclick = () => scoutThrow();
+async function scoutThrow(){
+  if(!F || F.busy || !F.L.scout) return;
+  const me = F, x = F.sx, y = runOps(x, F.fn.ops);
+  F.busy = true; F.tries++; F.start = x; F.land = null; F.pred = null; F.inHops = []; F.verdict = null; fUI();
+  await animHops([{a:x, b:y, l:'?', c:0}], F.inHops); if(F !== me) return;
+  F.land = y; F.log.push([x,y]); F.busy = false; fUI(); drawBeach();
+  fsay(`From ${x} it landed at ${y}.`, '');
+}
+async function testRule(){
+  if(!F || F.busy) return;
+  const me = F, fn = F.fn;
+  if(F.slots.includes(null)){ fsay('Fill both steps of your rule first.', 'bad'); return; }
+  const ops = F.slots.map(t => F.tiles[t].op);
+  F.busy = true;
+  for(const x of fn.xs){
+    const real = runOps(x, fn.ops), pred = runOps(x, ops);
+    F.start = x; F.land = null; F.pred = pred; F.inHops = []; F.verdict = null; drawBeach();
+    await sleep(600); if(F !== me) return;
+    await animHops([{a:x, b:real, l:'?', c:0}], F.inHops); if(F !== me) return;
+    F.land = real; F.log.push([x, real]);
+    if(Math.abs(pred - real) > 1e-9){
+      F.tries += 2; F.verdict = {t:'WRONG RULE', c:'#ff7a8a'}; F.busy = false; fUI(); drawBeach();
+      fsay(`From ${x}, your rule says ${fmtv(pred)} but the frisbee landed at ${real}. That failed test cost 2 scout throws.`, 'bad'); return;
+    }
+    F.verdict = {t:'MATCH', c:'#7dff9b'}; fUI(); drawBeach();
+    await sleep(800); if(F !== me) return;
+  }
+  F.done++; fUI();
+  fsay(`Rule found. This throw is ${fn.show}.`, 'good');
+  if(F.done >= F.L.fns.length){ F.busy = false; return fFinish(); }
+  await sleep(1800); if(F !== me) return;
+  await loadFn(F.k + 1);
+}
+function fFinish(){
+  const n = F.L.fns.length, stars = F.L.scout ? (F.tries<=2*n+1 ? 3 : F.tries<=3*n+2 ? 2 : 1) : F.tries<=n ? 3 : F.tries<=n+2 ? 2 : 1;
+  save.f[F.i] = Math.max(save.f[F.i], stars); persist();
+  clearDialog(F.L.name, stars, F.L.scout ? `${n} rules found with ${F.tries} scout throws.${stars<3?' Fewer scout throws earns more stars. Try standing at 0 and at 1.':''}` : `${n} throws returned in ${F.tries} attempts.${stars<3?' Fewer attempts earns more stars.':''}`, 'BEACH', F.i===BEACHES.length-1,
+    () => startBeach(F.i+1), () => startBeach(F.i), () => show('flevels'));
+}
+
+function drawBeach(){
+  const c = fc; c.setTransform(2,0,0,2,0,0);
+  const g = c.createLinearGradient(0,0,0,170); g.addColorStop(0,'#2b1055'); g.addColorStop(.65,'#ff5a3c'); g.addColorStop(1,'#ffc531');
+  c.fillStyle = g; c.fillRect(0,0,W,170);
+  c.fillStyle = '#fff3a8'; c.beginPath(); c.arc(120,170,46,Math.PI,0); c.fill();
+  c.fillStyle = '#16c2b8'; c.fillRect(0,170,W,60);
+  c.strokeStyle = 'rgba(255,241,214,.35)'; c.lineWidth = 2; for(let k=0; k<7; k++){ const y = 180+k*7, x = (k*131)%W; c.beginPath(); c.moveTo(x,y); c.lineTo(x+60,y); c.stroke(); }
+  c.fillStyle = '#e8c98c'; c.fillRect(0,228,W,HH-228);
+  c.fillStyle = '#fff1d6'; c.fillRect(0,226,W,5);
+  // umbrella and towel
+  c.fillStyle = '#12081f'; c.fillRect(548,238,4,60);
+  c.fillStyle = '#ff4fa3'; c.beginPath(); c.arc(550,244,42,Math.PI,0); c.fill();
+  c.fillStyle = '#fff1d6'; c.beginPath(); c.arc(550,244,42,Math.PI*1.33,Math.PI*1.66); c.lineTo(550,244); c.fill();
+  c.fillStyle = '#16c2b8'; c.fillRect(70,270,54,16);
+  // number line
+  c.strokeStyle = '#12081f'; c.lineWidth = 3; c.beginPath(); c.moveTo(24,SAND+8); c.lineTo(W-24,SAND+8); c.stroke();
+  const lab = F.hi<=20 ? 1 : F.hi<=40 ? 2 : F.hi<=100 ? 5 : 10;
+  c.font = '18px VT323, monospace'; c.fillStyle = '#12081f'; c.textAlign = 'center'; c.textBaseline = 'top';
+  for(let v=0; v<=F.hi; v++){ if(F.hi > 60 && v%5) continue; const x = fx(v), big = v%lab===0; c.lineWidth = big ? 3 : 1.5; c.beginPath(); c.moveTo(x,SAND+8); c.lineTo(x,SAND+(big?18:14)); c.stroke(); if(big) c.fillText(v, x, SAND+20); }
+  // people
+  const person = (x, col, up) => { c.strokeStyle = '#12081f'; c.lineWidth = 4; c.lineCap = 'round';
+    c.beginPath(); c.moveTo(x-6,SAND+6); c.lineTo(x-2,SAND-14); c.moveTo(x+6,SAND+6); c.lineTo(x+2,SAND-14); c.stroke();
+    c.fillStyle = col; c.fillRect(x-7,SAND-36,14,23);
+    c.beginPath(); c.moveTo(x-6,SAND-32); c.lineTo(x-16,SAND-(up?52:22)); c.moveTo(x+6,SAND-32); c.lineTo(x+16,SAND-(up?52:44)); c.stroke();
+    c.fillStyle = '#ffc531'; c.beginPath(); c.arc(x,SAND-44,7,0,Math.PI*2); c.fill(); c.stroke(); c.lineCap = 'butt'; };
+  const caught = F.verdict && F.verdict.t === 'CAUGHT';
+  const hidden = F.L.hide && !caught;
+  if(!hidden) person(fx(F.start), '#ff4fa3', caught);
+  if(F.land !== null) person(fx(F.land), '#16c2b8', false);
+  if(F.pred !== null && F.pred !== undefined){ const x = fxc(F.pred); c.strokeStyle = '#12081f'; c.lineWidth = 3; c.beginPath(); c.moveTo(x,SAND+8); c.lineTo(x,SAND-70); c.stroke();
+    c.fillStyle = '#ffc531'; c.beginPath(); c.moveTo(x,SAND-70); c.lineTo(x+26,SAND-61); c.lineTo(x,SAND-52); c.closePath(); c.fill(); c.stroke();
+    c.font = '9px "Press Start 2P", monospace'; c.textAlign = 'center'; c.textBaseline = 'bottom'; c.fillStyle = '#12081f'; c.fillText('YOUR RULE: ' + fmtv(F.pred), x, SAND-76); }
+  c.font = '9px "Press Start 2P", monospace'; c.textAlign = 'center'; c.textBaseline = 'bottom'; c.fillStyle = '#12081f';
+  if(!hidden) c.fillText('THROWER', fx(F.start), SAND-58);
+  if(F.land !== null && !(F.pred !== null && F.pred !== undefined)) c.fillText('YOU', fx(F.land), SAND-58);
+  if(F.L.hide){ c.textBaseline = 'middle'; c.fillText(`LANDED AT ${F.land}.  THROWER AT x = ${hidden ? '?' : F.start}`, W/2, 250); }
+  // flight paths
+  const arc = (h, p, live) => {
+    const x1 = fxc(h.a), x2 = fxc(h.b), H = 34 + Math.min(120, Math.abs(x2-x1)*.42), base = HAND - (h.c ? 0 : 26);
+    c.strokeStyle = h.c ? '#0b6f7a' : 'rgba(18,8,31,.55)'; c.lineWidth = 3; c.setLineDash(h.c ? [] : [6,6]); c.beginPath();
+    for(let u=0; u<=p+1e-9; u+=1/30) { const x = x1+(x2-x1)*u, y = base - Math.sin(Math.PI*u)*H; u ? c.lineTo(x,y) : c.moveTo(x,y); }
+    c.stroke(); c.setLineDash([]);
+    if(p >= .5){ c.font = '11px "Press Start 2P", monospace'; c.textAlign = 'center'; c.textBaseline = 'bottom'; c.fillStyle = h.c ? '#0b6f7a' : '#12081f'; c.fillText(h.l, (x1+x2)/2, base - H - 5); }
+    if(p >= 1 && h.c){ c.font = '20px VT323, monospace'; c.textBaseline = 'top'; c.fillStyle = '#0b6f7a'; c.fillText(fmtv(h.b), x2, base + 4); }
+    if(live){ const x = x1+(x2-x1)*p, y = base - Math.sin(Math.PI*p)*H; c.fillStyle = '#ff5a3c'; c.strokeStyle = '#12081f'; c.lineWidth = 2;
+      c.beginPath(); c.ellipse(x,y,13,5,0,0,Math.PI*2); c.fill(); c.stroke(); }
+  };
+  F.inHops.forEach(h => arc(h,1,false)); F.outHops.forEach(h => arc(h,1,false));
+  if(F.fr) arc(F.fr.h, F.fr.p, true);
+  if(F.verdict){ c.font = '18px "Press Start 2P", monospace'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.lineWidth = 6; c.strokeStyle = '#12081f';
+    c.strokeText(F.verdict.t, W/2, 60); c.fillStyle = F.verdict.c; c.fillText(F.verdict.t, W/2, 60); }
+}
+
+/* keep stars across a republish */
+function boot(data){ if(data && data.stars) save = Object.assign(save, data); if(!save.h || save.h.length!==COURTS.length) save.h = COURTS.map(()=>0); if(!save.p || save.p.length!==PIPES.length) save.p = PIPES.map(()=>0);
+  if(!save.g || save.g.length!==PIERS.length) save.g = PIERS.map(()=>0); if(!save.s || save.s.length!==TOWERS.length) save.s = TOWERS.map(()=>0); if(!save.f || save.f.length!==BEACHES.length) save.f = BEACHES.map(()=>0); drawLevels(); }
+window.claude?.hot?.snapshot?.(() => save);
+window.claude?.hot?.ready ? window.claude.hot.ready(boot) : boot(window.claude?.hot?.data ?? {});
+</script>
+</body>
+</html>

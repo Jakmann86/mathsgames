@@ -21,6 +21,8 @@ A place to store and share all the maths based games created for Northlands Scho
 | ★ JOHN'S PAINT SHOP | Ratio & proportion | Number & Algebra | [Play](https://jakmann86.github.io/mathsgames/johns-paint-shop) |
 | ✶ QUICKDRAW | Factors, multiples, primes, fractions, decimals, %, ratio | Number | [Play](https://jakmann86.github.io/mathsgames/quickdraw) |
 | ♥ BESSIE'S BAKERY | Scaling recipes (proportion) | Number & Algebra | [Play](https://jakmann86.github.io/mathsgames/bessies-bakery) |
+| ☀ FUNCTIFORNIA GAMES | Functions: input/output, linear, quadratics, exponentials, logs, inverses | Functions | [Play](https://jakmann86.github.io/mathsgames/functifornia) |
+| ✎ MATHS HANGMAN | Maths vocabulary (IGCSE + Year 12 word banks) | All topics | [Play](https://jakmann86.github.io/mathsgames/hangman) |
 
 ---
 
@@ -33,6 +35,8 @@ mathsgames/
 ├── johns-paint-shop/       ← Ratio game (single index.html)
 ├── quickdraw/              ← Shooting-gallery number game (single index.html)
 ├── bessies-bakery/         ← Recipe-scaling game (single index.html)
+├── functifornia/           ← Six function mini-games (single index.html)
+├── hangman/                ← Menu page + igcse/ and year12/ versions
 ├── divisibility-connect/, fractis/, meltdown/, number-blaster/, target-zero/
 ├── transform-game/         ← Transformations game
 │   ├── index.html

@@ -635,6 +635,57 @@
         @keyframes bkSum { 0%,44% { opacity: 0; } 52%,88% { opacity: 1; } 96%,100% { opacity: 0; } }
         .bk-sum.flour { color: #E8A0C0; text-shadow: 0 0 8px rgba(232,160,192,0.6); animation-delay: 0.5s; }
 
+        /* ─── FUNCTIFORNIA ─── */
+        .cabinet-functi .cabinet-glow { background: linear-gradient(135deg, #ffc531, #16c2b8); }
+        .cabinet-functi .cabinet-marquee { background: linear-gradient(90deg, #1d0f3a, #5b1f6e, #1d0f3a); border-bottom: 2px solid #ffc531; }
+        .cabinet-functi .cabinet-marquee::before {
+            content: ''; position: absolute; top: 0; left: -100%; width: 60%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,197,49,0.3), transparent);
+            animation: marqueeShine 3.4s infinite 0.8s;
+        }
+        .cabinet-functi .cabinet-marquee-text { color: #ffc531; }
+        .cabinet-functi .cabinet-name { color: #ffc531; }
+        .cabinet-functi .play-btn { background: linear-gradient(135deg, #ff5a3c, #ffc531); color: #12081f; }
+        .cabinet-functi .tag-a { background: rgba(255,197,49,0.15); color: #ffc531; }
+        .cabinet-functi .tag-b { background: rgba(22,194,184,0.15); color: #16c2b8; }
+        .fn-screen {
+            position: absolute; inset: 0; overflow: hidden;
+            background: linear-gradient(180deg, #1d0f3a 0%, #5b1f6e 38%, #ff5a3c 64%, #ffc531 76%, #16c2b8 76%, #0b6f7a 100%);
+        }
+        .fn-sun { position: absolute; left: 50%; top: 30%; width: 120px; height: 60px; margin-left: -60px; overflow: hidden; }
+        .fn-sun::before { content: ''; position: absolute; left: 0; top: 0; width: 120px; height: 120px; border-radius: 50%;
+            background: repeating-linear-gradient(180deg, #ffc531 0 8px, transparent 8px 11px), linear-gradient(180deg, #fff3a8, #ff5a3c); }
+        .fn-title { position: absolute; top: 12px; left: 0; right: 0; text-align: center; font-family: 'Press Start 2P', monospace; font-size: 13px;
+            color: #fff1d6; text-shadow: 2px 2px 0 #ff5a3c, 4px 4px 0 #12081f; }
+        .fn-graph { position: absolute; left: 0; right: 0; bottom: 0; width: 100%; height: 72%; }
+        .fn-curve { fill: none; stroke: #7dff9b; stroke-width: 3; stroke-dasharray: 300; stroke-dashoffset: 300; animation: fnDraw 4s infinite; filter: drop-shadow(0 0 4px #7dff9b); }
+        @keyframes fnDraw { 0% { stroke-dashoffset: 300; } 55%,85% { stroke-dashoffset: 0; } 100% { stroke-dashoffset: 0; opacity: 0; } }
+        .fn-events { position: absolute; bottom: 8px; left: 0; right: 0; text-align: center; font-size: 18px; letter-spacing: 6px; }
+
+        /* ─── MATHS HANGMAN ─── */
+        .cabinet-hangman .cabinet-glow { background: linear-gradient(135deg, #F2D06B, #7ea8ff); }
+        .cabinet-hangman .cabinet-marquee { background: linear-gradient(90deg, #0f1f1b, #1F3A33, #0f1f1b); border-bottom: 2px solid #F2EFE6; }
+        .cabinet-hangman .cabinet-marquee::before {
+            content: ''; position: absolute; top: 0; left: -100%; width: 60%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(242,239,230,0.25), transparent);
+            animation: marqueeShine 4.2s infinite 2s;
+        }
+        .cabinet-hangman .cabinet-marquee-text { color: #F2EFE6; }
+        .cabinet-hangman .cabinet-name { color: #F2EFE6; }
+        .cabinet-hangman .play-btn { background: linear-gradient(135deg, #F2EFE6, #F2D06B); color: #172C27; }
+        .cabinet-hangman .tag-a { background: rgba(242,239,230,0.12); color: #F2EFE6; }
+        .cabinet-hangman .tag-b { background: rgba(242,208,107,0.15); color: #F2D06B; }
+        .hm-screen { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; gap: 18px;
+            background: radial-gradient(ellipse at 30% 20%, #2a4a42, #1F3A33 55%, #172C27); }
+        .hm-gallows { width: 92px; height: 110px; }
+        .hm-gallows path, .hm-gallows circle { fill: none; stroke: #F2EFE6; stroke-width: 4; stroke-linecap: round; }
+        .hm-p { opacity: 0; animation: hmPart 7s infinite; }
+        .hm-p.p1 { animation-delay: .5s; } .hm-p.p2 { animation-delay: 1.3s; } .hm-p.p3 { animation-delay: 2.1s; } .hm-p.p4 { animation-delay: 2.9s; }
+        @keyframes hmPart { 0% { opacity: 0; } 4%,80% { opacity: 1; } 90%,100% { opacity: 0; } }
+        .hm-word { font-family: 'Press Start 2P', monospace; font-size: 11px; color: #F2EFE6; letter-spacing: 3px; display: flex; flex-direction: column; gap: 10px; }
+        .hm-word .blank { border-bottom: 2px solid #F2EFE6; padding-bottom: 4px; }
+        .hm-word .y { color: #F2D06B; }
+        .hm-word small { font-size: 7px; letter-spacing: 1px; color: rgba(242,239,230,0.5); }
         .cabinet-soon .cabinet-body { opacity: 0.45; }
         .cabinet-soon .cabinet-marquee { background: linear-gradient(90deg, #1a0030, #2a0050, #1a0030); border-bottom: 2px solid rgba(123,47,190,0.5); }
         .cabinet-soon .cabinet-marquee-text { color: rgba(255,255,255,0.25); }
@@ -1019,6 +1070,71 @@
                 <div class="cabinet-footer">
                     <span class="play-btn">PLAY NOW</span>
                     <span class="cabinet-world">4 WORLDS</span>
+                </div>
+            </div>
+        </a>
+
+        <!-- FUNCTIFORNIA GAMES -->
+        <a href="./functifornia/index.html" class="cabinet cabinet-functi">
+            <div class="cabinet-glow"></div>
+            <div class="cabinet-body">
+                <div class="cabinet-marquee"><div class="cabinet-marquee-text">☀ FUNCTIFORNIA GAMES ☀</div></div>
+                <div class="cabinet-screen">
+                    <div class="fn-screen">
+                        <div class="fn-sun"></div>
+                        <div class="fn-title">FUNCTIFORNIA</div>
+                        <svg class="fn-graph" viewBox="0 0 200 60" preserveAspectRatio="none" aria-hidden="true">
+                            <path class="fn-curve" d="M10 58 Q 100 -40 190 58"/>
+                        </svg>
+                        <div class="fn-events">🥤 🏀 🛹 🐦 🔔 🥏</div>
+                    </div>
+                </div>
+                <div class="cabinet-info">
+                    <div class="cabinet-name">FUNCTIFORNIA GAMES</div>
+                    <div class="cabinet-desc">Six beach-side events: vending machines, hoops, a night half pipe, seagulls, a strength bell and frisbee. Functions from input/output all the way to logs and inverses.</div>
+                    <div class="cabinet-tags">
+                        <span class="tag tag-a">1 PLAYER</span>
+                        <span class="tag tag-b">FUNCTIONS</span>
+                    </div>
+                </div>
+                <div class="cabinet-footer">
+                    <span class="play-btn">PLAY NOW</span>
+                    <span class="cabinet-world">6 EVENTS</span>
+                </div>
+            </div>
+        </a>
+
+        <!-- MATHS HANGMAN -->
+        <a href="./hangman/index.html" class="cabinet cabinet-hangman">
+            <div class="cabinet-glow"></div>
+            <div class="cabinet-body">
+                <div class="cabinet-marquee"><div class="cabinet-marquee-text">✎ MATHS HANGMAN ✎</div></div>
+                <div class="cabinet-screen">
+                    <div class="hm-screen">
+                        <svg class="hm-gallows" viewBox="0 0 92 110" aria-hidden="true">
+                            <path d="M8 104H60M24 104V8H66V20"/>
+                            <circle class="hm-p p1" cx="66" cy="30" r="10"/>
+                            <path class="hm-p p2" d="M66 40V70"/>
+                            <path class="hm-p p3" d="M66 48L54 60M66 48L78 60"/>
+                            <path class="hm-p p4" d="M66 70L56 88M66 70L76 88"/>
+                        </svg>
+                        <div class="hm-word">
+                            <small>THE TURNING POINT</small>
+                            <span><span class="blank">V<span class="y">E</span>RT<span class="y">E</span>_</span></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="cabinet-info">
+                    <div class="cabinet-name">MATHS HANGMAN</div>
+                    <div class="cabinet-desc">Guess the maths word from its clue before the drawing is finished. IGCSE and Year 12 word banks, or type in your own word for the class.</div>
+                    <div class="cabinet-tags">
+                        <span class="tag tag-a">WHOLE CLASS</span>
+                        <span class="tag tag-b">VOCABULARY</span>
+                    </div>
+                </div>
+                <div class="cabinet-footer">
+                    <span class="play-btn">PLAY NOW</span>
+                    <span class="cabinet-world">2 WORD BANKS</span>
                 </div>
             </div>
         </a>

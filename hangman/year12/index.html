@@ -1,0 +1,630 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>body{margin:0}</style></head><body>
+<title>Year 12 Maths Hangman</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: a graph-paper panel plots every miss as a real equation; beside it the play panel holds clue, word and an A–Z keyboard sized for a projector. */
+:root {
+  --paper: #f1f5f9;
+  --surface: #ffffff;
+  --grid: #e1e9f2;
+  --grid-major: #c6d6e6;
+  --line: #d3dee9;
+  --ink: #13233a;
+  --muted: #5a6a7e;
+  --pen: #1c56c2;
+  --pen-soft: #e3ecfb;
+  --miss: #c03a2f;
+  --miss-soft: #fbe7e5;
+  --hit: #21754a;
+  --hit-soft: #e1f2e8;
+  --display: "Bricolage Grotesque", "Avenir Next", "Segoe UI", system-ui, sans-serif;
+  --body: "Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #0d141d; --surface: #131c28; --grid: #18222f; --grid-major: #233244; --line: #243345;
+    --ink: #e4ebf3; --muted: #8e9fb3; --pen: #7ea8ff; --pen-soft: #1a2a45;
+    --miss: #ff7d72; --miss-soft: #3a1c1b; --hit: #62d495; --hit-soft: #15301f;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #0d141d; --surface: #131c28; --grid: #18222f; --grid-major: #233244; --line: #243345;
+  --ink: #e4ebf3; --muted: #8e9fb3; --pen: #7ea8ff; --pen-soft: #1a2a45;
+  --miss: #ff7d72; --miss-soft: #3a1c1b; --hit: #62d495; --hit-soft: #15301f;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--body);
+  font-size: 16px;
+  line-height: 1.5;
+}
+.wrap {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding-block: 24px 40px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.back-link { display: inline-block; font-size: 15px; font-weight: 700; color: var(--pen); opacity: .7; text-decoration: none; margin-bottom: -8px; }
+.back-link:hover { opacity: 1; text-decoration: underline; }
+/* Header */
+header { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 12px 24px; }
+.brand { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.eyebrow { font-family: var(--mono); font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+h1 { margin: 0; font-family: var(--display); font-weight: 800; font-size: clamp(1.8rem, 4vw, 2.6rem); line-height: 1.05; letter-spacing: -0.02em; text-wrap: balance; }
+h1 em { font-style: normal; color: var(--pen); }
+.score { display: flex; gap: 18px; font-variant-numeric: tabular-nums; }
+.score div { display: flex; flex-direction: column; align-items: flex-end; }
+.score b { font-family: var(--display); font-size: 1.6rem; line-height: 1; font-weight: 700; }
+.score span { font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+
+.topics { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip {
+  font: inherit; font-size: 0.92rem; cursor: pointer;
+  border: 1.5px solid var(--line); background: var(--surface); color: var(--ink);
+  padding: 6px 14px; border-radius: 999px;
+}
+.chip:hover { border-color: var(--pen); }
+.chip[aria-pressed="true"] { background: var(--pen); border-color: var(--pen); color: var(--surface); font-weight: 700; }
+
+/* Main layout */
+.layout { display: grid; grid-template-columns: minmax(280px, 400px) minmax(0, 1fr); gap: 20px; align-items: start; }
+.panel { background: var(--surface); border: 1.5px solid var(--line); border-radius: 10px; padding: 20px; min-width: 0; }
+
+/* Graph panel */
+.graph-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; margin-bottom: 10px; }
+.graph-head h2 { margin: 0; font-family: var(--display); font-size: 1.05rem; font-weight: 700; }
+.lives { font-family: var(--mono); font-size: 0.95rem; font-variant-numeric: tabular-nums; color: var(--muted); }
+.lives b { color: var(--ink); }
+.lives.low b { color: var(--miss); }
+svg.plot { display: block; width: 100%; height: auto; max-width: 100%; }
+.g-minor { fill: none; stroke: var(--grid); stroke-width: 1; }
+.g-major { fill: none; stroke: var(--grid-major); stroke-width: 1; }
+.axis { stroke: var(--muted); stroke-width: 1.5; }
+.tick { fill: var(--muted); font-family: var(--mono); font-size: 12px; }
+.part {
+  fill: none; stroke: var(--ink); stroke-width: 4.5; stroke-linecap: round; stroke-linejoin: round;
+  stroke-dasharray: 1; stroke-dashoffset: 1; opacity: 0;
+  transition: stroke-dashoffset 0.7s ease, opacity 0.05s, stroke 0.3s;
+}
+.part.on { stroke-dashoffset: 0; opacity: 1; }
+.part.latest { stroke: var(--miss); }
+.plot.lost .part.on { stroke: var(--miss); }
+.plot.won .part.on { stroke: var(--muted); }
+
+.eqs-label { margin: 14px 0 6px; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.07em; color: var(--muted); }
+.eqs { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; font-family: var(--mono); font-size: 0.86rem; }
+.eqs li { display: grid; grid-template-columns: 1.6em 1fr; gap: 6px; padding: 3px 6px; border-radius: 4px; }
+.eqs li .n { color: var(--muted); font-variant-numeric: tabular-nums; }
+.eqs li.latest { background: var(--miss-soft); color: var(--miss); }
+.eqs li.latest .n { color: var(--miss); }
+.eqs .empty { display: block; font-family: var(--body); color: var(--muted); font-size: 0.92rem; padding: 0; }
+
+/* Play panel */
+.play { display: flex; flex-direction: column; gap: 22px; }
+.clue {
+  display: flex; flex-direction: column; gap: 6px;
+  border-left: 4px solid var(--pen); background: var(--pen-soft);
+  padding: 12px 16px; border-radius: 0 8px 8px 0;
+}
+.clue-top { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+.clue-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--pen); font-weight: 700; }
+.clue-text { margin: 0; font-size: clamp(1.1rem, 2.2vw, 1.45rem); line-height: 1.35; max-width: 60ch; }
+.clue-text.hidden { color: var(--muted); font-style: italic; font-size: 1rem; }
+.linkbtn { font: inherit; font-size: 0.85rem; background: none; border: 0; color: var(--pen); cursor: pointer; text-decoration: underline; text-underline-offset: 3px; padding: 2px 0; }
+
+.word {
+  display: flex; flex-wrap: wrap; gap: 0.4em 0.9em; justify-content: center;
+  font-family: var(--display); font-weight: 700;
+  font-size: clamp(1.25rem, 5vw, 3rem);
+  min-height: 1.6em;
+}
+.wgroup { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.16em; }
+.slot {
+  width: 0.92em; text-align: center; line-height: 1.2;
+  border-bottom: 0.08em solid var(--ink);
+}
+.slot.punct { border-bottom-color: transparent; width: auto; min-width: 0.4em; }
+.slot.fresh { color: var(--hit); }
+.slot.missed { color: var(--miss); border-bottom-color: var(--miss); }
+
+.status { text-align: center; font-size: 1.05rem; min-height: 1.6em; margin: -6px 0 0; }
+.status.win { color: var(--hit); font-weight: 700; }
+.status.lose { color: var(--miss); font-weight: 700; }
+
+.keys { display: grid; grid-template-columns: repeat(13, minmax(0, 1fr)); gap: 6px; }
+.key {
+  font-family: var(--display); font-weight: 700; font-size: clamp(1rem, 1.8vw, 1.3rem);
+  aspect-ratio: 1 / 1.1; max-width: 100%;
+  border: 1.5px solid var(--line); border-radius: 6px;
+  background: var(--paper); color: var(--ink); cursor: pointer;
+  display: grid; place-items: center; padding: 0;
+}
+.key:hover:not(:disabled) { border-color: var(--pen); background: var(--pen-soft); }
+.key.hit { background: var(--hit-soft); border-color: var(--hit); color: var(--hit); cursor: default; }
+.key.miss { background: var(--miss-soft); border-color: transparent; color: var(--miss); text-decoration: line-through; cursor: default; }
+.key:disabled:not(.hit):not(.miss) { opacity: 0.45; cursor: default; }
+
+.actions { display: flex; flex-wrap: wrap; gap: 10px; justify-content: space-between; align-items: center; }
+.btn {
+  font: inherit; font-weight: 700; cursor: pointer;
+  border-radius: 8px; padding: 10px 18px; border: 1.5px solid var(--line);
+  background: var(--surface); color: var(--ink);
+}
+.btn:hover:not(:disabled) { border-color: var(--pen); }
+.btn.primary { background: var(--pen); border-color: var(--pen); color: var(--surface); }
+.btn:disabled { opacity: 0.45; cursor: default; }
+.kbd-hint { font-size: 0.85rem; color: var(--muted); }
+
+/* Teacher word */
+details.custom { border-top: 1.5px dashed var(--line); padding-top: 14px; }
+details.custom summary { cursor: pointer; font-weight: 700; color: var(--muted); }
+details.custom summary:hover { color: var(--ink); }
+.custom form { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr) auto; gap: 10px; align-items: end; margin-top: 12px; }
+.field { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.field label { font-size: 0.8rem; color: var(--muted); }
+.field input {
+  font: inherit; padding: 9px 11px; border-radius: 6px;
+  border: 1.5px solid var(--line); background: var(--paper); color: var(--ink); min-width: 0;
+}
+.form-note { grid-column: 1 / -1; font-size: 0.85rem; color: var(--muted); margin: 0; }
+.form-note.err { color: var(--miss); }
+
+:focus-visible { outline: 3px solid var(--pen); outline-offset: 2px; }
+
+@media (max-width: 860px) {
+  .layout { grid-template-columns: minmax(0, 1fr); }
+  .graph { display: grid; grid-template-columns: minmax(0, 200px) minmax(0, 1fr); gap: 4px 16px; align-items: start; }
+  .graph-head { grid-column: 1 / -1; }
+  .eqs-label { margin-top: 0; }
+  .custom form { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 560px) {
+  .keys { grid-template-columns: repeat(7, minmax(0, 1fr)); }
+  .graph { grid-template-columns: minmax(0, 150px) minmax(0, 1fr); }
+  .eqs { font-size: 0.78rem; }
+  .eqs li:not(:last-child) { display: none; }
+  .panel { padding: 16px; }
+  .score b { font-size: 1.3rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .part { transition: none; }
+}
+</style>
+
+<div class="wrap">
+  <a class="back-link" href="../index.html">◀ Hangman menu</a>
+  <header>
+    <div class="brand">
+      <span class="eyebrow">Year 12 · Maths vocabulary</span>
+      <h1>Maths <em>Hangman</em></h1>
+    </div>
+    <div class="score" aria-label="Score">
+      <div><b id="solved">0</b><span>Solved</span></div>
+      <div><b id="played">0</b><span>Played</span></div>
+      <div><b id="streak">0</b><span>Streak</span></div>
+    </div>
+  </header>
+
+  <nav class="topics" id="topics" aria-label="Topic"></nav>
+
+  <main class="layout">
+    <section class="panel graph" aria-label="Miss plot">
+      <div class="graph-head">
+        <h2>Miss plot</h2>
+        <span class="lives" id="lives">Lives <b>9</b>/9</span>
+      </div>
+      <svg class="plot" id="plot" viewBox="-30 -14 400 444" role="img" aria-label="Hangman drawing on a coordinate grid">
+        <defs>
+          <pattern id="minor" width="20" height="20" patternUnits="userSpaceOnUse"><path d="M20 0H0V20" class="g-minor"/></pattern>
+          <pattern id="major" width="40" height="40" patternUnits="userSpaceOnUse"><rect width="40" height="40" fill="url(#minor)"/><path d="M40 0H0V40" class="g-major"/></pattern>
+        </defs>
+        <rect x="0" y="0" width="360" height="400" fill="url(#major)"/>
+        <rect x="0" y="0" width="360" height="400" class="g-major"/>
+        <line class="axis" x1="0" y1="400" x2="360" y2="400"/>
+        <line class="axis" x1="0" y1="0" x2="0" y2="400"/>
+        <g id="ticks"></g>
+        <g id="parts"></g>
+      </svg>
+      <div>
+        <p class="eqs-label">Plotted so far</p>
+        <ol class="eqs" id="eqs"></ol>
+      </div>
+    </section>
+
+    <section class="panel play" aria-label="Game">
+      <div class="clue">
+        <div class="clue-top">
+          <span class="clue-label" id="clue-label">Calculus</span>
+          <button class="linkbtn" id="clue-toggle" type="button">Hide clue</button>
+        </div>
+        <p class="clue-text" id="clue"></p>
+      </div>
+
+      <div class="word" id="word" aria-live="polite"></div>
+      <p class="status" id="status" aria-live="polite"></p>
+
+      <div class="keys" id="keys" aria-label="Letters"></div>
+
+      <div class="actions">
+        <button class="btn" id="hint" type="button">Reveal a letter (costs a life)</button>
+        <span class="kbd-hint">Type letters on your keyboard · Enter for next word</span>
+        <button class="btn primary" id="next" type="button">Skip word</button>
+      </div>
+
+      <details class="custom" id="custom">
+        <summary>Set your own word</summary>
+        <form id="custom-form" autocomplete="off">
+          <div class="field">
+            <label for="custom-word">Answer (hidden as you type)</label>
+            <input id="custom-word" type="password" maxlength="30" placeholder="e.g. Asymptote" spellcheck="false">
+          </div>
+          <div class="field">
+            <label for="custom-clue">Clue (optional)</label>
+            <input id="custom-clue" type="text" maxlength="120" placeholder="Line a graph approaches but never reaches">
+          </div>
+          <button class="btn primary" type="submit">Play this word</button>
+          <p class="form-note" id="custom-note">Letters, spaces, hyphens and apostrophes. At least three letters.</p>
+        </form>
+      </details>
+    </section>
+  </main>
+</div>
+
+<script>
+const BANK = {
+  calculus: { name: "Calculus", words: [
+    ["DERIVATIVE", "The gradient function, written f′(x) or dy/dx"],
+    ["INTEGRAL", "∫ f(x) dx is one of these"],
+    ["GRADIENT", "Rise over run; the value of dy/dx at a point"],
+    ["TANGENT", "Straight line touching a curve at a point, with the same gradient there"],
+    ["NORMAL", "Line perpendicular to the tangent at the point of contact"],
+    ["STATIONARY POINT", "Any point where dy/dx = 0"],
+    ["MAXIMUM", "Stationary point where f″(x) < 0"],
+    ["MINIMUM", "Stationary point where f″(x) > 0"],
+    ["POINT OF INFLECTION", "Where the concavity of a curve changes"],
+    ["CHAIN RULE", "dy/dx = dy/du × du/dx"],
+    ["PRODUCT RULE", "Used to differentiate y = uv"],
+    ["QUOTIENT RULE", "Used to differentiate y = u/v"],
+    ["DISPLACEMENT", "Integrate velocity with respect to time to find this"],
+    ["ACCELERATION", "Rate of change of velocity, dv/dt"],
+    ["ANTIDERIVATIVE", "Another name for an indefinite integral"],
+    ["LIMIT", "The value f(x) approaches as x → a; the basis of first principles"]
+  ]},
+  functions: { name: "Functions", words: [
+    ["DOMAIN", "The set of allowed input values"],
+    ["RANGE", "The set of output values a function produces"],
+    ["INVERSE", "f⁻¹(x), which undoes f; its graph is a reflection in y = x"],
+    ["COMPOSITE", "f(g(x)), written (f ∘ g)(x)"],
+    ["ASYMPTOTE", "A line a graph approaches but never reaches"],
+    ["LOGARITHM", "The power a base must be raised to in order to give x"],
+    ["EXPONENTIAL", "A model of the form y = a·bˣ or y = eˣ"],
+    ["QUADRATIC", "A function of the form ax² + bx + c"],
+    ["DISCRIMINANT", "b² − 4ac; tells you how many real roots there are"],
+    ["VERTEX", "The turning point of a parabola"],
+    ["RECIPROCAL", "f(x) = 1/x is this kind of function"],
+    ["INTERCEPT", "Where a graph crosses an axis"],
+    ["TRANSLATION", "f(x − h) + k moves the graph by this transformation"],
+    ["STRETCH", "y = a·f(x) applies a vertical one of these, scale factor a"],
+    ["NATURAL LOG", "ln x, the logarithm with base e"]
+  ]},
+  sequences: { name: "Sequences & series", words: [
+    ["ARITHMETIC", "Sequence where you add the same amount each time"],
+    ["GEOMETRIC", "Sequence where you multiply by the same amount each time"],
+    ["COMMON RATIO", "r = uₙ₊₁ ÷ uₙ"],
+    ["COMMON DIFFERENCE", "d = uₙ₊₁ − uₙ"],
+    ["CONVERGENT", "A geometric series with |r| < 1 is this, so S∞ exists"],
+    ["SIGMA", "Name of the Greek letter used to write a sum"],
+    ["SUM TO INFINITY", "u₁ ÷ (1 − r)"],
+    ["BINOMIAL THEOREM", "Gives the expansion of (a + b)ⁿ"],
+    ["PASCAL'S TRIANGLE", "Each entry is the sum of the two entries above it"],
+    ["FACTORIAL", "n × (n − 1) × (n − 2) × … × 1"],
+    ["COMPOUND INTEREST", "Interest that is added to the balance and then earns interest itself"],
+    ["DEPRECIATION", "Loss in an asset's value over time, often modelled geometrically"],
+    ["AMORTISATION", "Paying off a loan through regular instalments"],
+    ["RECURSIVE", "Defines each term from the one before, e.g. uₙ₊₁ = 2uₙ + 3"]
+  ]},
+  statistics: { name: "Statistics", words: [
+    ["MEDIAN", "The middle value of ordered data"],
+    ["QUARTILE", "Q₁ or Q₃"],
+    ["INTERQUARTILE RANGE", "Q₃ − Q₁"],
+    ["OUTLIER", "A value more than 1.5 × IQR beyond a quartile"],
+    ["VARIANCE", "The square of the standard deviation"],
+    ["STANDARD DEVIATION", "σ; measures spread about the mean"],
+    ["CORRELATION", "Pearson's r measures the strength of linear ____"],
+    ["REGRESSION", "The least-squares line of best fit, y on x"],
+    ["HYPOTHESIS", "H₀ is the null one of these"],
+    ["CHI-SQUARED", "The χ² test for independence"],
+    ["DISCRETE", "Data that can only take separate, countable values"],
+    ["CONTINUOUS", "Data measured on a scale, such as height or time"],
+    ["HISTOGRAM", "Chart for continuous data with no gaps between the bars"],
+    ["BOX PLOT", "Shows minimum, Q₁, median, Q₃ and maximum"]
+  ]},
+  probability: { name: "Probability", words: [
+    ["INDEPENDENT", "Events where P(A ∩ B) = P(A) × P(B)"],
+    ["MUTUALLY EXCLUSIVE", "Events that cannot both happen: P(A ∩ B) = 0"],
+    ["CONDITIONAL", "P(A | B) is this kind of probability"],
+    ["COMPLEMENT", "A′, everything not in A; its probability is 1 − P(A)"],
+    ["EXPECTED VALUE", "E(X) = Σ x·P(X = x)"],
+    ["BINOMIAL", "The distribution X ~ B(n, p)"],
+    ["NORMAL DISTRIBUTION", "Bell-shaped and symmetric about the mean: N(μ, σ²)"],
+    ["TREE DIAGRAM", "Branches show successive events and their probabilities"],
+    ["VENN DIAGRAM", "Overlapping circles inside a rectangle showing sets"],
+    ["SAMPLE SPACE", "The set of all possible outcomes"],
+    ["RANDOM VARIABLE", "The X in P(X = x)"],
+    ["Z-SCORE", "(x − μ) ÷ σ"]
+  ]},
+  trig: { name: "Trigonometry", words: [
+    ["RADIAN", "Angle subtended at the centre by an arc equal in length to the radius"],
+    ["SINE RULE", "a ÷ sin A = b ÷ sin B"],
+    ["COSINE RULE", "a² = b² + c² − 2bc cos A"],
+    ["HYPOTENUSE", "The longest side of a right-angled triangle"],
+    ["AMPLITUDE", "In y = a sin(bx), it equals |a|"],
+    ["PERIOD", "For y = sin(bx), this is 2π ÷ b"],
+    ["BEARING", "Angle measured clockwise from north, given as three figures"],
+    ["UNIT CIRCLE", "Radius 1, centred at the origin; defines sin θ and cos θ"],
+    ["IDENTITY", "sin²θ + cos²θ = 1 is a Pythagorean one of these"],
+    ["ELEVATION", "Angle measured upwards from the horizontal"],
+    ["DEPRESSION", "Angle measured downwards from the horizontal"],
+    ["ARC LENGTH", "rθ, with θ in radians"],
+    ["SECTOR", "Region bounded by two radii and an arc; area ½r²θ"],
+    ["AMBIGUOUS CASE", "When the sine rule gives two possible triangles"],
+    ["PRINCIPAL AXIS", "The horizontal line a sinusoidal graph oscillates about"]
+  ]}
+};
+
+// Each miss plots one more piece of the drawing. Grid units: 1 = 40px, origin at bottom-left.
+const PARTS = [
+  { eq: "y = 1,  1 ≤ x ≤ 4",            d: "M40 360 L160 360" },
+  { eq: "x = 2,  1 ≤ y ≤ 9",            d: "M80 360 L80 40" },
+  { eq: "y = 9,  2 ≤ x ≤ 6",            d: "M80 40 L240 40" },
+  { eq: "y = x + 6,  2 ≤ x ≤ 3",        d: "M80 80 L120 40" },
+  { eq: "x = 6,  8 ≤ y ≤ 9",            d: "M240 40 L240 80" },
+  { eq: "(x − 6)² + (y − 7)² = 1",      d: "M240 80 A40 40 0 1 1 240 160 A40 40 0 1 1 240 80" },
+  { eq: "x = 6,  3 ≤ y ≤ 6",            d: "M240 160 L240 280" },
+  { eq: "y = 5.5 − |x − 6|,  4.5 ≤ x ≤ 7.5", d: "M180 240 L240 180 L300 240" },
+  { eq: "y = 3 − |x − 6|,  5 ≤ x ≤ 7",  d: "M200 320 L240 280 L280 320" }
+];
+const MAX = PARTS.length;
+
+const $ = id => document.getElementById(id);
+const store = {
+  get(k, d) { try { const v = localStorage.getItem(k); return v === null ? d : JSON.parse(v); } catch (e) { return d; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+};
+
+const state = {
+  topic: store.get("hm12-topic", "mixed"),
+  showClue: store.get("hm12-clue", true),
+  decks: {},
+  word: "", clue: "", label: "",
+  guessed: new Set(), wrong: [], lastHit: null,
+  over: false, won: false,
+  stats: { played: 0, solved: 0, streak: 0 }
+};
+if (state.topic !== "mixed" && !BANK[state.topic]) state.topic = "mixed";
+
+// ---------- Static UI ----------
+(function buildTicks() {
+  const g = $("ticks"); let html = "";
+  for (let x = 0; x <= 9; x++) html += `<text class="tick" x="${x * 40}" y="418" text-anchor="middle">${x}</text>`;
+  for (let y = 1; y <= 10; y++) html += `<text class="tick" x="-9" y="${400 - y * 40 + 4}" text-anchor="end">${y}</text>`;
+  g.innerHTML = html;
+  $("parts").innerHTML = PARTS.map((p, i) => `<path class="part" id="part-${i}" pathLength="1" d="${p.d}"/>`).join("");
+})();
+
+(function buildTopics() {
+  const items = [["mixed", "Mixed"], ...Object.entries(BANK).map(([k, v]) => [k, v.name])];
+  $("topics").innerHTML = items.map(([k, n]) => `<button class="chip" type="button" data-topic="${k}">${n}</button>`).join("");
+  $("topics").addEventListener("click", e => {
+    const b = e.target.closest(".chip"); if (!b) return;
+    state.topic = b.dataset.topic; store.set("hm12-topic", state.topic);
+    renderTopics(); newWord();
+  });
+})();
+
+(function buildKeys() {
+  const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+  $("keys").innerHTML = letters.map(L => `<button class="key" type="button" data-l="${L}" aria-label="${L}">${L}</button>`).join("");
+  $("keys").addEventListener("click", e => { const b = e.target.closest(".key"); if (b) guess(b.dataset.l); });
+})();
+
+function renderTopics() {
+  document.querySelectorAll(".chip").forEach(c => c.setAttribute("aria-pressed", c.dataset.topic === state.topic ? "true" : "false"));
+}
+
+// ---------- Game ----------
+function shuffle(a) { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+
+function pool(topic) {
+  if (topic === "mixed") return Object.values(BANK).flatMap(t => t.words.map(w => [w[0], w[1], t.name]));
+  return BANK[topic].words.map(w => [w[0], w[1], BANK[topic].name]);
+}
+
+function draw(topic) {
+  let deck = state.decks[topic];
+  if (!deck || !deck.length) {
+    deck = shuffle(pool(topic).slice());
+    if (deck.length > 1 && deck[deck.length - 1][0] === state.word) deck.unshift(deck.pop());
+    state.decks[topic] = deck;
+  }
+  return deck.pop();
+}
+
+function start(word, clue, label) {
+  state.word = word; state.clue = clue; state.label = label;
+  state.guessed = new Set(); state.wrong = []; state.lastHit = null;
+  state.over = false; state.won = false;
+  render();
+}
+
+function newWord() {
+  const [w, c, label] = draw(state.topic);
+  start(w, c, label);
+}
+
+const letters = w => [...new Set(w.replace(/[^A-Z]/g, "").split(""))];
+const solved = () => letters(state.word).every(L => state.guessed.has(L));
+
+function guess(L) {
+  if (state.over || state.guessed.has(L)) return;
+  state.guessed.add(L);
+  if (state.word.includes(L)) { state.lastHit = L; } else { state.lastHit = null; state.wrong.push(L); }
+  settle();
+}
+
+function revealLetter() {
+  if (state.over || MAX - state.wrong.length <= 1) return;
+  const left = letters(state.word).filter(L => !state.guessed.has(L));
+  if (!left.length) return;
+  const L = left[Math.floor(Math.random() * left.length)];
+  state.guessed.add(L); state.lastHit = L;
+  state.wrong.push("hint");
+  settle();
+}
+
+function settle() {
+  if (solved()) {
+    state.over = true; state.won = true;
+    state.stats.played++; state.stats.solved++; state.stats.streak++;
+  } else if (state.wrong.length >= MAX) {
+    state.over = true; state.won = false;
+    state.stats.played++; state.stats.streak = 0;
+  }
+  render();
+}
+
+// ---------- Render ----------
+function esc(s) { return s.replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c])); }
+
+function render() {
+  const lives = MAX - state.wrong.length;
+
+  // Word
+  $("word").innerHTML = state.word.split(" ").map(group =>
+    `<span class="wgroup">${group.split("").map(ch => {
+      if (!/[A-Z]/.test(ch)) return `<span class="slot punct">${esc(ch)}</span>`;
+      const known = state.guessed.has(ch);
+      if (known) return `<span class="slot${ch === state.lastHit && !state.over ? " fresh" : ""}">${ch}</span>`;
+      if (state.over) return `<span class="slot missed">${ch}</span>`;
+      return `<span class="slot" aria-label="blank">&nbsp;</span>`;
+    }).join("")}</span>`
+  ).join("");
+
+  // Clue
+  $("clue-label").textContent = state.label;
+  const clueEl = $("clue");
+  if (state.showClue || state.over) {
+    clueEl.textContent = state.clue || "No clue for this one.";
+    clueEl.classList.remove("hidden");
+  } else {
+    clueEl.textContent = "Clue hidden. Guess from the letter pattern.";
+    clueEl.classList.add("hidden");
+  }
+  $("clue-toggle").textContent = state.showClue ? "Hide clue" : "Show clue";
+
+  // Keys
+  document.querySelectorAll(".key").forEach(k => {
+    const L = k.dataset.l, g = state.guessed.has(L);
+    k.classList.toggle("hit", g && state.word.includes(L));
+    k.classList.toggle("miss", g && !state.word.includes(L));
+    k.disabled = g || state.over;
+  });
+
+  // Plot
+  const plot = $("plot");
+  plot.classList.toggle("won", state.over && state.won);
+  plot.classList.toggle("lost", state.over && !state.won);
+  PARTS.forEach((p, i) => {
+    const el = $("part-" + i);
+    el.classList.toggle("on", i < state.wrong.length);
+    el.classList.toggle("latest", !state.over && i === state.wrong.length - 1);
+  });
+  $("lives").innerHTML = `Lives <b>${lives}</b>/${MAX}`;
+  $("lives").classList.toggle("low", lives <= 3);
+
+  const eqs = $("eqs");
+  if (!state.wrong.length) {
+    eqs.innerHTML = `<li class="empty">No misses yet. Each wrong letter plots the next line of the drawing.</li>`;
+  } else {
+    eqs.innerHTML = state.wrong.map((w, i) => {
+      const tag = w === "hint" ? "hint" : w;
+      const latest = i === state.wrong.length - 1 && !state.over ? " latest" : "";
+      return `<li class="${latest.trim()}"><span class="n">${tag === "hint" ? "?" : tag}</span><span>${PARTS[i].eq}</span></li>`;
+    }).join("");
+  }
+
+  // Status
+  const st = $("status");
+  st.className = "status";
+  if (state.over && state.won) {
+    st.textContent = lives === MAX ? "Solved without a single miss." : `Solved with ${lives} ${lives === 1 ? "life" : "lives"} to spare.`;
+    st.classList.add("win");
+  } else if (state.over) {
+    st.textContent = "Out of lives. The missing letters are shown in red.";
+    st.classList.add("lose");
+  } else {
+    const misses = state.wrong.filter(w => w !== "hint");
+    st.textContent = misses.length ? `Missed: ${misses.join(" ")}` : `${letters(state.word).length} different letters to find.`;
+  }
+
+  // Buttons
+  $("hint").disabled = state.over || lives <= 1;
+  $("next").textContent = state.over ? "Next word" : "Skip word";
+
+  // Score
+  $("solved").textContent = state.stats.solved;
+  $("played").textContent = state.stats.played;
+  $("streak").textContent = state.stats.streak;
+}
+
+// ---------- Controls ----------
+$("next").addEventListener("click", newWord);
+$("hint").addEventListener("click", revealLetter);
+$("clue-toggle").addEventListener("click", () => { state.showClue = !state.showClue; store.set("hm12-clue", state.showClue); render(); });
+
+document.addEventListener("keydown", e => {
+  if (e.ctrlKey || e.metaKey || e.altKey) return;
+  const t = e.target;
+  if (t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA")) return;
+  if (e.key === "Enter" && state.over) { e.preventDefault(); newWord(); return; }
+  if (/^[a-zA-Z]$/.test(e.key)) { guess(e.key.toUpperCase()); }
+});
+
+$("custom-form").addEventListener("submit", e => {
+  e.preventDefault();
+  const note = $("custom-note");
+  const raw = $("custom-word").value.toUpperCase().replace(/[’`]/g, "'").replace(/\s+/g, " ").trim();
+  const ok = /^[A-Z][A-Z '\-]*[A-Z]$/.test(raw) && raw.replace(/[^A-Z]/g, "").length >= 3;
+  if (!ok) {
+    note.textContent = "Use letters, spaces, hyphens and apostrophes only, with at least three letters.";
+    note.classList.add("err");
+    return;
+  }
+  note.textContent = "Letters, spaces, hyphens and apostrophes. At least three letters.";
+  note.classList.remove("err");
+  const clue = $("custom-clue").value.trim();
+  $("custom-word").value = ""; $("custom-clue").value = "";
+  $("custom").open = false;
+  start(raw, clue, "Teacher's word");
+});
+
+renderTopics();
+newWord();
+</script>
+
+</body></html>
