@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Functifornia Games</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700;800&family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
 <style>
 /* Layout idea: an 8-bit boardwalk at sunset. Hub = event board under a striped sun;
    game = the machine on the left, its control panel and receipt tape on the right. */
@@ -145,6 +145,71 @@ h1,h2,h3{font-family:var(--display);font-weight:400;text-wrap:balance}
 .btn.ghost{background:none;border:2px solid var(--sand);color:var(--sand)}
 .btn.opt{background:var(--sand);font-size:13px;width:100%}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+/* ===== Boardwalk Hoops (quadratics), scoped to .bh ===== */
+.bh{--num:'JetBrains Mono', 'Consolas', 'Courier New', monospace}
+.bh .wrap{max-width:1240px;margin:0 auto;padding:22px 18px 40px}
+#bh-menu{background:linear-gradient(180deg,var(--night) 0%,var(--dusk) 30%,var(--flame) 55%,var(--sun) 66%,var(--sea) 66%,#0b6f7a 100%)}
+.bh .hero{text-align:center;padding:40px 0 30px}
+.bh .kicker{font-family:var(--display);font-size:10px;letter-spacing:3px;color:var(--sun)}
+.bh .logo{font-size:clamp(26px,6vw,58px);line-height:1.2;margin:16px 0 10px;text-shadow:4px 4px 0 var(--flame),8px 8px 0 var(--ink)}
+.bh .formula{font-family:var(--display);font-size:clamp(12px,2.2vw,18px);color:var(--sun);text-shadow:3px 3px 0 var(--ink)}
+.bh .how{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin:26px auto 0;max-width:900px}
+.bh .how span{background:var(--ink);border:3px solid var(--sand);padding:10px 14px;font-size:22px}
+.bh .how b{font-family:var(--display);font-weight:400;font-size:11px;color:var(--sea);margin-right:8px}
+.bh .lvgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;margin-top:34px}
+.bh .lv{border:3px solid var(--sand);background:var(--ink);padding:14px;text-align:left;display:flex;flex-direction:column;gap:8px;min-height:150px;box-shadow:6px 6px 0 rgba(18,8,31,.5)}
+.bh .lv .n{font-family:var(--display);font-size:10px;color:var(--sea)}
+.bh .lv .t{font-family:var(--display);font-size:12px;line-height:1.6}
+.bh .lv .s{margin-top:auto;font-size:24px;color:var(--sun);letter-spacing:3px}
+.bh .lv .best{font-size:20px;opacity:.8}
+.bh .lv:not(.locked):hover{background:var(--dusk)}
+.bh .lv.locked{border-color:#6a5a86;color:#8f82a8}
+.bh .lv.locked .n{color:#8f82a8}
+.bh .d{font-family:var(--display);font-size:8px;letter-spacing:1px;padding:4px 6px;align-self:flex-start;color:var(--ink)}
+.bh .dE{background:var(--good)}.dM{background:var(--sun)}.dH{background:var(--bad)}
+.bh .lv.locked .d{opacity:.45}
+.bh .tiny{margin-top:22px;font-size:20px;opacity:.85}
+.bh .tiny button{text-decoration:underline}
+#bh-game{background:linear-gradient(180deg,var(--night),#2a1352)}
+.bh .top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+.bh .back{font-family:var(--display);font-size:10px;padding:10px 12px;border:2px solid var(--sand)}
+.bh .back:hover{background:var(--sand);color:var(--ink)}
+.bh .top h2{font-size:16px;color:var(--sun);line-height:1.5}
+.bh .top .sc{font-family:var(--display);font-size:11px;color:var(--sand)}
+.bh .stage{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(300px,1fr);gap:20px;align-items:start}
+@media (max-width:940px){.bh .stage{grid-template-columns:1fr}}
+.bh .courtbox{background:var(--ink);border:5px solid var(--sand);box-shadow:10px 10px 0 rgba(0,0,0,.35);padding:6px}
+#bh-cv{display:block;width:100%;height:auto}
+.bh .panel{display:flex;flex-direction:column;gap:12px}
+.bh .plate{background:var(--sand);color:var(--ink);border:4px solid var(--ink);padding:12px 8px;text-align:center}
+.bh .plate small{display:block;font-family:var(--display);font-size:8px;letter-spacing:2px;color:var(--dusk);margin-bottom:8px}
+.bh .plate b{font-family:var(--num);font-weight:800;font-size:clamp(16px,2vw,22px);line-height:1.5;font-variant-numeric:tabular-nums}
+.bh .box{background:var(--ink);border:3px solid var(--sand);padding:12px}
+.bh .box h4{font-size:9px;letter-spacing:2px;color:var(--sea);margin-bottom:8px}
+.bh .job{font-family:var(--num);font-weight:500;font-size:16px;line-height:1.5;white-space:pre-line}
+.bh .pips{display:flex;gap:6px;margin-top:10px}
+.bh .pips i{width:16px;height:16px;border:2px solid var(--sand)}
+.bh .pips i.done{background:var(--good);border-color:var(--good)}
+.bh .prow{display:grid;grid-template-columns:30px 40px minmax(0,1fr) 40px 64px;gap:8px;align-items:center;padding:6px 0}
+.bh .prow + .prow{border-top:1px dashed rgba(255,241,214,.2)}
+.bh .prow .k{font-family:var(--display);font-size:18px;color:var(--sun);text-align:center}
+.bh .prow button{font-family:var(--num);font-weight:800;font-size:24px;line-height:1;height:40px;background:var(--sand);color:var(--ink);box-shadow:0 4px 0 #b9a47c;touch-action:manipulation}
+.bh .prow button:active{transform:translateY(3px);box-shadow:0 1px 0 #b9a47c}
+.bh .prow input{width:100%;accent-color:var(--flame);height:28px}
+.bh .prow .v{font-family:var(--num);font-weight:800;font-size:18px;text-align:right;font-variant-numeric:tabular-nums}
+.bh .prow.locked{opacity:.45}
+.bh .prow.locked .k::after{content:'🔒';font-size:10px;display:block;margin-top:4px}
+.bh .shoot{font-family:var(--display);font-size:16px;padding:18px 0;background:var(--flame);color:var(--ink);box-shadow:0 6px 0 #a8321d;letter-spacing:2px}
+.bh .shoot:active{transform:translateY(4px);box-shadow:0 2px 0 #a8321d}
+.bh .shoot:disabled{opacity:.5}
+.bh .msg{min-height:4.5em;font-family:var(--num);font-weight:500;font-size:15px;line-height:1.5}
+.bh .msg.good{color:var(--good)}.msg.bad{color:var(--bad)}
+.bh .tape{max-height:170px;overflow-y:auto;background:var(--sand);color:var(--ink);padding:8px 12px;border:3px solid var(--ink)}
+.bh .tape table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+.bh .tape th{font-family:var(--display);font-weight:400;font-size:9px;text-align:left;border-bottom:2px dashed var(--ink);padding-bottom:6px}
+.bh .tape td{padding:2px 0;font-family:var(--num);font-weight:700;font-size:14px}
+.bh .tape .empty{opacity:.6}
+.bh .hint{font-size:19px;opacity:.75}
 </style>
 </head>
 <body>
@@ -171,7 +236,7 @@ h1,h2,h3{font-family:var(--display);font-weight:400;text-wrap:balance}
         <span class="no">EVENT 02</span>
         <span class="mini">🏀</span>
         <h3>BOARDWALK HOOPS</h3>
-        <p>The ball flies along the function, and its path fades after every shot. Work out the x where the ball is at hoop height, then slide the hoop there.</p>
+        <p>Quadratics. Tune a, b and c in ax² + bx + c, line up the guide and shoot. Every shot draws the whole parabola.</p>
         <span class="go">PLAY · 8 COURTS</span>
       </button>
       <button class="card live" id="playPipe">
@@ -250,33 +315,44 @@ h1,h2,h3{font-family:var(--display);font-weight:400;text-wrap:balance}
 </section>
 
 <!-- ================= HOOPS ================= -->
-<section id="hlevels" class="screen">
+<!-- ================= BOARDWALK HOOPS (quadratics) ================= -->
+<section id="bh-menu" class="screen bh">
   <div class="wrap">
-    <div class="top"><button class="back" data-go="hub">◀ EVENTS</button><h2>BOARDWALK HOOPS</h2><span id="htotal"></span></div>
-    <div class="lvgrid" id="hgrid"></div>
-    <p class="tiny">Teacher: <button id="hunlock">unlock every court</button> · <button id="hreset">reset stars</button></p>
+    <button class="back" data-go="hub">◀ EVENTS</button>
+    <div class="hero">
+      <p class="kicker">FUNCTIFORNIA GAMES PRESENTS</p>
+      <h1 class="logo">BOARDWALK HOOPS</h1>
+      <p class="formula">f(x) = ax² + bx + c</p>
+      <div class="how">
+        <span><b>1</b>Tune a, b and c</span>
+        <span><b>2</b>Line up the guide</span>
+        <span><b>3</b>Shoot and see the whole parabola</span>
+      </div>
+    </div>
+    <div class="lvgrid" id="bh-lvgrid"></div>
+    <p class="tiny">Teacher: <button id="bh-unlock">unlock every court</button> · <button id="bh-reset">reset progress</button></p>
   </div>
 </section>
-<section id="hoops" class="screen">
+
+<section id="bh-game" class="screen bh">
   <div class="wrap">
-    <div class="top"><button class="back" data-go="hlevels">◀ COURTS</button><h2 id="hname"></h2><span id="hshots"></span></div>
+    <div class="top"><button class="back" id="bh-toMenu">◀ COURTS</button><h2 id="bh-gname"></h2><span class="sc" id="bh-score"></span></div>
     <div class="stage">
-      <div class="courtbox"><canvas id="court" width="1280" height="880" aria-label="Court grid showing the hoop and the path of the ball"></canvas></div>
+      <div class="courtbox"><canvas id="bh-cv" width="1560" height="1000" aria-label="Basketball court on a coordinate grid with the player, the hoop and the aiming guide"></canvas></div>
       <div class="panel">
-        <div class="plate"><small>THE BALL FLIES ALONG</small><b id="hplate"></b></div>
-        <div class="box">
-          <h4>THIS HOOP</h4>
-          <div class="order"><span class="big">🏀</span><div>Hoop height<br><span class="num" id="hh"></span></div></div>
-          <div class="pips" id="hpips"></div>
-        </div>
-        <div class="lcd" id="hlcd"></div>
-        <p class="msg" id="hmsg" aria-live="polite"></p>
-        <div class="hkeys"><button id="hl" aria-label="move hoop left">◀</button><button id="hr" aria-label="move hoop right">▶</button><button class="vend" id="hshoot">SHOOT</button></div>
-        <p class="hint">Click the court or use the arrow keys to slide the hoop. Enter shoots.</p>
+        <div class="plate"><small>YOUR SHOT</small><b id="bh-eq"></b></div>
+        <div class="box"><h4 id="bh-hoopTitle"></h4><p class="job" id="bh-hoopInfo"></p><div class="pips" id="bh-pips"></div></div>
+        <div class="box" id="bh-params"></div>
+        <button class="shoot" id="bh-shoot">SHOOT</button>
+        <p class="msg" id="bh-msg" aria-live="polite"></p>
+        <div class="tape"><table><thead><tr><th>a</th><th>b</th><th>c</th><th>RESULT</th></tr></thead><tbody id="bh-log"></tbody></table></div>
+        <p class="hint">Hold + or − to change a value quickly. Enter shoots.</p>
       </div>
     </div>
   </div>
 </section>
+
+<div class="over bh" id="bh-over"><div class="dlg" id="bh-dlg"></div></div>
 
 <!-- ================= HALF PIPE ================= -->
 <section id="plevels" class="screen">
@@ -419,24 +495,6 @@ const LEVELS = [
 ];
 const ORDERS = 5;
 
-const COURTS = [
-  {name:'WARM-UP',        label:'f(x) = x + 3',     f:x=>x+3,       x0:0,  x1:10, y1:14, xs:range(1,10),
-   intro:'The ball starts on the left and flies along f(x) = x + 3. Put the hoop at the x where the ball is at hoop height.'},
-  {name:'DOUBLE DRIBBLE', label:'f(x) = 2x',        f:x=>2*x,       x0:0,  x1:10, y1:20, xs:range(1,10),
-   intro:'This ball climbs twice as fast. Its height is always double its x.'},
-  {name:'STEP BACK',      label:'f(x) = 2x + 1',    f:x=>2*x+1,     x0:0,  x1:10, y1:22, xs:range(1,10),
-   intro:'Double the x, then add 1. Work backwards from the hoop height.'},
-  {name:'DOWNHILL',       label:'f(x) = 12 − x',    f:x=>12-x,      x0:0,  x1:12, y1:13, xs:range(1,11),
-   intro:'This ball starts high and comes down as x grows.'},
-  {name:'SLOW RISE',      label:'f(x) = ½x + 2',    f:x=>x/2+2,     x0:0,  x1:16, y1:11, xs:range(2,16,2),
-   intro:'Half of x, plus 2. The ball needs a long run to gain any height.'},
-  {name:'THE BOWL',       label:'f(x) = x²',        f:x=>x*x,       x0:-5, x1:5,  y1:26, xs:range(1,5),
-   intro:'The court now runs from −5 to 5. Every hoop on this court has two spots that work.'},
-  {name:'RAINBOW SHOT',   label:'f(x) = −x² + 10x', f:x=>-x*x+10*x, x0:0,  x1:10, y1:26, xs:range(1,5),
-   intro:'A proper arc. The ball goes up, peaks, and comes back down.'},
-  {name:'ROCKET',         label:'f(x) = 2ˣ',        f:x=>2**x,      x0:0,  x1:6,  y1:36, xs:range(1,5),
-   intro:'2 multiplied by itself x times. Watch how late the height arrives, and how fast.'},
-];
 
 const PIPES = [
   {name:'THE CLASSIC',   label:'f(x) = x²',            f:x=>x*x,             v:0,  x0:-5, x1:5,  y1:26, offs:range(1,5),
@@ -527,14 +585,14 @@ const BEACHES = [
         {show:'f(x) = 3(x + 2), which is the same as 3x + 6', ops:[['+',2],['×',3]], xs:[3,7], tiles:[['+',2],['×',3],['+',6],['×',2],['+',3],['−',2]]}]},
 ];
 
-let save = {stars:LEVELS.map(()=>0), h:COURTS.map(()=>0), p:PIPES.map(()=>0), g:PIERS.map(()=>0), s:TOWERS.map(()=>0), f:BEACHES.map(()=>0), all:false};
+let save = {stars:LEVELS.map(()=>0), p:PIPES.map(()=>0), g:PIERS.map(()=>0), s:TOWERS.map(()=>0), f:BEACHES.map(()=>0), all:false};
 try { const s = JSON.parse(localStorage.getItem('functifornia-vend')); if (s && s.stars) save = Object.assign(save, s); } catch(e){}
 const persist = () => { try { localStorage.setItem('functifornia-vend', JSON.stringify(save)); } catch(e){} };
 
 let G = null;        // current game state
 let entry = '';      // what is typed on the keypad
 
-function show(id){ document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on', s.id===id)); window.scrollTo(0,0); if(id==='levels') drawLevels(); if(id==='hlevels') drawHLevels(); if(id==='plevels') drawPLevels(); if(id==='glevels') drawGList(); if(id==='slevels') drawSList(); if(id==='flevels') drawFList(); }
+function show(id){ document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on', s.id===id)); window.scrollTo(0,0); if(id==='levels') drawLevels(); if(id==='plevels') drawPLevels(); if(id==='glevels') drawGList(); if(id==='slevels') drawSList(); if(id==='flevels') drawFList(); }
 document.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>show(b.dataset.go));
 $('playVend').onclick = () => show('levels');
 $('unlock').onclick = () => { save.all = true; persist(); drawLevels(); };
@@ -672,192 +730,8 @@ function award(stars){
   };
 }
 
-/* ================= EVENT 02: BOARDWALK HOOPS ================= */
-const cv = $('court'), cx = cv.getContext('2d');
-const W = 640, HH = 440, ML = 44, MR = 30, MT = 20, MB = 36, SHOTS = 5;
-const HML = 88;   // room on the left of the court for the player
-let H = null;
-const hsx = x => HML + (x - H.C.x0) / (H.C.x1 - H.C.x0) * (W - HML - MR);
-const hsy = y => HH - MB - (y / H.C.y1) * (HH - MT - MB);
-const line = (a,b,c,d) => { cx.beginPath(); cx.moveTo(a,b); cx.lineTo(c,d); cx.stroke(); };
-
-$('playHoops').onclick = () => show('hlevels');
-$('hunlock').onclick = () => { save.all = true; persist(); drawHLevels(); };
-$('hreset').onclick = () => { save.h = COURTS.map(()=>0); save.all = false; persist(); drawHLevels(); };
-function drawHLevels(){
-  const g = $('hgrid'); g.innerHTML = '';
-  COURTS.forEach((C,i)=>{
-    const open = save.all || i===0 || save.h[i-1]>0;
-    const b = document.createElement('button');
-    b.className = 'lv' + (open?'':' locked'); b.disabled = !open;
-    b.innerHTML = `<span class="n">COURT ${String(i+1).padStart(2,'0')}</span><span class="t">${C.name}</span>${dtag('h',i)}<span class="s">${open?starStr(save.h[i]):'LOCKED'}</span>`;
-    b.onclick = () => startCourt(i);
-    g.appendChild(b);
-  });
-  $('htotal').textContent = save.h.reduce((a,b)=>a+b,0) + ' / ' + COURTS.length*3 + ' ★';
-}
-
-function startCourt(i){
-  const C = COURTS[i];
-  H = {i, C, heights:shuffle(C.xs).slice(0,SHOTS).map(C.f), done:0, shots:0, hx:0, seen:C.x0, busy:false, ball:null, mark:null};
-  $('hname').textContent = C.name; $('hplate').textContent = C.label;
-  show('hoops'); hUI(); drawCourt(); hsay(C.intro, '');
-}
-function hsay(t, cls){ const m=$('hmsg'); m.textContent=t; m.className='msg '+cls; }
-function hUI(){
-  $('hh').textContent = H.heights[Math.min(H.done, SHOTS-1)];
-  $('hpips').innerHTML = range(1,SHOTS).map(n=>`<i class="${n<=H.done?'done':''}"></i>`).join('');
-  $('hlcd').innerHTML = `HOOP AT x =<span class="x">${H.hx}</span>`;
-  $('hshots').textContent = 'SHOTS: ' + H.shots;
-}
-function moveHoop(x){
-  if(!H || H.busy) return;
-  H.hx = Math.max(H.C.x0, Math.min(H.C.x1, Math.round(x)));
-  hUI(); drawCourt();
-}
-$('hl').onclick = () => moveHoop(H.hx-1);
-$('hr').onclick = () => moveHoop(H.hx+1);
-$('hshoot').onclick = () => shoot();
-cv.onclick = e => {
-  const r = cv.getBoundingClientRect(), px = (e.clientX - r.left) / r.width * W;
-  moveHoop(H.C.x0 + (px - HML) / (W - HML - MR) * (H.C.x1 - H.C.x0));
-};
-document.addEventListener('keydown', e => {
-  if(!$('hoops').classList.contains('on') || $('over').classList.contains('on')) return;
-  if(e.key==='ArrowLeft'){ e.preventDefault(); moveHoop(H.hx-1); }
-  else if(e.key==='ArrowRight'){ e.preventDefault(); moveHoop(H.hx+1); }
-  else if(e.key==='Enter' || e.key===' '){ e.preventDefault(); shoot(); }
-});
-
-function drawCourt(){
-  const C = H.C, h = H.heights[Math.min(H.done, SHOTS-1)];
-  cx.setTransform(2,0,0,2,0,0);
-  const g = cx.createLinearGradient(0,0,0,HH); g.addColorStop(0,'#1d0f3a'); g.addColorStop(1,'#5b1f6e');
-  cx.fillStyle = g; cx.fillRect(0,0,W,HH);
-  // grid and numbers
-  const ys = C.y1<=14 ? 1 : C.y1<=26 ? 2 : 4;
-  cx.font = '17px VT323, monospace'; cx.fillStyle = '#fff1d6'; cx.strokeStyle = 'rgba(255,241,214,.13)'; cx.lineWidth = 1;
-  cx.textAlign = 'center'; cx.textBaseline = 'top';
-  for(let x=C.x0; x<=C.x1; x++){ line(hsx(x),MT,hsx(x),HH-MB); cx.fillText(x, hsx(x), HH-MB+8); }
-  cx.textAlign = 'right'; cx.textBaseline = 'middle';
-  for(let y=0; y<=C.y1; y+=ys){ line(HML,hsy(y),W-MR,hsy(y)); cx.fillText(y, HML-8, hsy(y)); }
-  cx.strokeStyle = '#fff1d6'; cx.lineWidth = 3; line(HML,hsy(0),W-MR,hsy(0));
-  // hoop height line
-  cx.setLineDash([6,7]); cx.strokeStyle = 'rgba(255,197,49,.8)'; cx.lineWidth = 2; line(HML,hsy(h),W-MR,hsy(h)); cx.setLineDash([]);
-  // the part of the curve the ball has already flown
-  cx.globalAlpha = H.alpha === undefined ? 1 : H.alpha;
-  cx.strokeStyle = '#16c2b8'; cx.lineWidth = 4; cx.lineJoin = 'round'; cx.beginPath();
-  let pen = false; const dx = (C.x1-C.x0)/240;
-  for(let x=C.x0; x<=H.seen+1e-9; x+=dx){
-    const y = C.f(x);
-    if(y<0 || y>C.y1){ pen=false; continue; }
-    pen ? cx.lineTo(hsx(x),hsy(y)) : cx.moveTo(hsx(x),hsy(y)); pen = true;
-  }
-  cx.stroke();
-  cx.globalAlpha = 1;
-  // hoop: pole, backboard, net, rim
-  const px = hsx(H.hx), py = hsy(h), drop = H.ball && H.ball.drop || 0, net = 20 + Math.sin(drop*Math.PI)*10;
-  cx.strokeStyle = '#fff1d6'; cx.lineWidth = 4; line(px+24, hsy(0), px+24, py-24);
-  cx.fillStyle = '#fff1d6'; cx.fillRect(px+19, py-30, 9, 36);
-  cx.strokeStyle = 'rgba(255,241,214,.75)'; cx.lineWidth = 1.5;
-  for(let k=-2; k<=2; k++) line(px+k*8, py, px+k*5, py+net);
-  line(px-10, py+net, px+10, py+net);
-  cx.strokeStyle = '#ff5a3c'; cx.lineWidth = 4; cx.beginPath(); cx.ellipse(px, py, 17, 5, 0, 0, Math.PI*2); cx.stroke();
-  // where the last miss passed the hoop
-  if(H.mark && H.mark.y>=0 && H.mark.y<=C.y1){
-    const mx = hsx(H.mark.x), my = hsy(H.mark.y);
-    cx.fillStyle = '#ffc531'; cx.beginPath(); cx.arc(mx,my,6,0,Math.PI*2); cx.fill();
-    cx.font = '20px VT323, monospace'; cx.textAlign = mx > W-120 ? 'right' : 'left'; cx.textBaseline = 'bottom';
-    cx.fillText(`(${H.mark.x}, ${H.mark.y})`, mx + (mx > W-120 ? -10 : 10), my - 6);
-  }
-  drawPlayer();
-  // ball
-  if(H.ball && H.ball.y>=0 && H.ball.y<=C.y1*1.03){
-    const bx = hsx(H.ball.x), by = hsy(H.ball.y) + drop*44;
-    cx.globalAlpha = 1 - drop*.5;
-    cx.fillStyle = '#ff8a3c'; cx.strokeStyle = '#12081f'; cx.lineWidth = 2;
-    cx.beginPath(); cx.arc(bx,by,10,0,Math.PI*2); cx.fill(); cx.stroke();
-    cx.beginPath(); cx.arc(bx,by,10,-.9+H.ball.x*2, .9+H.ball.x*2); cx.lineTo(bx,by); cx.stroke();
-    cx.globalAlpha = 1;
-  }
-}
-
-function drawPlayer(){
-  const C = H.C, bx = hsx(C.x0), by = hsy(C.f(C.x0)), floor = hsy(0), px = 30;
-  const fy = Math.min(floor, by + 50);                       // feet: on a scaffold if the ball starts high
-  const flying = !!H.ball, p = flying ? (H.ball.x - C.x0) / (C.x1 - C.x0) : 0;
-  const jump = flying && p < .12 ? Math.sin(p/.12*Math.PI)*12 : 0, y = fy - jump;
-  if(fy < floor - 2){
-    cx.strokeStyle = 'rgba(255,241,214,.7)'; cx.lineWidth = 3;
-    line(px-16,fy+2,px+16,fy+2); line(px-11,fy+2,px-11,floor); line(px+11,fy+2,px+11,floor);
-    cx.lineWidth = 1.5; for(let yy=fy+2; yy<floor-20; yy+=28){ line(px-11,yy,px+11,yy+28); line(px+11,yy,px-11,yy+28); }
-  }
-  cx.strokeStyle = '#fff1d6'; cx.lineWidth = 4; cx.lineCap = 'round';
-  line(px-6,y,px-2,y-18); line(px+6,y,px+2,y-18);                    // legs
-  cx.fillStyle = '#16c2b8'; cx.fillRect(px-7,y-38,14,21);            // jersey
-  cx.fillStyle = '#12081f'; cx.font = '8px "Press Start 2P", monospace'; cx.textAlign = 'center'; cx.textBaseline = 'middle'; cx.fillText('f', px, y-27);
-  cx.fillStyle = '#ffc531'; cx.beginPath(); cx.arc(px,y-46,7,0,Math.PI*2); cx.fill();   // head
-  cx.strokeStyle = '#fff1d6'; cx.lineWidth = 4;
-  if(flying){ line(px+5,y-35,px+26,y-56); line(px+3,y-35,px+20,y-60); }   // follow-through
-  else {
-    line(px+5,y-35,bx-9,by+3); line(px+3,y-35,bx-11,by-3);               // holding the ball at the start of the curve
-    cx.fillStyle = '#ff8a3c'; cx.strokeStyle = '#12081f'; cx.lineWidth = 2;
-    cx.beginPath(); cx.arc(bx,by,10,0,Math.PI*2); cx.fill(); cx.stroke();
-    cx.beginPath(); cx.arc(bx,by,10,-.9,.9); cx.lineTo(bx,by); cx.stroke();
-  }
-  cx.lineCap = 'butt';
-}
-
-function shoot(){
-  if(!H || H.busy) return;
-  const C = H.C, h = H.heights[H.done], x = H.hx, y = C.f(x), hit = y === h;
-  const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  H.busy = true; H.shots++; H.mark = null; H.alpha = 1; H.seen = C.x0; hUI();
-  // the path is only drawn while the ball is in the air, then it fades, so the next x has to be worked out
-  function fade(then){ const f0 = performance.now(); (function go(now){ H.alpha = still ? 0 : Math.max(0, 1 - (now - f0)/900); drawCourt();
-    if(H.alpha > 0) return requestAnimationFrame(go); H.seen = C.x0; H.alpha = 1; then(); })(f0); }
-  const end = hit ? x : C.x1, t0 = performance.now(), dur = 500 + 1100*(end-C.x0)/(C.x1-C.x0);
-  function fly(now){
-    const p = still ? 1 : Math.min(1, (now-t0)/dur), bx = C.x0 + (end-C.x0)*p;
-    H.ball = {x:bx, y:C.f(bx), drop:0}; H.seen = Math.max(H.seen, bx); drawCourt();
-    if(p < 1) return requestAnimationFrame(fly);
-    hit ? swish(performance.now()) : miss();
-  }
-  function miss(){
-    H.ball = null; H.mark = {x, y};
-    hsay(`f(${x}) = ${y}. The ball passed the hoop at height ${y}, and the rim is at ${h}.`, 'bad');
-    hUI(); fade(() => { H.busy = false; drawCourt(); });
-  }
-  function swish(s0){
-    (function fall(now){
-      const q = still ? 1 : Math.min(1, (now-s0)/480);
-      H.ball = {x, y:h, drop:q}; drawCourt();
-      if(q < 1) return requestAnimationFrame(fall);
-      H.ball = null;
-      fade(() => {
-        H.done++; H.busy = false;
-        if(H.done >= SHOTS){ hUI(); drawCourt(); return hFinish(); }
-        hsay(`Swish. f(${x}) = ${h}.`, 'good'); hUI(); drawCourt();
-      });
-    })(s0);
-  }
-  requestAnimationFrame(fly);
-}
-
-function hFinish(){
-  const stars = H.shots<=SHOTS ? 3 : H.shots<=SHOTS+2 ? 2 : 1;
-  save.h[H.i] = Math.max(save.h[H.i], stars); persist();
-  const last = H.i === COURTS.length-1;
-  $('dlg').innerHTML = `<h3>${H.C.name} CLEARED</h3><div class="stars">${starStr(stars)}</div>
-    <p>${SHOTS} hoops in ${H.shots} shots.${stars<3?' Fewer shots earns more stars.':''}</p>
-    <div class="row">${last?'':'<button class="btn" data-a="next">NEXT COURT ▶</button>'}<button class="btn ghost" data-a="again">PLAY AGAIN</button><button class="btn ghost" data-a="list">COURTS</button></div>`;
-  $('over').classList.add('on');
-  $('dlg').onclick = e => {
-    const a = e.target.dataset.a; if(!a) return;
-    $('over').classList.remove('on'); $('dlg').onclick = null;
-    if(a==='next') startCourt(H.i+1); else if(a==='again') startCourt(H.i); else show('hlevels');
-  };
-}
+/* shared canvas size for the half pipe, pier, bell and frisbee events */
+const W = 640, HH = 440, ML = 44, MR = 30, MT = 20, MB = 36;
 
 /* ================= EVENT 03: NIGHT HALF PIPE ================= */
 const pv = $('pipecv'), pc = pv.getContext('2d');
@@ -1599,10 +1473,581 @@ function drawBeach(){
 }
 
 /* keep stars across a republish */
-function boot(data){ if(data && data.stars) save = Object.assign(save, data); if(!save.h || save.h.length!==COURTS.length) save.h = COURTS.map(()=>0); if(!save.p || save.p.length!==PIPES.length) save.p = PIPES.map(()=>0);
+function boot(data){ if(data && data.stars) save = Object.assign(save, data); if(!save.p || save.p.length!==PIPES.length) save.p = PIPES.map(()=>0);
   if(!save.g || save.g.length!==PIERS.length) save.g = PIERS.map(()=>0); if(!save.s || save.s.length!==TOWERS.length) save.s = TOWERS.map(()=>0); if(!save.f || save.f.length!==BEACHES.length) save.f = BEACHES.map(()=>0); drawLevels(); }
 window.claude?.hot?.snapshot?.(() => save);
 window.claude?.hot?.ready ? window.claude.hot.ready(boot) : boot(window.claude?.hot?.data ?? {});
+</script>
+<script>
+/* ================= EVENT 02: BOARDWALK HOOPS (quadratics) ================= */
+(() => {
+const $ = id => document.getElementById(id);
+const rnd = (a,b) => a + Math.random()*(b-a);
+const clamp = (v,a,b) => Math.max(a, Math.min(b, v));
+const ease = u => { u = clamp(u,0,1); return u*u*(3-2*u); };
+const fmt = v => { const r = Math.round(v*100)/100; return String(Object.is(r,-0) ? 0 : r).replace('-','−'); };
+const STILL = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* ---------- the three dials ---------- */
+const PR = {a:{min:-1.5,max:0.5,step:0.05,dp:2}, b:{min:-1,max:5,step:0.1,dp:1}, c:{min:0.8,max:4,step:0.1,dp:1}};
+const snap = (k,v) => { const r = PR[k], n = Math.round((v - r.min)/r.step); return +clamp(r.min + n*r.step, r.min, r.max).toFixed(r.dp); };
+const pstr = (k,v) => (v < 0 ? '−' : '') + Math.abs(v).toFixed(PR[k].dp);
+const eqStr = p => `f(x) = ${pstr('a',p.a)}x² ${p.b<0?'−':'+'} ${Math.abs(p.b).toFixed(1)}x ${p.c<0?'−':'+'} ${Math.abs(p.c).toFixed(1)}`;
+
+/* ---------- courts ---------- */
+const LEVELS = [
+  {name:'RELEASE POINT', free:'c', guide:4, h:[5,9], k:[2.6,4.2],
+   intro:'Only c moves on this court. c is the height where the ball leaves your hands, the point (0, c). Raise or lower it until the arc drops through the hoop.'},
+  {name:'THE ARC', free:'a', guide:4, h:[5,9], k:[2.6,4.2],
+   intro:'Only a moves. a bends the parabola. Try values closer to 0 and further from 0 and watch what happens to the shape.'},
+  {name:'LAUNCH ANGLE', free:'b', guide:3.5, h:[5,9], k:[2.6,4.2],
+   intro:'Only b moves. b sets how steeply the ball leaves your hands.'},
+  {name:'FULL CONTROL', free:'abc', guide:3, h:[4.5,10], k:[2.6,4.6],
+   intro:'All three are yours. The hoop is at the point on the panel, so f(x) has to equal the hoop height at the hoop.'},
+  {name:'ONE ON ONE', free:'abc', guide:2.5, def:true, h:[6,10], k:[2.6,4.2],
+   intro:'A defender stands between you and the hoop. When your ball passes them it has to be higher than their reach.'},
+  {name:'UNDER THE PIER', free:'abc', guide:2.5, ceil:true, h:[6,10.5], k:[2.6,4],
+   intro:'You are playing under the pier. The top of your arc, the vertex, has to stay below the deck.'},
+  {name:'LIFEGUARD TOWER', free:'abc', guide:2, tower:true, h:[4,8], k:[4.8,6.6], c:[2.5,3.9],
+   intro:'The hoop is up on the lifeguard tower. Release higher with a big c and you will need a jump shot.'},
+  {name:'NO LOOK', free:'abc', guide:0.7, noGhost:true, mix:true, h:[5,10.5], k:[2.6,5],
+   intro:'Hardly any guide, and your last shot does not stay on screen. Use the coordinates on the panel and the equation.'},
+];
+const DIFF = 'EEEMMMHH';
+const HOOPS = 5;
+
+/* ---------- court geometry: equal scale on both axes ---------- */
+const W = 780, H = 500, ML = 40, MR = 20, MT = 20, MB = 44, X0 = -1.2, X1 = 12;
+const S = (W - ML - MR) / (X1 - X0), Y1 = (H - MT - MB) / S;
+const sx = x => ML + (x - X0) * S, sy = y => H - MB - y * S;
+const BALL = 0.12, RIM = 0.23, BB = 0.42, VX = 6.5, TW = 450, BX = -0.4;
+
+/* ---------- where does the ball go ---------- */
+function simulate(p, hp){
+  const {a,b,c} = p, f = x => a*x*x + b*x + c, {h,k,obs} = hp, dx = 0.004;
+  let px = 0, py = c;
+  for(let x = dx; x <= X1 + 1; x += dx){
+    const y = f(x);
+    if(obs.ceil !== undefined && y + BALL >= obs.ceil) return {type:'ceiling', x, y:obs.ceil - BALL};
+    if(obs.def && px < obs.def.x && x >= obs.def.x && y - BALL < obs.def.reach && y > 0) return {type:'block', x:obs.def.x, y};
+    if(py > k && y <= k){
+      const xc = px + (x - px)*(py - k)/(py - y), d = xc - h;
+      if(Math.abs(d) <= 0.09) return {type:'swish', made:'swish', x:xc, y:k, d};
+      if(Math.abs(d) <= 0.2) return {type:'in', made:'in', x:xc, y:k, d};
+      if(Math.abs(d) <= RIM + BALL) return {type:'rim', x:xc, y:k, d};
+    }
+    if(py < k && y >= k){
+      const xc = px + (x - px)*(k - py)/(y - py);
+      if(Math.abs(xc - h) <= RIM + BALL) return {type:'under', x:xc, y:k - 0.05, d:xc - h};
+    }
+    if(px < h + BB - BALL && x >= h + BB - BALL && y >= k - 0.1 && y <= k + 1.05) return {type:'board', x:h + BB - BALL, y};
+    if(y < BALL) return {type: x < h ? 'short' : 'long', x, y:BALL};
+    if(x > X1 + 0.4) return {type:'over', x, y};
+    if(y > Y1 + 0.6) return {type:'orbit', x, y};
+    px = x; py = y;
+  }
+  return {type:'over', x:X1, y:f(X1)};
+}
+
+/* every hoop is made from a real shot on the dial grid, so it can always be swished */
+function makeHoop(L){
+  for(let t = 0; t < 200000; t++){
+    const a = snap('a', rnd(-0.9,-0.12)), b = snap('b', rnd(0.6,4.5)), c = snap('c', rnd(...(L.c || [1.6,2.9])));
+    const f = x => a*x*x + b*x + c, xv = -b/(2*a), yv = f(xv);
+    const h = Math.round(rnd(L.h[0], L.h[1])*2)/2;
+    if(xv < 0.8 || xv > h - 0.6 || yv > 7.4) continue;
+    const k = Math.round(f(h)*10)/10;
+    if(k < L.k[0] || k > L.k[1] || 2*a*h + b > -0.7) continue;
+    const obs = {}, roll = Math.random();
+    if(L.def || (L.mix && roll < .4)){
+      const d = Math.round(rnd(Math.max(1.5, xv - 1.4), Math.min(h - 1.6, xv + 1))*2)/2;
+      const reach = Math.round((f(d) - rnd(0.22,0.4))*10)/10;
+      if(d < 1.5 || d > h - 1.6 || reach < 3 || reach > 4.8) continue;
+      obs.def = {x:d, reach};
+    }
+    if(L.ceil || (L.mix && roll > .7)){
+      const R = Math.round((yv + rnd(0.35,0.6))*10)/10;
+      if(R < k + 1.2 || R > 7.4) continue;
+      obs.ceil = R;
+    }
+    const hp = {h, k, obs, target:{a,b,c}};
+    if(simulate(hp.target, hp).type === 'swish') return hp;
+  }
+  return {h:7, k:3.8, obs:{}, target:{a:-0.25, b:2, c:2}};
+}
+
+/* ---------- save ---------- */
+let save = {stars:LEVELS.map(()=>0), best:LEVELS.map(()=>0), all:false};
+try { const s = JSON.parse(localStorage.getItem('boardwalk-hoops-quad')); if(s && s.stars) save = Object.assign(save, s); } catch(e){}
+const persist = () => { try { localStorage.setItem('boardwalk-hoops-quad', JSON.stringify(save)); } catch(e){} };
+
+/* ---------- menu ---------- */
+const starStr = n => '★'.repeat(n) + '☆'.repeat(3-n);
+const dtag = i => { const d = DIFF[i]; return `<span class="d d${d}">${{E:'EASY',M:'MEDIUM',H:'DIFFICULT'}[d]}</span>`; };
+function show(id){ document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on', s.id===id)); window.scrollTo(0,0); if(id==='bh-menu') drawMenu(); }
+function drawMenu(){
+  const g = $('bh-lvgrid'); g.innerHTML = '';
+  LEVELS.forEach((L,i) => {
+    const open = save.all || i===0 || save.stars[i-1] > 0;
+    const b = document.createElement('button');
+    b.className = 'lv' + (open ? '' : ' locked'); b.disabled = !open;
+    b.innerHTML = `<span class="n">COURT ${String(i+1).padStart(2,'0')}</span><span class="t">${L.name}</span>${dtag(i)}`
+      + `<span class="s">${open ? starStr(save.stars[i]) : 'LOCKED'}</span>${open && save.best[i] ? `<span class="best">Best ${save.best[i]}</span>` : ''}`;
+    b.onclick = () => startLevel(i);
+    g.appendChild(b);
+  });
+}
+$('bh-unlock').onclick = () => { save.all = true; persist(); drawMenu(); };
+$('bh-reset').onclick = () => { save = {stars:LEVELS.map(()=>0), best:LEVELS.map(()=>0), all:false}; persist(); drawMenu(); };
+$('bh-toMenu').onclick = () => { G = null; show('bh-menu'); };
+
+/* ---------- controls ---------- */
+$('bh-params').innerHTML = ['a','b','c'].map(k => `<div class="prow" id="bh-row-${k}"><span class="k">${k}</span>`
+  + `<button data-p="${k}" data-d="-1" aria-label="decrease ${k}">−</button>`
+  + `<input type="range" id="bh-sl-${k}" min="${PR[k].min}" max="${PR[k].max}" step="${PR[k].step}" aria-label="${k}">`
+  + `<button data-p="${k}" data-d="1" aria-label="increase ${k}">+</button><span class="v" id="bh-v-${k}"></span></div>`).join('');
+let G = null, rep = null, repT = null;
+const canEdit = k => G && G.phase !== 'shoot' && G.L.free.includes(k);
+function nudge(k, d){ if(!canEdit(k)) return; G.p[k] = snap(k, G.p[k] + d*PR[k].step); onParam(); }
+function onParam(){ G.labels = false; sync(); }
+['a','b','c'].forEach(k => $('bh-sl-'+k).addEventListener('input', e => { if(!canEdit(k)) return; G.p[k] = snap(k, +e.target.value); onParam(); }));
+$('bh-params').addEventListener('pointerdown', e => {
+  const bt = e.target.closest('button[data-p]'); if(!bt || bt.disabled) return;
+  e.preventDefault(); const go = () => nudge(bt.dataset.p, +bt.dataset.d); go();
+  clearTimeout(repT); clearInterval(rep); repT = setTimeout(() => { rep = setInterval(go, 60); }, 350);
+});
+['pointerup','pointercancel'].forEach(ev => document.addEventListener(ev, () => { clearTimeout(repT); clearInterval(rep); }));
+$('bh-params').addEventListener('click', e => { const bt = e.target.closest('button[data-p]'); if(bt && e.detail === 0) nudge(bt.dataset.p, +bt.dataset.d); });
+$('bh-shoot').onclick = () => shoot();
+document.addEventListener('keydown', e => {
+  if(!G || !$('bh-game').classList.contains('on') || $('bh-over').classList.contains('on')) return;
+  if((e.key === 'Enter' || e.key === ' ') && e.target.tagName !== 'BUTTON'){ e.preventDefault(); shoot(); }
+});
+
+function sync(){
+  ['a','b','c'].forEach(k => {
+    const sl = $('bh-sl-'+k), free = G.L.free.includes(k);
+    sl.value = G.p[k]; $('bh-v-'+k).textContent = pstr(k, G.p[k]);
+    sl.disabled = !free; $('bh-row-'+k).classList.toggle('locked', !free);
+    $('bh-row-'+k).querySelectorAll('button').forEach(b => b.disabled = !free);
+  });
+  $('bh-eq').textContent = eqStr(G.p);
+  $('bh-shoot').disabled = G.phase !== 'aim';
+}
+function say(t, cls){ const m = $('bh-msg'); m.textContent = t; m.className = 'msg ' + (cls || ''); }
+function panel(){
+  const hp = G.hoop, o = hp.obs, lines = [`Hoop at x = ${fmt(hp.h)}, height ${fmt(hp.k)}`];
+  if(o.def) lines.push(`Defender at x = ${fmt(o.def.x)}, reach ${fmt(o.def.reach)}`);
+  if(o.ceil !== undefined) lines.push(`Pier deck at height ${fmt(o.ceil)}`);
+  $('bh-hoopTitle').textContent = `HOOP ${Math.min(G.done+1, HOOPS)} OF ${HOOPS}`;
+  $('bh-hoopInfo').textContent = lines.join('\n');
+  $('bh-pips').innerHTML = Array.from({length:HOOPS}, (_,n) => `<i class="${n < G.done ? 'done' : ''}"></i>`).join('');
+  $('bh-score').textContent = `SCORE ${G.score} · COMBO x${Math.min(G.streak+1, 4)} · SHOTS ${G.shots}`;
+  $('bh-log').innerHTML = G.log.length ? G.log.slice(0,8).map(r => `<tr><td>${pstr('a',r.a)}</td><td>${pstr('b',r.b)}</td><td>${pstr('c',r.c)}</td><td>${r.r}</td></tr>`).join('')
+    : '<tr><td colspan="4" class="empty">Your shots are listed here.</td></tr>';
+  sync();
+}
+
+/* ---------- a court ---------- */
+function startLevel(i){
+  const L = LEVELS[i];
+  G = {i, L, hoops:Array.from({length:HOOPS}, () => makeHoop(L)), done:0, shots:0, score:0, streak:0, log:[],
+       p:{a:-0.3, b:1.5, c:2.0}, phase:'aim', labels:false, reveal:null, post:null, banner:null, sway:-1e9};
+  loadHoop();
+  if(L.free.length === 1){                      // start the free dial well away from the answer
+    const k = L.free, tv = G.hoop.target[k], gap = {a:0.2, b:0.8, c:0.7}[k], mid = (PR[k].min + PR[k].max)/2;
+    if(Math.abs(G.p[k] - tv) < gap) G.p[k] = snap(k, tv + (tv > mid ? -1 : 1)*gap*1.4);
+  }
+  $('bh-gname').textContent = L.name;
+  BG = makeBG();
+  show('bh-game'); panel(); say(L.intro);
+}
+function loadHoop(){
+  G.hoop = G.hoops[G.done]; G.reveal = null; G.labels = false;
+  if(G.L.free.length === 1) for(const k of 'abc') if(!G.L.free.includes(k)) G.p[k] = G.hoop.target[k];
+}
+
+function shoot(){
+  if(!G || G.phase !== 'aim') return;
+  const now = performance.now();
+  G.res = simulate(G.p, G.hoop);
+  G.shot = {...G.p};
+  G.tEvent = TW + Math.max(0, G.res.x)/VX*1000;
+  G.ballStart = dribble(now);
+  Object.assign(G, {phase:'shoot', t0:now, evented:false, finished:false, labels:false, reveal:null, post:null, banner:null});
+  if(STILL()) G.t0 = now - G.tEvent - 1600;
+  sync();
+}
+const BANNER = {swish:['SWISH!','#7dff9b'], in:['RIM IN!','#7dff9b'], board:['OFF THE GLASS','#ff7a8a'], block:['REJECTED!','#ff7a8a'],
+  ceiling:['CLANG!','#ff7a8a'], under:['UNDER THE RIM','#ff7a8a'], short:['SHORT','#ff7a8a'], long:['OVER THE BOARD','#ff7a8a'],
+  over:['OVER THE BOARD','#ff7a8a'], orbit:['INTO ORBIT','#ff7a8a']};
+function onEvent(now){
+  const r = G.res, p = G.shot, slope = 2*p.a*r.x + p.b;
+  let vx = VX, vy = VX*slope, through = false;
+  switch(r.type){
+    case 'swish': vx = 0.3; vy = -2.4; through = true; break;
+    case 'in': vx = -r.d*1.6; vy = 1.8; through = true; break;
+    case 'rim': vx = r.d < 0 ? -1.6 : -0.7; vy = r.d < 0 ? 2.2 : 3.4; break;
+    case 'board': vx = -2.2; vy = Math.min(1, vy*0.3); break;
+    case 'block': vx = -3.4; vy = 1.4; break;
+    case 'ceiling': vx *= 0.4; vy = -0.8; break;
+    case 'under': vx *= 0.3; vy = -1.6; break;
+    case 'short': case 'long': vx *= 0.55; vy = Math.abs(vy)*0.45; break;
+  }
+  G.post = {x:r.x, y:r.y, vx, vy, through, last:now};
+  const yv = p.a < 0 ? p.c - p.b*p.b/(4*p.a) : 99;
+  let [txt, col] = r.type === 'rim' ? [r.d < 0 ? 'FRONT RIM' : 'BACK RIM', '#ff7a8a'] : BANNER[r.type];
+  if(r.type === 'short' && yv < G.hoop.k) txt = 'AIRBALL';
+  G.banner = {txt, col, x:r.x, y:r.y, t:now};
+  if(r.made) G.sway = now;
+  G.reveal = {p, t:now + 250, made:!!r.made};
+}
+function explain(r){
+  const {a,b,c} = G.shot, f = x => a*x*x + b*x + c, {h,k,obs} = G.hoop, xv = -b/(2*a), yv = f(xv), at = `f(${fmt(h)}) = ${fmt(f(h))}`;
+  switch(r.type){
+    case 'swish': return `Swish. ${at}, right on the rim height of ${fmt(k)}.`;
+    case 'in': return `In off the rim. ${at}, close to the rim height of ${fmt(k)}.`;
+    case 'rim': return r.d < 0 ? `Front rim. ${at}, a little under the rim at ${fmt(k)}.` : `Back rim. ${at}, a little over the rim at ${fmt(k)}.`;
+    case 'board': return `Off the backboard. ${at}, which is above the rim at ${fmt(k)}.`;
+    case 'long': case 'over': return `Too long. ${at}, so the ball was still above the rim at ${fmt(k)} when it got to the hoop.`;
+    case 'short': return a < 0 && yv < k ? `Airball. The top of your arc, the vertex, only reaches height ${fmt(yv)}. The rim is at ${fmt(k)}.` : `Short. ${at}, below the rim at ${fmt(k)}.`;
+    case 'under': return a >= 0 ? `The ball came up through the bottom of the rim. With a ≥ 0 the parabola opens upwards and never comes back down.`
+      : `It hit the rim from underneath because the ball was still going up. Your vertex is at x = ${fmt(xv)}, past the hoop at x = ${fmt(h)}.`;
+    case 'block': return `Rejected. At x = ${fmt(obs.def.x)} your ball was at height ${fmt(f(obs.def.x))}, and the defender reaches ${fmt(obs.def.reach)}.`;
+    case 'ceiling': return `Clang off the pier. Your vertex is at height ${fmt(yv)}, and the deck is at ${fmt(obs.ceil)}.`;
+    case 'orbit': return a >= 0 ? `With a ≥ 0 the parabola opens upwards, so the ball never comes back down. Make a negative.` : `Way too high. ${at}.`;
+  }
+  return '';
+}
+function finishShot(){
+  const r = G.res, me = G;
+  G.shots++; G.post = null; G.labels = true;
+  G.log.unshift({...G.shot, r: r.type === 'rim' ? (r.d < 0 ? 'front rim' : 'back rim') : {swish:'SWISH', in:'rim in', board:'backboard', block:'blocked', ceiling:'pier', under:'under rim', short:'short', long:'long', over:'long', orbit:'orbit'}[r.type]});
+  if(r.made){
+    G.streak++; const mult = Math.min(G.streak, 4), pts = (r.made === 'swish' ? 300 : 200)*mult;
+    G.score += pts; G.done++;
+    say(explain(r) + ` +${pts}${mult > 1 ? ` (combo x${mult})` : ''}`, 'good');
+    G.phase = 'wait'; panel();
+    setTimeout(() => {
+      if(G !== me) return;
+      if(G.done >= HOOPS) return finishLevel();
+      loadHoop(); G.phase = 'aim'; panel();
+      say(`Next hoop: x = ${fmt(G.hoop.h)}, height ${fmt(G.hoop.k)}.`);
+    }, STILL() ? 300 : 1300);
+  } else {
+    G.streak = 0; G.phase = 'aim'; panel(); say(explain(r), 'bad');
+  }
+}
+function finishLevel(){
+  const stars = G.shots <= 7 ? 3 : G.shots <= 11 ? 2 : 1, i = G.i, last = i === LEVELS.length - 1;
+  const fresh = G.score > save.best[i];
+  save.stars[i] = Math.max(save.stars[i], stars); save.best[i] = Math.max(save.best[i], G.score); persist();
+  $('bh-dlg').innerHTML = `<h3>${G.L.name} CLEARED</h3><div class="stars">${starStr(stars)}</div>
+    <p>${HOOPS} hoops in ${G.shots} shots. Score ${G.score}${fresh ? ', a new best.' : `. Your best is ${save.best[i]}.`}${stars < 3 ? ' Seven shots or fewer earns three stars.' : ''}</p>
+    <div class="row">${last ? '' : '<button class="btn" data-a="next">NEXT COURT ▶</button>'}<button class="btn ghost" data-a="again">PLAY AGAIN</button><button class="btn ghost" data-a="list">COURTS</button></div>`;
+  $('bh-over').classList.add('on');
+  $('bh-dlg').onclick = e => {
+    const a = e.target.dataset.a; if(!a) return;
+    $('bh-over').classList.remove('on'); $('bh-dlg').onclick = null;
+    if(a === 'next') startLevel(i+1); else if(a === 'again') startLevel(i); else { G = null; show('bh-menu'); }
+  };
+}
+
+/* ---------- drawing ---------- */
+const cv = $('bh-cv'), g = cv.getContext('2d');
+let BG = null;
+function makeBG(){
+  const c = document.createElement('canvas'); c.width = W*2; c.height = H*2;
+  const b = c.getContext('2d'); b.scale(2,2);
+  const hz = sy(2.7), sky = b.createLinearGradient(0,0,0,hz);
+  sky.addColorStop(0,'#1d0f3a'); sky.addColorStop(.45,'#5b1f6e'); sky.addColorStop(.8,'#ff5a3c'); sky.addColorStop(1,'#ffc531');
+  b.fillStyle = sky; b.fillRect(0,0,W,hz);
+  const sun = b.createLinearGradient(0,hz-80,0,hz); sun.addColorStop(0,'#fff3a8'); sun.addColorStop(1,'#ff8a3c');
+  b.fillStyle = sun; b.beginPath(); b.arc(sx(8.2), hz, 78, Math.PI, 0); b.fill();
+  b.fillStyle = sky; for(let k=0; k<6; k++) b.fillRect(sx(8.2)-80, hz-6-k*9, 160, 2+k*0.6);
+  const sea = b.createLinearGradient(0,hz,0,sy(1.1)); sea.addColorStop(0,'#16c2b8'); sea.addColorStop(1,'#0b6f7a');
+  b.fillStyle = sea; b.fillRect(0,hz,W,sy(1.1)-hz);
+  b.strokeStyle = 'rgba(255,241,214,.35)'; b.lineWidth = 2;
+  for(let k=0; k<10; k++){ const y = hz + 6 + k*7, x = (k*137)%W; b.beginPath(); b.moveTo(x,y); b.lineTo(x+46,y); b.stroke(); }
+  b.fillStyle = '#e8b56c'; b.fillRect(0, sy(1.1), W, sy(0) - sy(1.1));
+  // chain-link fence behind the court
+  b.strokeStyle = 'rgba(18,8,31,.28)'; b.lineWidth = 1;
+  for(let x = -40; x < W + 80; x += 12){ b.beginPath(); b.moveTo(x, sy(0)); b.lineTo(x + 60, sy(2.4)); b.moveTo(x + 60, sy(0)); b.lineTo(x, sy(2.4)); b.stroke(); }
+  b.strokeStyle = 'rgba(18,8,31,.55)'; b.lineWidth = 3; b.beginPath(); b.moveTo(0, sy(2.4)); b.lineTo(W, sy(2.4)); b.stroke();
+  for(let x = X0; x <= X1; x += 2.5){ b.fillStyle = 'rgba(18,8,31,.5)'; b.fillRect(sx(x)-2, sy(2.5), 4, sy(0)-sy(2.5)); }
+  // palms
+  const palm = (x0, hgt, lean) => {
+    b.strokeStyle = '#12081f'; b.fillStyle = '#12081f'; b.lineWidth = 7; b.lineCap = 'round';
+    const tx = x0 + lean, ty = sy(hgt);
+    b.beginPath(); b.moveTo(x0, sy(0)); b.quadraticCurveTo(x0 + lean*0.2, (sy(0)+ty)/2, tx, ty); b.stroke();
+    for(let k=0; k<7; k++){ const a = -Math.PI*0.95 + k*Math.PI*0.32, len = 46 + (k%3)*10;
+      b.beginPath(); b.moveTo(tx,ty); b.quadraticCurveTo(tx + Math.cos(a)*len*0.6, ty + Math.sin(a)*len*0.6 - 10, tx + Math.cos(a)*len, ty + Math.sin(a)*len + 16);
+      b.lineWidth = 6; b.stroke(); }
+    b.lineCap = 'butt';
+  };
+  palm(sx(X0)+8, 6.4, 22); palm(W-18, 5.7, -28);
+  // court surface
+  b.fillStyle = '#2a1d3d'; b.fillRect(0, sy(0), W, H - sy(0));
+  b.fillStyle = '#ff5a3c'; b.fillRect(0, sy(0), W, 3);
+  // grid
+  b.strokeStyle = 'rgba(255,241,214,.16)'; b.lineWidth = 1;
+  for(let x = Math.ceil(X0); x <= X1; x++){ b.beginPath(); b.moveTo(sx(x), MT); b.lineTo(sx(x), sy(0)); b.stroke(); }
+  for(let y = 1; y <= Math.floor(Y1); y++){ b.beginPath(); b.moveTo(sx(X0), sy(y)); b.lineTo(W-MR, sy(y)); b.stroke(); }
+  b.strokeStyle = 'rgba(255,241,214,.55)'; b.lineWidth = 2; b.beginPath(); b.moveTo(sx(0), MT); b.lineTo(sx(0), sy(0)); b.stroke();
+  b.font = '700 14px "JetBrains Mono", monospace'; b.fillStyle = '#fff1d6'; b.textAlign = 'center'; b.textBaseline = 'top';
+  for(let x = 0; x <= X1; x++) b.fillText(x, sx(x), sy(0) + 10);
+  b.textAlign = 'right'; b.textBaseline = 'middle';
+  for(let y = 0; y <= Math.floor(Y1); y++) b.fillText(y, sx(X0) - 6, sy(y));
+  return c;
+}
+
+function line(x1,y1,x2,y2){ g.beginPath(); g.moveTo(sx(x1),sy(y1)); g.lineTo(sx(x2),sy(y2)); g.stroke(); }
+function curve(p, xa, xb, cut){
+  const f = x => p.a*x*x + p.b*x + p.c; let pen = false; g.beginPath();
+  for(let x = xa; x <= xb + 1e-9; x += 0.03){ const y = f(x);
+    if(y < -0.3 || y > Y1 + 0.3 || (cut !== undefined && y > cut)){ pen = false; continue; }
+    pen ? g.lineTo(sx(x), sy(y)) : g.moveTo(sx(x), sy(y)); pen = true; }
+  g.stroke();
+}
+function ik(ax,ay,tx,ty,l1,l2,bend){
+  const dx = tx-ax, dy = ty-ay, d = Math.hypot(dx,dy) || 1e-6, base = Math.atan2(dy,dx), dd = Math.min(d, l1+l2-1e-4);
+  const A = Math.acos(clamp((l1*l1 + dd*dd - l2*l2)/(2*l1*dd), -1, 1)), ang = base + bend*A;
+  return [[ax,ay],[ax + l1*Math.cos(ang), ay + l1*Math.sin(ang)],[ax + dd*Math.cos(base), ay + dd*Math.sin(base)]];
+}
+function limb(seg, col, w){
+  g.lineCap = 'round'; g.lineJoin = 'round';
+  for(const [c, lw] of [['#12081f', w*S + 3], [col, w*S]]){
+    g.strokeStyle = c; g.lineWidth = lw; g.beginPath();
+    g.moveTo(sx(seg[0][0]), sy(seg[0][1])); g.lineTo(sx(seg[1][0]), sy(seg[1][1])); g.lineTo(sx(seg[2][0]), sy(seg[2][1])); g.stroke();
+  }
+}
+function dot(x, y, r, fill, stroke){ g.fillStyle = fill; g.beginPath(); g.arc(sx(x), sy(y), r, 0, Math.PI*2); g.fill(); if(stroke){ g.strokeStyle = stroke; g.lineWidth = 1.5; g.stroke(); } }
+function poly(pts, fill){ g.beginPath(); pts.forEach(([x,y],i) => i ? g.lineTo(sx(x),sy(y)) : g.moveTo(sx(x),sy(y))); g.closePath();
+  g.fillStyle = fill; g.fill(); g.strokeStyle = '#12081f'; g.lineWidth = 1.5; g.stroke(); }
+
+const HERO = {jersey:'#16c2b8', trim:'#ffc531', shorts:'#5b1f6e', skin:'#c68a5a', skinD:'#9b6740', hair:'#2a1a12', band:'#ff4fa3', num:'x²', bun:true};
+const DEF  = {jersey:'#ff5a3c', trim:'#fff1d6', shorts:'#12081f', skin:'#e8b48a', skinD:'#c08f68', hair:'#5a3820', band:'#16c2b8', num:'0', bun:false};
+function drawBaller(o, k){
+  const f = o.face, L = o.lift, cr = o.cr, tuck = clamp(L/0.6, 0, 1)*0.16;
+  const hipY = L + 0.95 - 0.22*cr, hipX = o.x - 0.04*f*cr;
+  const shX = o.x + 0.04*f + 0.1*f*cr, shY = hipY + 0.6, head = {x:shX + 0.03*f, y:shY + 0.27};
+  // shadow on the court, smaller in the air
+  g.fillStyle = 'rgba(18,8,31,.45)'; g.beginPath(); g.ellipse(sx(o.x), sy(0)+2, (0.36 - 0.1*clamp(L,0,1.5))*S, 4, 0, 0, Math.PI*2); g.fill();
+  const legB = ik(hipX - 0.05*f, hipY, o.x - 0.14*f, L + 0.09 + tuck*1.4, .47, .47, f);
+  const legF = ik(hipX + 0.05*f, hipY, o.x + 0.13*f, L + 0.09 + tuck, .47, .47, f);
+  const armB = ik(shX - 0.08*f, shY - 0.02, o.hb.x, o.hb.y, .36, .36, -f);
+  const armF = ik(shX + 0.04*f, shY, o.hf.x, o.hf.y, .36, .36, -f);
+  const shoe = (seg) => { const [ax, ay] = seg[2];
+    g.strokeStyle = '#fff1d6'; g.lineWidth = 0.13*S; g.lineCap = 'butt'; const [kx, ky] = seg[1], dl = Math.hypot(kx-ax, ky-ay);
+    g.beginPath(); g.moveTo(sx(ax), sy(ay)); g.lineTo(sx(ax + (kx-ax)/dl*0.12), sy(ay + (ky-ay)/dl*0.12)); g.stroke();
+    g.save(); g.translate(sx(ax), sy(ay)); g.scale(f, 1);
+    g.fillStyle = '#fff1d6'; g.strokeStyle = '#12081f'; g.lineWidth = 1.5;
+    g.beginPath(); g.moveTo(-0.08*S, -0.04*S); g.lineTo(0.12*S, -0.03*S); g.quadraticCurveTo(0.22*S, -0.01*S, 0.22*S, 0.06*S); g.lineTo(-0.08*S, 0.06*S); g.closePath(); g.fill(); g.stroke();
+    g.fillStyle = k.trim; g.fillRect(-0.04*S, -0.01*S, 0.16*S, 0.03*S);
+    g.fillStyle = '#12081f'; g.fillRect(-0.08*S, 0.045*S, 0.3*S, 0.025*S);
+    g.restore(); };
+  limb(armB, k.skinD, .1); dot(armB[2][0], armB[2][1], 0.06*S, k.skinD, '#12081f');
+  limb(legB, k.skinD, .14); shoe(legB);
+  limb(legF, k.skin, .14); shoe(legF);
+  const mB = [legB[0][0] + (legB[1][0]-legB[0][0])*.55, legB[0][1] + (legB[1][1]-legB[0][1])*.55];
+  const mF = [legF[0][0] + (legF[1][0]-legF[0][0])*.55, legF[0][1] + (legF[1][1]-legF[0][1])*.55];
+  const [lo, hi] = mB[0] < mF[0] ? [mB, mF] : [mF, mB];
+  poly([[hipX-0.21, hipY+0.1], [hipX+0.21, hipY+0.1], [hi[0]+0.11, hi[1]], [lo[0]-0.11, lo[1]]], k.shorts);
+  g.strokeStyle = k.trim; g.lineWidth = 2; line(hipX - 0.2*f, hipY + 0.08, lo[0]*(f>0?1:0) + hi[0]*(f>0?0:1) - 0.1*f, (f>0?lo:hi)[1] + 0.02);
+  poly([[shX-0.21, shY+0.04], [shX+0.21, shY+0.04], [hipX+0.19, hipY+0.13], [hipX-0.19, hipY+0.13]], k.jersey);
+  g.strokeStyle = k.trim; g.lineWidth = 2.5; g.beginPath(); g.moveTo(sx(shX-0.09), sy(shY+0.04)); g.lineTo(sx(shX), sy(shY-0.06)); g.lineTo(sx(shX+0.09), sy(shY+0.04)); g.stroke();
+  g.font = `${Math.round(0.17*S)}px "Press Start 2P", monospace`; g.textAlign = 'center'; g.textBaseline = 'middle';
+  g.fillStyle = k.trim; g.fillText(k.num, sx((shX+hipX)/2), sy((shY+hipY)/2 + 0.02));
+  // neck and head
+  g.strokeStyle = '#12081f'; g.lineWidth = 0.09*S + 3; line(shX + 0.01*f, shY, head.x, head.y - 0.1);
+  g.strokeStyle = k.skin; g.lineWidth = 0.09*S; line(shX + 0.01*f, shY, head.x, head.y - 0.1);
+  if(k.bun) dot(head.x - 0.13*f, head.y + 0.08, 0.075*S, k.hair, '#12081f');
+  const R = 0.155*S;
+  g.save(); g.beginPath(); g.arc(sx(head.x), sy(head.y), R, 0, Math.PI*2); g.fillStyle = k.skin; g.fill(); g.clip();
+  g.fillStyle = k.hair; g.fillRect(sx(head.x) - R - 2, sy(head.y) - R - 2, 2*R + 4, R + (k.bun ? 0 : 2) - 0.04*S);
+  g.fillStyle = k.band; g.fillRect(sx(head.x) - R - 2, sy(head.y + 0.06), 2*R + 4, 0.05*S);
+  g.restore();
+  g.strokeStyle = '#12081f'; g.lineWidth = 1.5; g.beginPath(); g.arc(sx(head.x), sy(head.y), R, 0, Math.PI*2); g.stroke();
+  dot(head.x - 0.03*f, head.y - 0.02, 0.035*S, k.skinD);
+  dot(head.x + 0.09*f, head.y - 0.01, 1.8, '#12081f');
+  limb(armF, k.skin, .1); dot(armF[2][0], armF[2][1], 0.06*S, k.skin, '#12081f');
+}
+function drawBall(x, y){
+  const px = sx(x), py = sy(y), r = BALL*S, rot = x*2.6;
+  g.fillStyle = '#ff8a3c'; g.strokeStyle = '#12081f'; g.lineWidth = 1.5;
+  g.beginPath(); g.arc(px, py, r, 0, Math.PI*2); g.fill(); g.stroke();
+  g.lineWidth = 1; g.beginPath(); g.moveTo(px + Math.cos(rot)*r, py + Math.sin(rot)*r); g.lineTo(px - Math.cos(rot)*r, py - Math.sin(rot)*r); g.stroke();
+  g.beginPath(); g.arc(px + Math.cos(rot+1.57)*r*1.3, py + Math.sin(rot+1.57)*r*1.3, r*1.05, rot+1.57+Math.PI-0.75, rot+1.57+Math.PI+0.75); g.stroke();
+}
+
+/* the shooter's body follows the shot: underhand for low c, set shot in the middle, jump shot for high c */
+const dribble = now => { const ph = (now % 760)/760; return {x:BX + 0.36, y:0.13 + 0.82*Math.abs(Math.sin(Math.PI*ph))}; };
+const styleOf = c => c < 1.3 ? ['under','UNDERHAND'] : c <= 2.28 ? ['set','SET SHOT'] : c <= 3.2 ? ['jump','JUMP SHOT'] : ['jump','SKY JUMPER'];
+function pose(now){
+  if(!G || G.phase !== 'shoot'){
+    const ball = (G && G.phase === 'wait') ? null : dribble(now), bob = 0.04*Math.sin(now/190);
+    return {lift:0, cr:0.3 + bob, ball, hf: ball ? {x:ball.x + 0.02, y:Math.max(ball.y + 0.11, 0.8)} : {x:BX + 0.18, y:0.62}, hb:{x:BX - 0.14, y:0.62}};
+  }
+  const c = G.shot.c, [st, label] = styleOf(c), J = st === 'jump' ? c - 2.25 : 0, t = now - G.t0, R = {x:0, y:c};
+  const gather = st === 'under' ? {x:BX + 0.3, y:0.7} : {x:BX + 0.3, y:1.2};
+  let lift = 0, cr = 0.3, ball = null;
+  if(t < 220){ const u = ease(t/220), d = G.ballStart; ball = {x:d.x + (gather.x-d.x)*u, y:d.y + (gather.y-d.y)*u}; cr = 0.3 + 0.55*u; }
+  else if(t < TW){ const u = ease((t-220)/(TW-220)); ball = {x:gather.x + (R.x-gather.x)*u, y:gather.y + (R.y-gather.y)*u};
+    cr = st === 'under' ? 0.85 : 0.85*(1-u); lift = J*(1 - (1-u)*(1-u)); }
+  else { const tr = t - TW;
+    if(st === 'jump') lift = tr < 110 ? J : tr < 380 ? J*(1 - ((tr-110)/270)**2) : 0;
+    cr = st === 'under' ? (tr < 260 ? 0.85 - 0.5*tr/260 : 0.35) : (st === 'jump' && tr > 370 && tr < 520 ? 0.55 : 0.3); }
+  let hf, hb;
+  if(ball){
+    if(st === 'under'){ hf = {x:ball.x + 0.02, y:ball.y - 0.12}; hb = {x:ball.x - 0.12, y:ball.y - 0.05}; }
+    else { hf = {x:ball.x - 0.02, y:ball.y - 0.12}; hb = {x:ball.x - 0.13, y:ball.y - 0.01}; }
+  } else {
+    const tr = t - TW, drop = J - lift, u = ease((tr - 450)/450);
+    const up = st === 'under' ? {x:R.x + 0.12, y:R.y + 0.05} : {x:R.x + 0.07, y:R.y - 0.17 - drop};
+    const down = {x:BX + 0.15, y:0.6 + lift};
+    hf = {x:up.x + (down.x-up.x)*u, y:up.y + (down.y-up.y)*u};
+    hb = {x:up.x - 0.15 + (down.x - 0.3 - up.x + 0.15)*u, y:up.y + 0.04 + (down.y - up.y - 0.04)*u};
+  }
+  return {lift, cr, ball, hf, hb, label: t > 140 && t < 1250 ? label : null};
+}
+
+function drawHoopBack(hp){
+  const {h, k} = hp, bx = h + BB;
+  if(G.L.tower){
+    const pl = k - 0.9;
+    g.strokeStyle = '#12081f'; g.lineWidth = 6; line(h+0.75, 0, h+0.9, pl); line(h+2.05, 0, h+1.9, pl);
+    g.lineWidth = 3; line(h+0.8, pl*0.33, h+2.0, pl*0.66); line(h+2.0, pl*0.33, h+0.8, pl*0.66);
+    g.fillStyle = '#fff1d6'; g.fillRect(sx(h+0.55), sy(pl), (1.7)*S, 0.12*S);
+    for(let i = 0; i < 5; i++){ g.fillStyle = i%2 ? '#fff1d6' : '#ff5a3c'; g.fillRect(sx(h+0.75), sy(pl + 0.28*(i+1)), 1.2*S, 0.28*S); }
+    g.strokeStyle = '#12081f'; g.lineWidth = 2; g.strokeRect(sx(h+0.75), sy(k + 0.5), 1.2*S, 1.4*S);
+    poly([[h+0.6, k+0.5], [h+2.1, k+0.5], [h+1.35, k+0.95]], '#16c2b8');
+    g.strokeStyle = '#12081f'; g.lineWidth = 5; line(h+0.75, k+0.45, bx+0.06, k+0.45);
+  } else {
+    g.fillStyle = '#12081f'; g.fillRect(sx(h+0.95), sy(k+0.55), 0.13*S, (k+0.55)*S);
+    g.strokeStyle = '#12081f'; g.lineWidth = 5; line(h+1.0, k+0.5, bx+0.06, k+0.5);
+    g.fillStyle = '#ffc531'; g.fillRect(sx(h+0.92), sy(1.1), 0.19*S, 0.5*S);
+  }
+  g.fillStyle = '#fff1d6'; g.strokeStyle = '#12081f'; g.lineWidth = 1.5;
+  g.fillRect(sx(bx), sy(k+1.05), 0.07*S, 1.2*S); g.strokeRect(sx(bx), sy(k+1.05), 0.07*S, 1.2*S);
+  g.fillStyle = '#ff5a3c'; g.fillRect(sx(bx)-1, sy(k+0.55), 3, 0.5*S);
+  g.strokeStyle = '#ff5a3c'; g.lineWidth = 3; line(h + RIM, k, bx, k);
+  g.beginPath(); g.ellipse(sx(h), sy(k), RIM*S, 3.5, 0, Math.PI, 2*Math.PI); g.stroke();
+}
+function drawHoopFront(hp, now){
+  const {h, k} = hp, age = now - G.sway, sw = age < 900 ? Math.sin(age/55)*0.06*(1 - age/900) : 0;
+  g.strokeStyle = 'rgba(255,241,214,.85)'; g.lineWidth = 1.2;
+  const top = [-0.21,-0.105,0,0.105,0.21], bot = [-0.12,-0.06,0,0.06,0.12], dep = age < 900 ? 0.42 + 0.08*Math.sin(age/90)*(1-age/900) : 0.42;
+  top.forEach((t,i) => { line(h+t, k, h+bot[i]+sw, k-dep); if(i < 4) line(h+t, k, h+bot[i+1]+sw, k-dep); if(i > 0) line(h+t, k, h+bot[i-1]+sw, k-dep); });
+  line(h+bot[0]+sw, k-dep, h+bot[4]+sw, k-dep);
+  g.strokeStyle = '#ff5a3c'; g.lineWidth = 3; g.beginPath(); g.ellipse(sx(h), sy(k), RIM*S, 3.5, 0, 0, Math.PI); g.stroke();
+  g.font = '700 14px "JetBrains Mono", monospace'; g.textAlign = 'center'; g.textBaseline = 'top';
+  g.lineWidth = 4; g.strokeStyle = '#12081f'; g.strokeText(`(${fmt(h)}, ${fmt(k)})`, sx(h), sy(k - 0.5));
+  g.fillStyle = '#fff1d6'; g.fillText(`(${fmt(h)}, ${fmt(k)})`, sx(h), sy(k - 0.5));
+}
+function drawPier(R){
+  const y = sy(R);
+  g.fillStyle = '#3a2414'; g.fillRect(0, 0, W, y);
+  g.strokeStyle = 'rgba(18,8,31,.6)'; g.lineWidth = 2; for(let x = 0; x < W; x += 26){ g.beginPath(); g.moveTo(x, 0); g.lineTo(x, y); g.stroke(); }
+  g.fillStyle = '#21140b'; g.fillRect(0, y - 9, W, 9);
+  g.fillStyle = '#3a2414'; [-1.05, 11.55].forEach(x => { g.fillRect(sx(x), y, 0.22*S, sy(0) - y); g.strokeStyle = '#12081f'; g.strokeRect(sx(x), y, 0.22*S, sy(0) - y); });
+  g.font = '10px "Press Start 2P", monospace'; g.textAlign = 'center'; g.textBaseline = 'bottom'; g.fillStyle = '#ffc531';
+  g.fillText(`PIER DECK AT HEIGHT ${fmt(R)}`, W/2, y - 14);
+}
+function drawGuide(){
+  const p = G.p, f = x => p.a*x*x + p.b*x + p.c, pts = [];
+  let s = 0, lx = 0, ly = f(0);
+  const xv = p.a < 0 ? -p.b/(2*p.a) : -1, reach = G.L.noGhost ? G.L.guide : xv > 0.3 ? Math.min(xv + 0.7, X1) : G.L.guide;
+  for(let x = 0.01; x <= reach; x += 0.01){ const y = f(x); s += Math.hypot(x - lx, y - ly); lx = x; ly = y;
+    if(y < 0 || y > Y1 + 0.3) break; if(s >= 0.24){ pts.push([x, y]); s = 0; } }
+  pts.forEach(([x, y], i) => { const u = i/Math.max(1, pts.length - 1); g.globalAlpha = 0.95 - 0.7*u; dot(x, y, 3.4 - 1.4*u, '#fff1d6'); });
+  g.globalAlpha = 1;
+  if(pts.length){ const [x, y] = pts[pts.length - 1]; g.strokeStyle = 'rgba(255,241,214,.5)'; g.lineWidth = 1.5; g.setLineDash([3,3]);
+    g.beginPath(); g.arc(sx(x), sy(y), BALL*S, 0, Math.PI*2); g.stroke(); g.setLineDash([]); }
+  g.strokeStyle = '#ffc531'; g.lineWidth = 2; g.setLineDash([3,3]); g.beginPath(); g.arc(sx(0), sy(p.c), BALL*S + 2, 0, Math.PI*2); g.stroke(); g.setLineDash([]);
+  if(G.labels && G.reveal) return;
+  g.font = '700 13px "JetBrains Mono", monospace'; g.textAlign = 'left'; g.textBaseline = 'bottom'; g.fillStyle = '#ffc531';
+  g.fillText(`(0, ${fmt(p.c)})`, sx(0) + 12, sy(p.c) - 6);
+}
+function marker(x, y, txt, col, dy){
+  if(x < X0 || x > X1 || y < -0.05 || y > Y1) return;
+  dot(x, y, 5, col, '#12081f');
+  g.font = '700 14px "JetBrains Mono", monospace'; g.textAlign = x > X1 - 1.5 ? 'right' : x < X0 + 1.5 ? 'left' : 'center'; g.textBaseline = dy < 0 ? 'bottom' : 'top';
+  g.lineWidth = 4; g.strokeStyle = '#12081f'; g.strokeText(txt, sx(x), sy(y) + dy); g.fillStyle = col; g.fillText(txt, sx(x), sy(y) + dy);
+}
+function drawReveal(now){
+  const r = G.reveal; if(!r) return;
+  const live = G.labels || G.phase === 'shoot' || G.phase === 'wait';
+  if(!live && G.L.noGhost) return;
+  const u = clamp((now - r.t)/800, 0, 1); if(u <= 0) return;
+  const col = r.made ? '#7dff9b' : '#ff4fa3';
+  g.globalAlpha = live ? 1 : 0.28; g.strokeStyle = col; g.lineWidth = live ? 3 : 2;
+  curve(r.p, X0, X0 + (X1 - X0)*u);
+  g.globalAlpha = 1;
+  if(!live || u < 1) return;
+  const {a, b, c} = r.p;
+  marker(0, c, `(0, ${fmt(c)})`, '#ffc531', 8);
+  if(a !== 0){ const xv = -b/(2*a), yv = c - b*b/(4*a); marker(xv, yv, `vertex (${fmt(xv)}, ${fmt(yv)})`, col, -9);
+    const D = b*b - 4*a*c; if(D >= 0){ [(-b - Math.sqrt(D))/(2*a), (-b + Math.sqrt(D))/(2*a)].forEach(x => x < 0.4 ? marker(x, 0, '', '#16c2b8', -9) : marker(x, 0, `root ${fmt(x)}`, '#16c2b8', -9)); } }
+}
+
+function draw(now){
+  g.setTransform(2,0,0,2,0,0);
+  g.drawImage(BG, 0, 0, W, H);
+  const hp = G.hoop, o = hp.obs;
+  if(o.ceil !== undefined) drawPier(o.ceil);
+  drawHoopBack(hp);
+  drawReveal(now);
+  if(G.phase === 'aim') drawGuide();
+  const t = G.phase === 'shoot' ? now - G.t0 : -1;
+  let ball = null;
+  if(t >= TW && !G.evented){ const x = Math.min((t - TW)/1000*VX, G.res.x), p = G.shot; ball = {x, y:p.a*x*x + p.b*x + p.c};
+    g.strokeStyle = 'rgba(255,241,214,.75)'; g.lineWidth = 2.5; curve(p, 0, x); }
+  else if(G.post) ball = G.post;
+  if(o.def){
+    const d = o.def, Jd = Math.max(0, d.reach - 2.32), td = TW + d.x/VX*1000;
+    const lift = t >= 0 ? Jd*Math.max(0, 1 - ((t - td)/420)**2) : 0.02 + 0.02*Math.sin(now/170);
+    const top = {x:d.x + 0.05, y:lift + 2.6};
+    g.strokeStyle = '#ff7a8a'; g.lineWidth = 2; g.setLineDash([6,5]); line(d.x - 0.45, d.reach, d.x + 0.45, d.reach); g.setLineDash([]);
+    g.font = '700 12px "JetBrains Mono", monospace'; g.textAlign = 'left'; g.textBaseline = 'bottom'; g.fillStyle = '#ff7a8a';
+    g.fillText(`reach ${fmt(d.reach)}`, sx(d.x + 0.5), sy(d.reach) + 6);
+    drawBaller({x:d.x + 0.2, lift, cr:0.35 - 0.3*clamp(lift/Math.max(Jd,0.01),0,1), face:-1, hf:{x:top.x - 0.02, y:top.y}, hb:{x:top.x + 0.12, y:top.y}}, DEF);
+  }
+  const ps = pose(now);
+  drawBaller({x:BX, lift:ps.lift, cr:ps.cr, face:1, hf:ps.hf, hb:ps.hb}, HERO);
+  if(ps.ball) drawBall(ps.ball.x, ps.ball.y);
+  if(ball) drawBall(ball.x, ball.y);
+  drawHoopFront(hp, now);
+  if(ps.label){ g.font = '10px "Press Start 2P", monospace'; g.textAlign = 'left'; g.textBaseline = 'bottom'; g.lineWidth = 4; g.strokeStyle = '#12081f';
+    const y = sy(ps.lift + 2.45 + (G.shot.c > 2.3 ? 0.35 : 0)); g.strokeText(ps.label, sx(BX) - 20, y); g.fillStyle = '#ffc531'; g.fillText(ps.label, sx(BX) - 20, y); }
+  if(G.banner){ const age = now - G.banner.t; if(age < 1500){
+    g.globalAlpha = age < 1100 ? 1 : 1 - (age - 1100)/400;
+    g.font = '18px "Press Start 2P", monospace'; g.textAlign = 'center'; g.textBaseline = 'bottom';
+    const x = clamp(sx(G.banner.x), 110, W - 110), y = clamp(sy(G.banner.y) - 30 - age*0.02, 40, H - 60);
+    g.lineWidth = 6; g.strokeStyle = '#12081f'; g.strokeText(G.banner.txt, x, y); g.fillStyle = G.banner.col; g.fillText(G.banner.txt, x, y);
+    g.globalAlpha = 1; } }
+}
+
+function tick(now){
+  if(G.phase !== 'shoot') return;
+  const t = now - G.t0;
+  if(!G.evented && t >= G.tEvent){ G.evented = true; onEvent(now); }
+  if(G.post){ const P = G.post, dt = Math.min(0.05, (now - P.last)/1000); P.last = now;
+    P.vy -= 12*dt; P.x += P.vx*dt; P.y += P.vy*dt;
+    if(P.y < BALL){ P.y = BALL; P.vy = Math.abs(P.vy)*0.55; P.vx *= 0.75; } }
+  if(!G.finished && t >= G.tEvent + 1500){ G.finished = true; finishShot(); }
+}
+function loop(now){
+  requestAnimationFrame(loop);
+  if(!G || !BG || !$('bh-game').classList.contains('on')) return;
+  tick(now); draw(now);
+}
+
+/* redraw the cached court once the fonts have arrived, so the axis numbers use the clear face */
+document.fonts?.ready?.then(() => { if(G) BG = makeBG(); });
+
+$('playHoops').onclick = () => show('bh-menu');
+drawMenu(); requestAnimationFrame(loop);
+})();
 </script>
 </body>
 </html>
