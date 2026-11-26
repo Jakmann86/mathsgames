@@ -23,6 +23,8 @@ A place to store and share all the maths based games created for Northlands Scho
 | ♥ BESSIE'S BAKERY | Scaling recipes (proportion) | Number & Algebra | [Play](https://jakmann86.github.io/mathsgames/bessies-bakery) |
 | ☀ FUNCTIFORNIA GAMES | Functions: input/output, linear, quadratics, exponentials, logs, inverses | Functions | [Play](https://jakmann86.github.io/mathsgames/functifornia) |
 | ✎ MATHS HANGMAN | Maths vocabulary (IGCSE + Year 12 word banks) | All topics | [Play](https://jakmann86.github.io/mathsgames/hangman) |
+| ✈ PI-LOT ACADEMY | Area of squares, rectangles, triangles, parallelograms, circles | Geometry & Measure | [Play](https://jakmann86.github.io/mathsgames/pilot-academy) |
+| ◎ PI-LOT CANNONBALL | Coordinates on a straight line (y = mx + c) | Functions / Linear graphs | [Play](https://jakmann86.github.io/mathsgames/pilot-cannonball) |
 
 ---
 
@@ -37,6 +39,8 @@ mathsgames/
 ├── bessies-bakery/         ← Recipe-scaling game (single index.html)
 ├── functifornia/           ← Six function mini-games (single index.html)
 ├── hangman/                ← Menu page + igcse/ and year12/ versions
+├── pilot-academy/          ← Area flying game, 3 licences + night flight (single index.html)
+├── pilot-cannonball/       ← Human cannonball linear graphs game, 8 stages (single index.html)
 ├── divisibility-connect/, fractis/, meltdown/, number-blaster/, target-zero/
 ├── transform-game/         ← Transformations game
 │   ├── index.html
