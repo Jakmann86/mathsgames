@@ -686,6 +686,40 @@
         .hm-word .blank { border-bottom: 2px solid #F2EFE6; padding-bottom: 4px; }
         .hm-word .y { color: #F2D06B; }
         .hm-word small { font-size: 7px; letter-spacing: 1px; color: rgba(242,239,230,0.5); }
+
+        /* ─── FLYER² ─── */
+        .cabinet-pilot .cabinet-glow { background: linear-gradient(135deg, #ffcf2e, #3352e0); }
+        .cabinet-pilot .cabinet-marquee { background: linear-gradient(90deg, #0a1450, #2a44c8, #0a1450); border-bottom: 2px solid #ffcf2e; }
+        .cabinet-pilot .cabinet-marquee::before { content: ''; position: absolute; top: 0; left: -100%; width: 60%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,207,46,0.3), transparent); animation: marqueeShine 3.8s infinite 1.2s; }
+        .cabinet-pilot .cabinet-marquee-text, .cabinet-pilot .cabinet-name { color: #ffcf2e; }
+        .cabinet-pilot .play-btn { background: linear-gradient(135deg, #ffcf2e, #ff9a3c); color: #0a1450; }
+        .cabinet-pilot sup { font-size: .6em; vertical-align: .7em; }
+        .cabinet-pilot .tag-a { background: rgba(255,207,46,0.15); color: #ffcf2e; }
+        .cabinet-pilot .tag-b { background: rgba(143,202,255,0.15); color: #8fcaff; }
+        .pl-screen { position: absolute; inset: 0; overflow: hidden; background: linear-gradient(#2f6ad8, #73aaf0 52%, #bfe0ff 58%, #73c24c 58%, #4f9637); }
+        .pl-ring { position: absolute; top: 34%; width: 34px; height: 34px; border: 4px solid #ffcf2e; box-shadow: 0 0 0 2px #3a2800; animation: plRing 2.4s linear infinite; }
+        .pl-ring.circ { border-radius: 50%; left: 22%; }
+        .pl-ring.sq { left: 46%; animation-delay: .8s; }
+        .pl-ring.tri { left: 70%; border: none; box-shadow: none; width: 0; height: 0; border-left: 20px solid transparent; border-right: 20px solid transparent; border-bottom: 34px solid #ffcf2e; animation-delay: 1.6s; }
+        @keyframes plRing { 0% { transform: scale(.35); opacity: 0; } 20% { opacity: 1; } 100% { transform: scale(1.6) translateY(10px); opacity: 0; } }
+        .pl-plane { position: absolute; left: 50%; bottom: 14%; font-size: 30px; color: #d63a2c; transform: translateX(-50%); animation: plBank 3s ease-in-out infinite; filter: drop-shadow(0 3px 0 rgba(0,0,0,.3)); }
+        @keyframes plBank { 0%,100% { transform: translateX(-90%) rotate(-8deg); } 50% { transform: translateX(-10%) rotate(8deg); } }
+
+        /* ─── MX + CANNON ─── */
+        .cabinet-cannon .cabinet-glow { background: linear-gradient(135deg, #ff5a3c, #ffd23f); }
+        .cabinet-cannon .cabinet-marquee { background: linear-gradient(90deg, #2a0d06, #6a1f10, #2a0d06); border-bottom: 2px solid #ffd23f; }
+        .cabinet-cannon .cabinet-marquee::before { content: ''; position: absolute; top: 0; left: -100%; width: 60%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,210,63,0.3), transparent); animation: marqueeShine 3.6s infinite 0.4s; }
+        .cabinet-cannon .cabinet-marquee-text, .cabinet-cannon .cabinet-name { color: #ffd23f; }
+        .cabinet-cannon .play-btn { background: linear-gradient(135deg, #ff5a3c, #ffd23f); color: #2a0d06; }
+        .cabinet-cannon .tag-a { background: rgba(255,210,63,0.15); color: #ffd23f; }
+        .cabinet-cannon .tag-b { background: rgba(255,90,60,0.15); color: #ff8a70; }
+        .cb-screen { position: absolute; inset: 0; overflow: hidden; background: linear-gradient(#2f6ad8, #73aaf0 55%, #bfe0ff 62%, #73c24c 62%, #4f9637); }
+        .cb-target { position: absolute; right: 14%; top: 26%; width: 54px; height: 54px; border-radius: 50%; background: radial-gradient(circle, #ffcf2e 0 18%, #d8342b 18% 36%, #f4f1e8 36% 54%, #d8342b 54% 72%, #f4f1e8 72%); box-shadow: 0 0 0 3px #22180c; }
+        .cb-target::after { content: ''; position: absolute; left: 50%; top: 100%; width: 4px; height: 40px; margin-left: -2px; background: #5a3d22; }
+        .cb-label { position: absolute; right: 9%; top: 9%; font-family: 'Press Start 2P', monospace; font-size: 8px; color: #fff; background: rgba(12,22,90,.85); padding: 4px 6px; }
+        .cb-cannon { position: absolute; left: 10%; bottom: 14%; width: 46px; height: 18px; background: #3d424e; border-radius: 4px 9px 9px 4px; transform: rotate(-32deg); transform-origin: left center; box-shadow: inset 0 -4px 0 #23262e; }
+        .cb-man { position: absolute; left: 16%; bottom: 30%; width: 10px; height: 10px; border-radius: 50%; background: #d63a2c; box-shadow: 0 0 0 2px #f4f1e8; animation: cbFly 2.6s infinite; }
+        @keyframes cbFly { 0% { transform: translate(0,0); opacity: 0; } 8% { opacity: 1; } 50% { transform: translate(95px,-62px); } 85% { transform: translate(178px,-24px); opacity: 1; } 100% { transform: translate(178px,-24px); opacity: 0; } }
         .cabinet-soon .cabinet-body { opacity: 0.45; }
         .cabinet-soon .cabinet-marquee { background: linear-gradient(90deg, #1a0030, #2a0050, #1a0030); border-bottom: 2px solid rgba(123,47,190,0.5); }
         .cabinet-soon .cabinet-marquee-text { color: rgba(255,255,255,0.25); }
@@ -1135,6 +1169,60 @@
                 <div class="cabinet-footer">
                     <span class="play-btn">PLAY NOW</span>
                     <span class="cabinet-world">2 WORD BANKS</span>
+                </div>
+            </div>
+        </a>
+
+        <!-- FLYER² -->
+        <a href="./flyer-squared/index.html" class="cabinet cabinet-pilot">
+            <div class="cabinet-glow"></div>
+            <div class="cabinet-body">
+                <div class="cabinet-marquee"><div class="cabinet-marquee-text">✈ FLYER<sup>2</sup> ✈</div></div>
+                <div class="cabinet-screen">
+                    <div class="pl-screen">
+                        <div class="pl-ring circ"></div><div class="pl-ring sq"></div><div class="pl-ring tri"></div>
+                        <div class="pl-plane">✈</div>
+                    </div>
+                </div>
+                <div class="cabinet-info">
+                    <div class="cabinet-name">FLYER<sup>2</sup></div>
+                    <div class="cabinet-desc">Fly a biplane through the gate with the right area. Three licences, each over a new world: farmland, tropical sea and a sunset canyon. Earn all three to unlock the neon night flight.</div>
+                    <div class="cabinet-tags">
+                        <span class="tag tag-a">1 PLAYER</span>
+                        <span class="tag tag-b">AREA</span>
+                    </div>
+                </div>
+                <div class="cabinet-footer">
+                    <span class="play-btn">PLAY NOW</span>
+                    <span class="cabinet-world">3 LICENCES</span>
+                </div>
+            </div>
+        </a>
+
+        <!-- MX + CANNON -->
+        <a href="./mx-plus-cannon/index.html" class="cabinet cabinet-cannon">
+            <div class="cabinet-glow"></div>
+            <div class="cabinet-body">
+                <div class="cabinet-marquee"><div class="cabinet-marquee-text">◎ MX + CANNON ◎</div></div>
+                <div class="cabinet-screen">
+                    <div class="cb-screen">
+                        <div class="cb-label">y = 2x + 1</div>
+                        <div class="cb-target"></div>
+                        <div class="cb-cannon"></div>
+                        <div class="cb-man"></div>
+                    </div>
+                </div>
+                <div class="cabinet-info">
+                    <div class="cabinet-name">MX + CANNON</div>
+                    <div class="cabinet-desc">Aim the cannon at the coordinate that sits on the line, then steer the human cannonball onto the bullseye. Balloons, high-jump bars, moving trucks and plenty of splashes.</div>
+                    <div class="cabinet-tags">
+                        <span class="tag tag-a">1 PLAYER</span>
+                        <span class="tag tag-b">LINEAR GRAPHS</span>
+                    </div>
+                </div>
+                <div class="cabinet-footer">
+                    <span class="play-btn">PLAY NOW</span>
+                    <span class="cabinet-world">8 STAGES</span>
                 </div>
             </div>
         </a>
