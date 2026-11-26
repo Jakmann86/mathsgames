@@ -696,14 +696,21 @@
         .cabinet-pilot sup { font-size: .6em; vertical-align: .7em; }
         .cabinet-pilot .tag-a { background: rgba(255,207,46,0.15); color: #ffcf2e; }
         .cabinet-pilot .tag-b { background: rgba(143,202,255,0.15); color: #8fcaff; }
-        .pl-screen { position: absolute; inset: 0; overflow: hidden; background: linear-gradient(#2f6ad8, #73aaf0 52%, #bfe0ff 58%, #73c24c 58%, #4f9637); }
-        .pl-ring { position: absolute; top: 34%; width: 34px; height: 34px; border: 4px solid #ffcf2e; box-shadow: 0 0 0 2px #3a2800; animation: plRing 2.4s linear infinite; }
-        .pl-ring.circ { border-radius: 50%; left: 22%; }
-        .pl-ring.sq { left: 46%; animation-delay: .8s; }
-        .pl-ring.tri { left: 70%; border: none; box-shadow: none; width: 0; height: 0; border-left: 20px solid transparent; border-right: 20px solid transparent; border-bottom: 34px solid #ffcf2e; animation-delay: 1.6s; }
-        @keyframes plRing { 0% { transform: scale(.35); opacity: 0; } 20% { opacity: 1; } 100% { transform: scale(1.6) translateY(10px); opacity: 0; } }
-        .pl-plane { position: absolute; left: 50%; bottom: 14%; font-size: 30px; color: #d63a2c; transform: translateX(-50%); animation: plBank 3s ease-in-out infinite; filter: drop-shadow(0 3px 0 rgba(0,0,0,.3)); }
-        @keyframes plBank { 0%,100% { transform: translateX(-90%) rotate(-8deg); } 50% { transform: translateX(-10%) rotate(8deg); } }
+        .pl-screen { position: absolute; inset: 0; overflow: hidden; background: #5fae3e; }
+        .pl-svg, .cb-svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+        .pl-q, .cb-q { font-family: 'Press Start 2P', monospace; font-size: 6px; fill: #fff; text-anchor: middle; }
+        .pl-num { font-family: 'Press Start 2P', monospace; font-size: 5px; fill: #fff; text-anchor: middle; paint-order: stroke; stroke: #0a1450; stroke-width: 1.6px; }
+        .pl-dash { animation: plDash .5s linear infinite; }
+        @keyframes plDash { to { stroke-dashoffset: -8; } }
+        .pl-gate { transform-box: view-box; }
+        .pl-gate.g1 { animation: plG1 3.4s linear infinite; } .pl-gate.g2 { animation: plG2 3.4s linear infinite; } .pl-gate.g3 { animation: plG3 3.4s linear infinite; }
+        @keyframes plG1 { 0% { transform: translate(70px,63px) scale(.45); opacity: 0; } 10% { opacity: 1; } 75% { transform: translate(36px,72px) scale(1.7); } 92% { transform: translate(20px,78px) scale(2.6); opacity: 1; } 100% { transform: translate(16px,80px) scale(2.8); opacity: 0; } }
+        @keyframes plG2 { 0% { transform: translate(80px,62px) scale(.45); opacity: 0; } 10% { opacity: 1; } 75% { transform: translate(80px,70px) scale(1.7); } 92% { transform: translate(80px,74px) scale(2.6); opacity: 1; } 100% { transform: translate(80px,76px) scale(2.8); opacity: 0; } }
+        @keyframes plG3 { 0% { transform: translate(90px,63px) scale(.45); opacity: 0; } 10% { opacity: 1; } 75% { transform: translate(124px,72px) scale(1.7); } 92% { transform: translate(140px,78px) scale(2.6); opacity: 1; } 100% { transform: translate(144px,80px) scale(2.8); opacity: 0; } }
+        .pl-plane { animation: plFly 3.4s ease-in-out infinite; }
+        @keyframes plFly { 0%,100% { transform: translate(70px,100px) rotate(-7deg); } 40% { transform: translate(86px,97px) rotate(6deg); } 70%,92% { transform: translate(80px,95px) rotate(0); } }
+        .pl-prop { animation: plProp .12s steps(1) infinite; }
+        @keyframes plProp { 50% { transform: translateX(6px); } }
 
         /* ─── MX + CANNON ─── */
         .cabinet-cannon .cabinet-glow { background: linear-gradient(135deg, #ff5a3c, #ffd23f); }
@@ -713,13 +720,13 @@
         .cabinet-cannon .play-btn { background: linear-gradient(135deg, #ff5a3c, #ffd23f); color: #2a0d06; }
         .cabinet-cannon .tag-a { background: rgba(255,210,63,0.15); color: #ffd23f; }
         .cabinet-cannon .tag-b { background: rgba(255,90,60,0.15); color: #ff8a70; }
-        .cb-screen { position: absolute; inset: 0; overflow: hidden; background: linear-gradient(#2f6ad8, #73aaf0 55%, #bfe0ff 62%, #73c24c 62%, #4f9637); }
-        .cb-target { position: absolute; right: 14%; top: 26%; width: 54px; height: 54px; border-radius: 50%; background: radial-gradient(circle, #ffcf2e 0 18%, #d8342b 18% 36%, #f4f1e8 36% 54%, #d8342b 54% 72%, #f4f1e8 72%); box-shadow: 0 0 0 3px #22180c; }
-        .cb-target::after { content: ''; position: absolute; left: 50%; top: 100%; width: 4px; height: 40px; margin-left: -2px; background: #5a3d22; }
-        .cb-label { position: absolute; right: 9%; top: 9%; font-family: 'Press Start 2P', monospace; font-size: 8px; color: #fff; background: rgba(12,22,90,.85); padding: 4px 6px; }
-        .cb-cannon { position: absolute; left: 10%; bottom: 14%; width: 46px; height: 18px; background: #3d424e; border-radius: 4px 9px 9px 4px; transform: rotate(-32deg); transform-origin: left center; box-shadow: inset 0 -4px 0 #23262e; }
-        .cb-man { position: absolute; left: 16%; bottom: 30%; width: 10px; height: 10px; border-radius: 50%; background: #d63a2c; box-shadow: 0 0 0 2px #f4f1e8; animation: cbFly 2.6s infinite; }
-        @keyframes cbFly { 0% { transform: translate(0,0); opacity: 0; } 8% { opacity: 1; } 50% { transform: translate(95px,-62px); } 85% { transform: translate(178px,-24px); opacity: 1; } 100% { transform: translate(178px,-24px); opacity: 0; } }
+        .cb-screen { position: absolute; inset: 0; overflow: hidden; background: #5fae3e; }
+        .cb-lab { font-family: 'Press Start 2P', monospace; font-size: 4.2px; fill: #fff; text-anchor: middle; }
+        .cb-q { font-size: 6px; fill: #ffcf2e; }
+        .cb-bull { font-family: 'Press Start 2P', monospace; font-size: 6px; fill: #ffd23f; text-anchor: middle; paint-order: stroke; stroke: #0a1450; stroke-width: 2px; opacity: 0; animation: cbBull 3s steps(1) infinite; }
+        @keyframes cbBull { 0%,77% { opacity: 0; } 78%,98% { opacity: 1; } 100% { opacity: 0; } }
+        .cb-balloon { animation: cbBob 1.4s ease-in-out infinite; }
+        @keyframes cbBob { 50% { transform: translateY(-2px); } }
         .cabinet-soon .cabinet-body { opacity: 0.45; }
         .cabinet-soon .cabinet-marquee { background: linear-gradient(90deg, #1a0030, #2a0050, #1a0030); border-bottom: 2px solid rgba(123,47,190,0.5); }
         .cabinet-soon .cabinet-marquee-text { color: rgba(255,255,255,0.25); }
@@ -1180,8 +1187,40 @@
                 <div class="cabinet-marquee"><div class="cabinet-marquee-text">✈ FLYER<sup>2</sup> ✈</div></div>
                 <div class="cabinet-screen">
                     <div class="pl-screen">
-                        <div class="pl-ring circ"></div><div class="pl-ring sq"></div><div class="pl-ring tri"></div>
-                        <div class="pl-plane">✈</div>
+                        <svg class="pl-svg" viewBox="0 0 160 120" preserveAspectRatio="xMidYMid slice" shape-rendering="crispEdges" aria-hidden="true">
+                            <defs>
+                                <linearGradient id="plSky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2f6ad8"/><stop offset=".7" stop-color="#73aaf0"/><stop offset="1" stop-color="#bfe0ff"/></linearGradient>
+                            </defs>
+                            <rect width="160" height="58" fill="url(#plSky)"/>
+                            <g fill="#fff"><rect x="14" y="16" width="26" height="5"/><rect x="18" y="12" width="12" height="4"/><rect x="112" y="22" width="30" height="5"/><rect x="118" y="18" width="14" height="4"/></g>
+                            <g fill="#d6e6ff"><rect x="16" y="21" width="22" height="2"/><rect x="114" y="27" width="26" height="2"/></g>
+                            <path d="M0 58 L0 52 Q20 46 40 52 Q60 56 80 50 Q104 44 124 52 Q144 56 160 50 L160 58Z" fill="#a6cbef"/>
+                            <rect y="58" width="160" height="62" fill="#5fae3e"/>
+                            <path d="M80 58 L0 70 L0 84 Z" fill="#9fd05a"/><path d="M80 58 L0 96 L0 120 L22 120 Z" fill="#73c24c"/>
+                            <path d="M80 58 L160 66 L160 80 Z" fill="#d9c65e"/><path d="M80 58 L160 92 L160 120 L132 120 Z" fill="#4f9637"/>
+                            <path d="M80 58 L56 120 L104 120 Z" fill="#88c95c"/>
+                            <path d="M80 58 L74 120 L86 120 Z" fill="#d8c08a"/>
+                            <line class="pl-dash" x1="80" y1="58" x2="80" y2="120" stroke="#fff3c4" stroke-width="1.4" stroke-dasharray="3 5"/>
+                            <g stroke="#2f6a2a" stroke-width=".8"><line x1="80" y1="58" x2="0" y2="76"/><line x1="80" y1="58" x2="160" y2="72"/><line x1="80" y1="58" x2="30" y2="120"/><line x1="80" y1="58" x2="130" y2="120"/></g>
+                            <g class="pl-gates">
+                                <g class="pl-gate g1"><circle cx="0" cy="0" r="9" fill="rgba(255,255,255,.12)" stroke="#3a2800" stroke-width="3.4"/><circle r="9" fill="none" stroke="#ffcf2e" stroke-width="2"/><text y="2.2" class="pl-num">9π</text></g>
+                                <g class="pl-gate g2"><rect x="-9" y="-9" width="18" height="18" fill="rgba(255,255,255,.12)" stroke="#3a2800" stroke-width="3.4"/><rect x="-9" y="-9" width="18" height="18" fill="none" stroke="#ffcf2e" stroke-width="2"/><text y="2.2" class="pl-num">36</text></g>
+                                <g class="pl-gate g3"><path d="M0 -10 L10 8 L-10 8Z" fill="rgba(255,255,255,.12)" stroke="#3a2800" stroke-width="3.4" stroke-linejoin="round"/><path d="M0 -10 L10 8 L-10 8Z" fill="none" stroke="#ffcf2e" stroke-width="2" stroke-linejoin="round"/><text y="4.5" class="pl-num">24</text></g>
+                            </g>
+                            <g class="pl-plane">
+                                <rect x="-1" y="-12" width="2" height="2" fill="#555" class="pl-prop"/>
+                                <rect x="-26" y="-8" width="52" height="4" fill="#a8966a"/><rect x="-26" y="-8" width="52" height="3" fill="#f4ecd2"/>
+                                <rect x="-28" y="3" width="56" height="5" fill="#a8966a"/><rect x="-28" y="3" width="56" height="3" fill="#f4ecd2"/>
+                                <rect x="-24" y="-7" width="5" height="2" fill="#d63a2c"/><rect x="19" y="-7" width="5" height="2" fill="#d63a2c"/><rect x="-26" y="4" width="5" height="2" fill="#d63a2c"/><rect x="21" y="4" width="5" height="2" fill="#d63a2c"/>
+                                <rect x="-17" y="-4" width="2" height="7" fill="#1d1d2e"/><rect x="15" y="-4" width="2" height="7" fill="#1d1d2e"/>
+                                <rect x="-6" y="-4" width="12" height="15" fill="#9a2219"/><rect x="-5" y="-4" width="10" height="13" fill="#d63a2c"/>
+                                <rect x="-3" y="-9" width="6" height="6" fill="#6b3e1f"/><rect x="-3" y="-7" width="6" height="1" fill="#e8eef8"/>
+                                <rect x="-13" y="10" width="26" height="4" fill="#9a2219"/><rect x="-13" y="10" width="26" height="2" fill="#d63a2c"/>
+                                <rect x="-1" y="2" width="3" height="12" fill="#9a2219"/>
+                            </g>
+                            <rect x="20" y="3" width="120" height="13" rx="1" fill="rgba(12,24,96,.88)" stroke="#fff" stroke-width=".8"/>
+                            <text x="80" y="12" class="pl-q">SQUARE, SIDE <tspan fill="#ffcf2e">6</tspan></text>
+                        </svg>
                     </div>
                 </div>
                 <div class="cabinet-info">
@@ -1206,10 +1245,45 @@
                 <div class="cabinet-marquee"><div class="cabinet-marquee-text">◎ MX + CANNON ◎</div></div>
                 <div class="cabinet-screen">
                     <div class="cb-screen">
-                        <div class="cb-label">y = 2x + 1</div>
-                        <div class="cb-target"></div>
-                        <div class="cb-cannon"></div>
-                        <div class="cb-man"></div>
+                        <svg class="cb-svg" viewBox="0 0 160 120" preserveAspectRatio="xMidYMid slice" shape-rendering="crispEdges" aria-hidden="true">
+                            <defs>
+                                <linearGradient id="cbSky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2f6ad8"/><stop offset=".7" stop-color="#73aaf0"/><stop offset="1" stop-color="#bfe0ff"/></linearGradient>
+                                <path id="cbArc" d="M30 92 Q 76 -8 126 50"/>
+                            </defs>
+                            <rect width="160" height="78" fill="url(#cbSky)"/>
+                            <g fill="#fff"><rect x="54" y="14" width="24" height="5"/><rect x="58" y="10" width="12" height="4"/><rect x="128" y="8" width="22" height="4"/></g>
+                            <path d="M0 78 L0 70 Q30 62 60 70 Q90 76 120 66 Q140 62 160 68 L160 78Z" fill="#93bde4"/>
+                            <rect y="78" width="160" height="42" fill="#5fae3e"/>
+                            <rect y="78" width="160" height="5" fill="#73c24c"/><rect y="90" width="160" height="6" fill="#4f9637"/><rect y="104" width="160" height="7" fill="#9fd05a"/>
+                            <ellipse cx="128" cy="86" rx="18" ry="4" fill="#3a7fd6"/><ellipse cx="128" cy="86" rx="18" ry="4" fill="none" stroke="#7cbcf2"/>
+                            <g class="cb-board-small"><rect x="98" y="58" width="2" height="24" fill="#5a3d22"/><circle cx="99" cy="56" r="6" fill="#f4f1e8" stroke="#22180c"/><circle cx="99" cy="56" r="4" fill="#d8342b"/><circle cx="99" cy="56" r="1.6" fill="#ffcf2e"/></g>
+                            <rect x="86" y="42" width="26" height="8" fill="rgba(12,22,90,.88)"/><text x="99" y="48.2" class="cb-lab">(3, 6)</text>
+                            <g><rect x="74" y="44" width="2" height="40" fill="#f4f1e8"/><rect x="74" y="48" width="2" height="5" fill="#d8342b"/><rect x="74" y="60" width="2" height="5" fill="#d8342b"/><rect x="74" y="72" width="2" height="5" fill="#d8342b"/>
+                               <rect x="44" y="40" width="2" height="44" fill="#f4f1e8"/><rect x="44" y="44" width="2" height="5" fill="#d8342b"/><rect x="44" y="56" width="2" height="5" fill="#d8342b"/><rect x="44" y="68" width="2" height="5" fill="#d8342b"/>
+                               <line x1="45" y1="41" x2="75" y2="45" stroke="#1d1d2e" stroke-width="2"/><line x1="45" y1="41" x2="75" y2="45" stroke="#ffd23f" stroke-width="2" stroke-dasharray="3 3"/></g>
+                            <g class="cb-balloon"><line x1="62" y1="24" x2="62" y2="34" stroke="#eee" stroke-width=".6"/><ellipse cx="62" cy="20" rx="5" ry="6" fill="#ff4f7a"/><rect x="59" y="16" width="1.5" height="3" fill="rgba(255,255,255,.6)"/></g>
+                            <use href="#cbArc" fill="none" stroke="#fff" stroke-width=".9" stroke-dasharray="2 3" opacity=".75"/>
+                            <g class="cb-board"><rect x="125" y="58" width="3" height="28" fill="#6b4423"/><rect x="118" y="84" width="17" height="3" fill="#8a5a30"/>
+                               <circle cx="126.5" cy="50" r="11" fill="#22180c"/><circle cx="126.5" cy="50" r="10" fill="#f4f1e8"/><circle cx="126.5" cy="50" r="8" fill="#d8342b"/><circle cx="126.5" cy="50" r="6" fill="#f4f1e8"/><circle cx="126.5" cy="50" r="4" fill="#d8342b"/><circle cx="126.5" cy="50" r="2.2" fill="#ffcf2e"/></g>
+                            <rect x="113" y="31" width="28" height="8" fill="rgba(12,22,90,.88)"/><text x="127" y="37.2" class="cb-lab">(2, 5)</text>
+                            <g class="cb-cannon"><g transform="translate(26 94) rotate(-52)"><rect x="0" y="-5" width="22" height="10" fill="#3d424e"/><rect x="0" y="-5" width="22" height="3" fill="#5a6070"/><rect x="20" y="-6" width="4" height="12" fill="#23262e"/></g>
+                               <circle cx="24" cy="100" r="7" fill="#6b3e1f"/><circle cx="24" cy="100" r="2.5" fill="#3a2210"/></g>
+                            <g class="cb-man">
+                                <animateMotion dur="3s" repeatCount="indefinite" keyPoints="0;0;1;1" keyTimes="0;.12;.78;1" calcMode="linear"><mpath href="#cbArc"/></animateMotion>
+                                <g transform="translate(-6 -5)">
+                                    <rect x="0" y="0" width="1" height="1" fill="#ffcf2e"/><rect x="11" y="0" width="1" height="1" fill="#ffcf2e"/>
+                                    <rect x="1" y="1" width="1" height="1" fill="#f4f1e8"/><rect x="10" y="1" width="1" height="1" fill="#f4f1e8"/>
+                                    <rect x="4" y="1" width="4" height="3" fill="#d63a2c"/><rect x="5" y="2" width="2" height="1" fill="#fff"/>
+                                    <rect x="2" y="2" width="1" height="1" fill="#f4f1e8"/><rect x="9" y="2" width="1" height="1" fill="#f4f1e8"/>
+                                    <rect x="3" y="3" width="6" height="1" fill="#f4f1e8"/><rect x="4" y="4" width="4" height="3" fill="#e2dcc8"/><rect x="5" y="4" width="2" height="1" fill="#d63a2c"/>
+                                    <rect x="3" y="7" width="2" height="1" fill="#e2dcc8"/><rect x="7" y="7" width="2" height="1" fill="#e2dcc8"/>
+                                    <rect x="2" y="8" width="2" height="1" fill="#1d1d2e"/><rect x="8" y="8" width="2" height="1" fill="#1d1d2e"/>
+                                </g>
+                            </g>
+                            <text x="126" y="72" class="cb-bull">BULLSEYE!</text>
+                            <rect x="6" y="3" width="62" height="12" fill="rgba(12,22,90,.9)" stroke="#fff" stroke-width=".8"/>
+                            <text x="37" y="11.4" class="cb-q">y = 2x + 1</text>
+                        </svg>
                     </div>
                 </div>
                 <div class="cabinet-info">
